@@ -33,6 +33,15 @@ desired.
 Another change with this version is that the CTP library code will also be distributed
 with SIMC. 
 
+
+Finally - it's imortant to note that the input file muxt also change. Since the variable names
+are actually used in the input file, and the syntax for those names has changed, the variables
+must be renamed. I've written a script (convert_inputfile.sh) that brute-force replaces each variable.
+Use at your own risk.
+
+
+
+
 DJG Summer/Fall 2008
 
 Some notes on conversion to gfortran (fortran 90) (not complete)

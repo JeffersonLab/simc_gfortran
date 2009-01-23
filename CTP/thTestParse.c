@@ -16,8 +16,8 @@
  *
  * Revision History:
  *   $Log: thTestParse.c,v $
- *   Revision 1.1  2009/01/23 13:34:01  gaskelld
- *   Initial revision
+ *   Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *   initial import
  *
  *   Revision 1.4.22.1  2008/09/25 00:54:05  jones
  *   Updated for running on Fedora 8 with gfortran

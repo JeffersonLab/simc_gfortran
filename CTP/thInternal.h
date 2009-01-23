@@ -16,8 +16,8 @@
  *
  * Revision History:
  *   $Log: thInternal.h,v $
- *   Revision 1.1  2009/01/23 13:34:01  gaskelld
- *   Initial revision
+ *   Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *   initial import
  *
  *   Revision 1.3  2004/07/08 20:06:09  saw
  *   Always have CTP Tree routines (perhaps dummy) available

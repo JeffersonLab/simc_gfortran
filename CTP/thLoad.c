@@ -17,8 +17,8 @@
  *
  * Revision History:
  *   $Log: thLoad.c,v $
- *   Revision 1.1  2009/01/23 13:34:01  gaskelld
- *   Initial revision
+ *   Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *   initial import
  *
  *   Revision 1.5  2004/07/13 15:04:53  saw
  *   Get count of groups on begin line correct when there are other attributes

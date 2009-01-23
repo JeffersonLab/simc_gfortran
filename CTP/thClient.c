@@ -19,8 +19,8 @@
  *
  * Revision History:
  *  $Log: thClient.c,v $
- *  Revision 1.1  2009/01/23 13:34:01  gaskelld
- *  Initial revision
+ *  Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *  initial import
  *
  *  Revision 1.5  2003/02/21 20:55:24  saw
  *  Clean up some types and casts to reduce compiler warnings.

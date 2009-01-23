@@ -3,8 +3,8 @@
 //    C++ wrapper routines to interface between CTP and Root libraries
 //
 // $Log: thRootStuff.cpp,v $
-// Revision 1.1  2009/01/23 13:34:01  gaskelld
-// Initial revision
+// Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+// initial import
 //
 // Revision 1.3  2005/02/22 16:25:51  saw
 // Make sure next pointer is zeroed in rootfilelist

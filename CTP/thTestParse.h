@@ -1,8 +1,8 @@
 /*
  * Revision History:
  * $Log: thTestParse.h,v $
- * Revision 1.1  2009/01/23 13:34:01  gaskelld
- * Initial revision
+ * Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ * initial import
  *
  * Revision 1.1  1998/12/07 22:11:13  saw
  * Initial setup

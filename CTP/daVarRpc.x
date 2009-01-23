@@ -16,8 +16,8 @@
  *
  * Revision History:
  *   $Log: daVarRpc.x,v $
- *   Revision 1.1  2009/01/23 13:34:01  gaskelld
- *   Initial revision
+ *   Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *   initial import
  *
  *   Revision 1.2  1999/11/04 20:34:04  saw
  *   Alpha compatibility.

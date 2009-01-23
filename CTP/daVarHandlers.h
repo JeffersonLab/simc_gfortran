@@ -16,8 +16,8 @@
  *
  * Revision History:
  *  $Log: daVarHandlers.h,v $
- *  Revision 1.1  2009/01/23 13:34:01  gaskelld
- *  Initial revision
+ *  Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *  initial import
  *
  *  Revision 1.2  1999/11/04 20:34:04  saw
  *  Alpha compatibility.
@@ -32,8 +32,8 @@
  *
  *	  Revision 1.2  1993/05/11  17:34:58  saw
  *	  Fix $Log: daVarHandlers.h,v $
- *	  Fix Revision 1.1  2009/01/23 13:34:01  gaskelld
- *	  Fix Initial revision
+ *	  Fix Revision 1.1.1.1  2009/01/23 13:34:01  gaskelld
+ *	  Fix initial import
  *	  Fix
  *	  Fix Revision 1.2  1999/11/04 20:34:04  saw
  *	  Fix Alpha compatibility.

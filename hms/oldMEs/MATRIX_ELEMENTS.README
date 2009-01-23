@@ -1,0 +1,65 @@
+From POTTERVELD@ANLMEP.PHY.ANL.GOV Wed May  5 17:14:54 1999
+To: johna@ANLMEP.PHY.ANL.GOV
+Subject: HMS-100 MC optics files
+
+The HMS optics files are:
+
+hms100-monte.fox    Calculates forward and reconstruction coefficients
+                    for use in my MC. Note that the format has changed
+                    (there is a more descriptive header before each set)
+                    and also the aperture positions may be different from
+                    what SIMC expects.
+
+forward_cosy_hms100.dat
+                    Forward coefficients calculated by hms100-monte.fox
+                    These are the standard forward transformations I use.
+
+recon_cosycalc_hms100.dat
+                    Recon coefficients calculated by hms100-monte.fox
+                    Reconstruction with these has divergent behavior
+                    away from the origin, but still within the nominal
+                    acceptance. I only use these as input for refitting.
+
+hms100-monte-v1.fox Calculates forward and reconstruction coefficients.
+                    Very similar to hms100-monte.fox, except that the
+                    user isn't asked any questions, and the apertures are
+                    located at the "standard" (acording to my understanding)
+                    positions. But you better check against SIMC to make sure.
+                    Also, I think the output format is more compatible with
+                    what SIMC expects. The recon coeff is calculates are
+                    identical to those from hms100-monte.fox
+
+recon_refit_hms100.dat
+                    These are recon coefficients produced by refitting
+                    forward-propagated MC events. Only coefficients that
+                    were non-zero in the COSY calculation are allowed to
+                    vary. The input phase space was defined by:
+                       delta = +/- 10%
+                       yptar = +/- .080
+                       xptar = +/- .100
+                       xbeam = +/- 0.25 cm (flat density)
+                       tgt length = 5.0 cm
+                       spectrometer at 90 degrees
+                       pion collimator
+                       magnet and beampipe apertures
+                    Some of these limits were tuned by trial and error.
+                    I found that if I made them too big, then other
+                    distortions crept in. These are my standard recon
+                    coefficients for monte-carlo work.
+
+hms100-monte-decay.fox
+                    Calculates "sectioned" forward transformation coeff's
+                    for the magnets only. These are used by my MC to
+                    implement decay-in-flight. The transformations are now
+                    also explicitly a polynomial in "Z", a curvilinear
+                    coordinate describing the axial position in the magnet.
+                    Because of technical difficulties arising from effective
+                    magnet lengths for the quads that are both larger and
+                    smaller than the nominal lengths, I ended up moving the
+                    apertures to the ends of the magnetic lengths, instead
+                    of the nominal lengths. For consistency, the aperture
+                    positions used with the non-sectioned (ordinary) coeff's
+                    were moved to the same places.
+
+forward_cosy_section_hms100.dat
+                    The sectioned forward coefficients.

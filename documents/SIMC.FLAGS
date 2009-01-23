@@ -1,0 +1,239 @@
+THIS IS AN OLD VERSION FROM RICK, DESCRIBING THE SIMC FLAGS.  I WILL UPDATE
+IT WHEN I GET A CHANCE. -JOHN
+
+---------
+***	SIMC Database Information
+***	R. M. Mohring
+***	21-Oct-1995
+***	Documentation Version 0.7
+
+***	This document will describe the fields in the database file
+***	necessary to run the SIMC code for scattering off hydrogen.
+
+STRUCTURE OF THE DBFX FILE:
+
+	Each cluster of entries in the dbfx file is sectioned off
+by a header line that looks like "-32767 2 17". These numbers should NOT
+be changed at all. Suffice it to say that the first number identifies
+the cluster, and the second lists how many entries are in the cluster.
+
+	Each line in the dbfx file has a comment associated with it.
+Hopefully, the comments are reasonably self-explanatory. If not, change
+them to whatever you like. The comments are merely there to lessen the 
+risk that the person attempting to run the code will incur permanent 
+brain damage upon themselves from looking at a long list of mysterious
+numbers for too long.
+
+EXPLANATION OF RELEVANT FIELDS:
+
+***	-32767	RESTSW		******************
+
+mc_smear:
+	Determines whether or not the spectrometer montecarlos use
+	multiple scattering in the detector huts.
+		Set to 1 for TRUE, set to 0 for FALSE.
+
+hms_e_flag:
+	Determines if the electron arm is the HMS or the SOS.
+	Note that THE ENTRIES IN THE DATABASE ARE IN TERMS OF 
+	ELECTRON and PROTON arms, NOT in terms of HMS/SOS.
+		Set to 1 implies: HMS gets electrons, SOS gets protons.
+		Set to 0 implies: HMS gets protons, SOS gets electrons.
+
+***	-32766	EXPERIMENT	******************
+
+Ebeam:
+	Beam energy in MeV.
+		Set to 2015 implies a 2.015 GeV beam.
+
+dEbeam:
+	Variation in beam energy in percent.
+		Set to 0.200 implies a 0.2% energy spread (as +/- 0.1%).
+
+EXPER.charge:
+	Total amount of charge incident on the target over the
+	course of the run, in milliCoulombs. This translates directly
+	into the number of incident during the course of the run.
+		Set to 62.7 implies 62.7 mC of charge, or 3.9e17 electrons.
+
+***	-32765	TARGET		******************
+
+target.A, target.Z, target.mass_amu:
+	Target A, Z, and mass (in amu).
+
+target.Arec:
+	This is the A of the recoil nucleus. Set this at something
+	bigger than 999 for hydrogen, since there is no recoil nucleus.
+
+target.rho:
+	Target density in g/cm^3.
+
+target.thick:
+	Target thickness in mg/cm^2.
+
+target.angle:
+	For dealing with slanted solid targets.
+
+target.abundancy:
+	Purity of target in percent.
+
+***	-32764	HIST		******************
+
+Pm.min, Pm.max:
+	Histogramming limits on missing momentum.
+
+Pm.bin, Em.bin:
+	Not used anymore, so just leave them alone.
+
+Em.min, Em.max:
+	histogramming limits on missing energy.
+
+***	-32763	16.MAIN (electron arm!)	  ******************
+
+spec.e.P:
+	Central momentum setting of electron arm in MeV.
+	
+spec.e.th:
+	Angle setting of electron spectrometer in degrees. Note that
+	a positive angle implies beam LEFT looking downstream.
+	(SOS gets positive angle, HMS gets negative angle.)
+
+***	-32762	8.MAIN (proton arm!)  	  ******************
+
+spec.p.P:
+	Central momentum setting of proton arm in MeV.
+	
+spec.p.th:
+	Angle setting of proton spectrometer in degrees. Note that
+	a positive angle implies beam LEFT looking downstream.
+	(SOS gets positive angle, HMS gets negative angle.)
+
+***	-32761	16.SPEC (electron arm)	  ******************
+
+gen.xwid:
+	This sets the transverse spread of the beam in the x direction.
+	This is the full width (in centimeters) of a gaussian centered 
+	around x=0 which is used to determine the x position of the 
+	scattering event at the target. 
+
+gen.ywid:
+	This sets the transverse spread of the beam in the y direction.
+	This is the full width (in centimeters) of a gaussian centered 
+	around y=0 which is used to determine the y position of the 
+	scattering event at the target. 
+
+spec.e.offset.delta, .x, .y, .z, .opl, .inpl:
+	Various offsets for a more precise definition of the electron 
+	spectrometer location relative to the target. Offsets are in cm.
+
+***	-32760	8.SPEC (proton arm)	  ******************
+
+spec.p.offset.delta, .x, .y, .z, .opl, .inpl:
+        Various offsets for a more precise definition of the proton
+	spectrometer location relative to the target. Offsets are in cm.
+
+***	-32759	MISC2INT	******************
+
+use_expon:
+	Leave at zero.
+
+one_tail:
+	This switch determines where the radiative corrections are
+	applied. Define the incident electron as 1, the scattered
+	electron as 2, and the scattered proton as 3. 
+		Setting one_tail to 1.0 performs radiative corrections
+			ONLY on the incident electron.
+		Set to -1.0, it performs radiative corrections on 
+			everything EXCEPT the incident electron (i.e.
+			on both the scattered electron and proton.)
+		Set to  0.0, it does it on all three (e, e', and p).
+	
+	NOTE:	THIS SWITCH DOES NOT TURN ON THE RADIATIVE CORRECTIONS.
+		IT JUST SPECIFIES WHICH PARTICLES WILL RECEIVE THEM.
+		THE "ON/OFF" SWITCH IS IN THE NEXT GROUP ("SIMULATE.")
+
+inttail_mode, intcor_mode:
+	Leave these alone.
+
+***	-32758	SIMULATE	******************
+
+ngen:
+	The number of iterations that determines how long SIMC churns for.
+
+	  If abs(ngen) is greater than zero, the program will generate
+	  events until it achieves ngen SUCCESSES. The number of attempts
+	  will be greater than the number of successes.
+
+	  If abs(ngen) is less than zero, the program will make ngen
+	  ATTEMPTS and then stop. The number of contributing events will
+	  show up in the histograms.
+
+iran:
+	Allows the user to set their own random seed. Leave at zero,
+	and the default is taken.
+
+using_rad:
+	**THIS** is the radiative corrections ON/OFF switch. 
+		Set at ZERO to turn radiative corrections ON.
+		Set at 1 to turn them OFF. 
+	NOTE: remember...ZERO means ON !!! It should be obvious from
+		the histograms, anyway.
+
+dofs, thofs, and phofs:
+	These aren't used anymore, but I haven't yet expunged them.
+
+gen.*.*.*:
+	Generation limits for event generator. Leave at zero.
+	(These can be tweaked to improve efficiency. See a 
+	later version of this manual for details as soon as
+	it comes out.)
+
+spectrometer mode:
+	If you want to run coincidences or single-arms, this switch
+	disables/enables the appropriate spectrometer montecarlos.
+	(i.e. if you want to look at electron singles, the code won't
+	bother to run protons through the proton spectrometer.)
+		Set at  0, both e and p arms enabled.
+		Set at -1, only e arm. (singles)
+		Set at -2, only p arm. (singles)
+
+	IMPORTANT NOTE: To actually run in single arm mode, you
+	must also "open up" the acceptance of the spectrometer
+	you are not using so that events won't get lost at that
+	spectrometer's input. For example, to run electron singles,
+	you should increase the values in "8.SORT (proton arm)"
+	to something like +-50% delta, +-400 mrad in dtheta and phi.
+
+using_Eloss:
+	Toggles whether or not ionization losses in the target are
+	calculated.
+		Set at ZERO of energy loss to be calculated.
+		Set at 1 for energy loss to be ignored.
+
+
+***	-32757	16.SORT (electron arm)	******************
+
+ These are hard cuts defining the spectrometer acceptances!
+
+SPcuts(1).e.delta.min, .max:
+	Min and Max momentum for electron arm, in percent.
+
+SPcuts(1).e.dth.min, .max:
+        Min and Max deviation in theta for electron arm, in mrad.
+
+SPcuts(1).e.ph.min, .max:
+        Min and Max deviation in phi for electron arm, in mrad.
+
+***     -32756  8.SORT (proton arm)  ******************
+
+T hese are hard cuts defining the spectrometer acceptances!
+
+SPcuts(1).p.delta.min, .max:
+        Min and Max momentum for proton arm, in percent.
+
+SPcuts(1).p.dth.min, .max:
+        Min and Max deviation in theta for proton arm, in mrad.
+
+SPcuts(1).p.ph.min, .max:
+        Min and Max deviation in phi for proton arm, in mrad.
+

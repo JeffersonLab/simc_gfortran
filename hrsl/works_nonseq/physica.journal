@@ -1,0 +1,21 @@
+********************************************************************************
+***                                                                          ***
+*** PHYSICA                      VERSION # 2.13               April     1998 ***
+*** Copyright (C) 1992,1993,1994,1995,1996,1997,1998         Joseph L. Chuma ***
+***                           All rights reserved                            ***
+***                                                                          ***
+***  Enter NEWS to get the latest information on new commands and features   ***
+***  Latest news added on April 6, 1998                                      ***
+***  Journal file: physica.journal                                           ***
+***                                                                          ***
+***            UNAUTHORIZED COMMERCIAL USE IS STRICTLY PROHIBITED            ***
+***                                                                          ***
+********************************************************************************
+User: johna   Date: 18-Jun-1901 12:23:12
+ Default graphics hardcopy device (bitmap): HPLASERJET 150 dpi
+ executing initialization file: /disk1/users/johna/.physicarc
+ PHYSICA: =.,16**2
+     invalid decimal point
+ PHYSICA: =0.159**2
+ 0.025281
+ PHYSICA: quit

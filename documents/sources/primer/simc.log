@@ -1,0 +1,377 @@
+This is TeX, Version 3.14159 (C version 6.1) (format=latex 98.4.1)  5 FEB 2001 18:17
+**simc
+(simc.tex
+LaTeX2e <1996/12/01> patch level 1
+Babel <v3.6h> and hyphenation patterns for american, german, loaded.
+(/usr/local/teTeX/texmf/tex/latex/base/latex209.def
+File: latex209.def 1996/05/21 v0.51 Standard LaTeX file
+
+Entering LaTeX 2.09 compatibility mode.
+\footheight=\dimen102
+\@maxsep=\dimen103
+\@dblmaxsep=\dimen104
+\@cla=\count79
+\@clb=\count80
+\mscount=\count81
+(/usr/local/teTeX/texmf/tex/latex/base/tracefnt.sty
+Package: tracefnt 1996/07/26 v3.0i Standard LaTeX package (font tracing)
+\tracingfonts=\count82
+LaTeX Info: Redefining \selectfont on input line 139.
+)
+\symbold=\mathgroup4
+\symsans=\mathgroup5
+\symtypewriter=\mathgroup6
+\symitalic=\mathgroup7
+\symsmallcaps=\mathgroup8
+\symslanted=\mathgroup9
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 306.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 307.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 308.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 314.
+LaTeX Info: Redefining \em on input line 324.
+
+(/usr/local/teTeX/texmf/tex/latex/base/latexsym.sty
+Package: latexsym 1996/11/20 v2.2d Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup10
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 85.
+)
+LaTeX Font Info:    Redeclaring math delimiter \lgroup on input line 388.
+LaTeX Font Info:    Redeclaring math delimiter \rgroup on input line 390.
+LaTeX Font Info:    Redeclaring math delimiter \bracevert on input line 392.
+
+(/usr/local/teTeX/texmf/tex/latex/config/latex209.cfg
+(/usr/local/teTeX/texmf/tex/latex/tools/rawfonts.sty
+Compatibility mode: package `' requested, but `rawfonts' provided.
+Package: rawfonts 1994/05/08 Low-level LaTeX 2.09 font compatibility
+
+(/usr/local/teTeX/texmf/tex/latex/tools/somedefs.sty
+Package: somedefs 1994/06/01 Toolkit for optional definitions
+)
+LaTeX Font Info:    Try loading font information for U+lasy on input line 36.
+
+(/usr/local/teTeX/texmf/tex/latex/base/ulasy.fd
+File: ulasy.fd 1996/11/20 v2.2dLaTeX symbol font definitions
+))))
+(/usr/local/teTeX/texmf/tex/latex/base/article.cls
+Document Class: article 1996/10/31 v1.3u Standard LaTeX document class
+(/usr/local/teTeX/texmf/tex/latex/base/size12.clo
+File: size12.clo 1996/10/31 v1.3u Standard LaTeX file (size option)
+)
+\c@part=\count83
+\c@section=\count84
+\c@subsection=\count85
+\c@subsubsection=\count86
+\c@paragraph=\count87
+\c@subparagraph=\count88
+\c@figure=\count89
+\c@table=\count90
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+Compatibility mode: definition of \rm ignored.
+Compatibility mode: definition of \sf ignored.
+Compatibility mode: definition of \tt ignored.
+Compatibility mode: definition of \bf ignored.
+Compatibility mode: definition of \it ignored.
+Compatibility mode: definition of \sl ignored.
+Compatibility mode: definition of \sc ignored.
+LaTeX Info: Redefining \cal on input line 542.
+LaTeX Info: Redefining \mit on input line 543.
+\bibindent=\dimen105
+)
+(/usr/local/teTeX/texmf/tex/latex/graphics/epsfig.sty
+Package: epsfig 1996/10/04 v1.7 (e)psfig emulation (SPQR)
+
+(/usr/local/teTeX/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 1996/10/31 v1.0c Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/teTeX/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 1995/09/21 v1.09 key=value parser (DPC)
+)
+(/usr/local/teTeX/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 1996/10/31 v1.0c Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/teTeX/texmf/tex/latex/graphics/trig.sty
+Package: trig 1994/10/16 v1.08 sin cos tan (DPC)
+)
+(/usr/local/teTeX/texmf/tex/latex/config/graphics.cfg)
+Package graphics Info: Driver file: dvips.def on input line 82.
+
+(/usr/local/teTeX/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1996/12/12 v3.0d Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen106
+\Gin@req@width=\dimen107
+)
+\epsfxsize=\dimen108
+\epsfysize=\dimen109
+) (simc.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 2.
+LaTeX Font Info:    ... okay on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 22.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 22.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 50.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 50.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 50.
+ [1
+
+]
+Overfull \hbox (52.65042pt too wide) in paragraph at lines 75--85
+\OT1/cmr/m/n/12 First you need to copy over the SIMC dis-tri-bu-tion. The cur-r
+ent ver-sion is in SIMC[]120899.tar.gz,
+ []
+
+[2] [3] [4] [5] [6] [7] [8]
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 466--466
+[]  \OT1/cmtt/m/n/12 ngen = 2000                   ;  POS: # of successes; NEG:
+ # of tries[] 
+ []
+
+
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 466--466
+[]  \OT1/cmtt/m/n/12 doing_piplus = 1              ;  pi+ or pi- production (ON
+E = TRUE = pi+)[] 
+ []
+
+[9]
+Overfull \hbox (10.98022pt too wide) in paragraph at lines 484--484
+[]  \OT1/cmtt/m/n/12 hms_e_flag = 0                ;  e- in HMS if set to ONE (
+SOS if ZERO)[] 
+ []
+
+
+Overfull \hbox (60.38025pt too wide) in paragraph at lines 518--518
+[]  \OT1/cmtt/m/n/12 targ.mrec_amu = 0.            ;  recoil mass in amu (eep=A
+-1 system,pion=A-2 )[] 
+ []
+
+
+Overfull \hbox (35.68024pt too wide) in paragraph at lines 518--518
+[]  \OT1/cmtt/m/n/12 targ.angle = 0.               ;  target angle (for solid t
+arget) (degrees)[] 
+ []
+
+
+Overfull \hbox (23.33023pt too wide) in paragraph at lines 518--518
+[]  \OT1/cmtt/m/n/12 targ.can = 1                  ;  1=beer can (fpi), 2=puddi
+ng can (nucpi)[] 
+ []
+
+[10]
+Overfull \hbox (17.15523pt too wide) in paragraph at lines 534--534
+[]  \OT1/cmtt/m/n/12 debug(3) = 0                  ;  spit out values (init. an
+d main loop).[] 
+ []
+
+
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 534--534
+[]  \OT1/cmtt/m/n/12 debug(4) = 0                  ;  mostly comp_ev, gen_rad d
+iagnostics.[] 
+ []
+
+
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 574--574
+[]  \OT1/cmtt/m/n/12 SPedge.e.delta.min = -22.0    ;  delta min (%) (SPECTROMET
+ER ACCEPTANCE!)[] 
+ []
+
+[11]
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 593--593
+[]  \OT1/cmtt/m/n/12 gen.xwid = 0.008868           ;  beam width - one sigma (c
+m)  (89microns)[] 
+ []
+
+
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 593--593
+[]  \OT1/cmtt/m/n/12 gen.ywid = 0.004235           ;  beam width - one sigma (c
+m)  (42microns)[] 
+ []
+
+
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 593--593
+[]  \OT1/cmtt/m/n/12 targ.fr_pattern = 1.          ;  raster pattern: 1=square,
+ 2=circular[] 
+ []
+
+
+Overfull \hbox (41.85524pt too wide) in paragraph at lines 593--593
+[]  \OT1/cmtt/m/n/12 targ.zoffset = 0.06           ;  target z-offset (cm) z_ta
+r=nominal+zoffset[] 
+ []
+
+
+Overfull \hbox (48.03024pt too wide) in paragraph at lines 620--620
+[]  \OT1/cmtt/m/n/12 spec.e.offset.xptar = 2.62    ;  xptar offset (mr)    !x(y
+)ptar is slope, so[] 
+ []
+
+
+Overfull \hbox (48.03024pt too wide) in paragraph at lines 620--620
+[]  \OT1/cmtt/m/n/12 spec.e.offset.yptar = 0.      ;  yptar offset (mr)    !it'
+s really unitless.[] 
+ []
+
+[12]
+Overfull \hbox (60.38025pt too wide) in paragraph at lines 651--651
+[]  \OT1/cmtt/m/n/12 cuts.Em.max = 200.    ;  Must be wider than cuts in analys
+is(elastic or e,e'p)[] 
+ []
+
+
+Overfull \hbox (10.98022pt too wide) in paragraph at lines 651--651
+[]  \OT1/cmtt/m/n/12 correct_Eloss = 1     ;  ONE = correct reconstructed event
+s for eloss.[] 
+ []
+
+
+Overfull \hbox (78.90526pt too wide) in paragraph at lines 651--651
+[]  \OT1/cmtt/m/n/12 correct_raster = 1    ;  ONE = Reconstruct events using 'r
+aster' matrix elements.[] 
+ []
+
+
+Overfull \hbox (17.15523pt too wide) in paragraph at lines 651--651
+[]  \OT1/cmtt/m/n/12 mc_smear = 1          ;  ONE = target & hut mult scatt AND
+ DC smearing.[] 
+ []
+
+[13]
+Overfull \hbox (23.10367pt too wide) in paragraph at lines 727--727
+[]\OT1/cmr/bx/n/17.28 Appendix C: SIMC Co-or-di-nate Sys-tem and Units. 
+ []
+
+[14]
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! phase_space: Generate electron E,yptar,xptar and hadron yp
+tar,xptar??[] 
+ []
+
+
+Overfull \hbox (54.20525pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! doing_deuterium: fixed Em, generate electron fully and pro
+ton angles, calc Ep[] 
+ []
+
+
+Overfull \hbox (48.03024pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! doing_eep, A>2: generate electron and hadron energy and an
+gles (calc Em/Pm).[] 
+ []
+
+
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 !               E       yptar   xptar   E       yptar   xpta
+r   p_fermi[] 
+ []
+
+[15]
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 !-----------------------------------------------------------
+-----------[] 
+ []
+
+
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 !-----------------------------------------------------------
+-----------[] 
+ []
+
+
+Overfull \hbox (35.68024pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! 2) generate hadron yptar and xptar for all cases except H(
+e,e'p), D(e,e'p)[] 
+ []
+
+
+Overfull \hbox (60.38025pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! After we generate xptar/yptar/energy, we calculate physics
+ angles (theta/phi),[] 
+ []
+
+
+Overfull \hbox (4.80522pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! Note that there are also jacobians associated with some an
+d/or all of[] 
+ []
+
+
+Overfull \hbox (10.98022pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! 1: We generate uniformly in xptar/yptar, not theta/phi.  W
+e define the[] 
+ []
+
+
+Overfull \hbox (35.68024pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! phase space volume (genvol contribution) as the product of
+ the xptar/yptar[] 
+ []
+
+
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! range, and have a jacobian for each event taking into acco
+unt the mapping[] 
+ []
+
+
+Overfull \hbox (23.33023pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! between the solid angle on the unit sphere, and the dxptar
+/dyptar volume[] 
+ []
+
+
+Overfull \hbox (23.33023pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! (the jacobian is 1/cos**3(dtheta), where dtheta is the ang
+le between the[] 
+ []
+
+
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! 2: For the D(e,e'p), we take Em as fixed in order to calcu
+late the proton[] 
+ []
+
+
+Overfull \hbox (17.15523pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! energy.  There is a jacobian ( |dEp'/dEm| ).  It comes fro
+m integrating[] 
+ []
+
+
+Overfull \hbox (29.50523pt too wide) in paragraph at lines 808--808
+[]\OT1/cmtt/m/n/12 ! over the energy conservation delta function: delta(E_D - E
+_p - E_n - Em).[] 
+ []
+
+[16] [17]
+Overfull \hbox (31.39944pt too wide) in paragraph at lines 895--898
+[]\OT1/cmr/m/n/12 -FOR (e,e'p) ONLY: Miss-ing en-ergy and re-coil momentum:$\OM
+L/cmm/m/it/12 E[]; T[]$\OT1/cmr/m/n/12 . $\OML/cmm/m/it/12 T[] \OT1/cmr/m/n/12 
+= []$,
+ []
+
+[18] (simc.aux) ) 
+Here is how much of TeX's memory you used:
+ 876 strings out of 10906
+ 9170 string characters out of 72146
+ 56218 words of memory out of 262141
+ 3723 multiletter control sequences out of 9500
+ 25708 words of font info for 95 fonts, out of 150000 for 255
+ 14 hyphenation exceptions out of 607
+ 34i,6n,21p,307b,281s stack positions out of 300i,40n,60p,3000b,4000s
+
+Output written on simc.dvi (18 pages, 61912 bytes).

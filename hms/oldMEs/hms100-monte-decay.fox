@@ -1,0 +1,240 @@
+{------------------------------------------------------------------------------
+ hms100-monte-decay.fox
+
+ Generate Monte-Carlo SEQUENTIAL forward DECAY matrix elements for HMS-100
+ spectrometer tune. Only transformations within the magnets are considered.
+
+ All forward output matrix elements are in COSY-7 TRANSPORT coordinates.
+
+ Author: D. Potterveld, Argonne National Lab, (under construction)
+
+ Version:  0.0
+
+ Modification History:
+ 
+ ------------------------------------------------------------------------------
+}
+INCLUDE 'COSY' ;
+
+PROCEDURE RUN ;
+
+{=========================== Variable Declarations ===========================}
+
+   VARIABLE Z1C 1 ; VARIABLE L1 1 ; VARIABLE L1E 1 ;
+   VARIABLE Z2C 1 ; VARIABLE L2 1 ; VARIABLE L2E 1 ;
+   VARIABLE Z3C 1 ; VARIABLE L3 1 ; VARIABLE L3E 1 ;
+   VARIABLE ZDI 1 ;
+   VARIABLE DR1 1 ; VARIABLE DR1E 1 ;
+   VARIABLE DR2 1 ; VARIABLE DR2E 1 ;
+   VARIABLE DR3 1 ; VARIABLE DR3E 1 ;
+   VARIABLE DRD 1 ; VARIABLE DRDE 1 ;
+   VARIABLE POSITION 1 ;
+   VARIABLE Q1 1 ; VARIABLE Q2 1 ;VARIABLE Q3 1 ;  {QUAD strengths}
+   VARIABLE Q1MID 1 ; VARIABLE Q2MID 1 ; VARIABLE Q3MID 1 ;
+
+   VARIABLE OBJ 1 ;       { function used in evaluating first order focus }
+   VARIABLE FILE 80 ;     { filename }
+   VARIABLE LINE 80 ;     { dummy for user to answer into }
+   VARIABLE TILT 1 ;      { Focal plane tilt angle }
+   VARIABLE I 1 ;
+   VARIABLE TMP 1 ;
+   VARIABLE SNAME 4 ;     { Spectrometer name}
+   VARIABLE FRMODE 1 ;    { Fringe field mode }
+   VARIABLE MORDER 1 ;    { Maximum order of maps }
+   VARIABLE FORDER 1 ;    { Order of forward maps }
+   VARIABLE RORDER 1 ;    { Order of reconstruction map }
+   VARIABLE RES 1 4 ;     { Resolution array }
+
+{========================== Procedure declarations ===========================}
+
+ { Ask user for input value }
+
+   PROCEDURE ASK VAR PROMPT LL UL ;
+      VAR := 2*ABS(UL) + 1 ;
+      WHILE (VAR<LL)+(VAR>UL) ; WRITE 6 '$'&PROMPT ; READ 5 VAR ;
+      ENDWHILE ; ENDPROCEDURE ;
+
+{=============================================================================}
+
+ { Output forward transformation data at an aperture and update internal maps }
+
+   PROCEDURE APERTURE LABEL PART LENGTH ;
+      WRITE 20 'NAME: '&LABEL ;
+      WRITE 20 'PART: '&SI(PART) ;
+      WRITE 20 'OFFSET: '&SF(POSITION,'(F)')&' (in meters)' ;
+      WRITE 20 'LENGTH: '&SF(LENGTH,'(F)')&' (canonical length in meters)' ;
+      PT 20 ;                                   {Output data}
+      POSITION := POSITION + CONS(SPOS) ;
+      UM ;        {Update position and reset}
+   ENDPROCEDURE ;
+
+{=============================================================================}
+
+ { Compute and output maps for an HMS quadrupole. }
+
+   PROCEDURE HMSQUAD LEFF Q A NAME ;
+
+      write 6 'Working on '&name&'...' ;
+
+{ First map is for a parametric quad body only of length X }
+
+      FR  0 ; MQ (PARA(1)-1) Q A ;                {First part of quad}
+      APERTURE NAME 0 0 ;
+
+{ Second map is for a quad entrance fringe (if needed) followed by
+  a parametric quad body of first order length X }
+
+      IF FRMODE#0 ; FR -1 ; MQ LEFF Q A ; ENDIF ; {Entrance fringe field}
+      FR  0 ; MQ (PARA(1)-1) Q A ;                {First part of quad}
+      APERTURE NAME 1 0 ;
+
+{ Third map is for a parametric quad body of first order length L-X
+  followed by a quad exit fringe (if needed) }
+
+      FR 0 ; MQ (LEFF-(PARA(1)-1)) Q A ;          {Second part of quad}
+      IF FRMODE#0 ; FR -2 ; MQ LEFF Q A ; ENDIF ; {Exit fringe field}
+      APERTURE NAME 2 LEFF ;
+
+      FR FRMODE ; ENDPROCEDURE ;                  {Restore fringe field mode}
+
+{=============================================================================}
+
+ { Compute and output maps for HMS dipole. }
+
+   PROCEDURE HMSDIPOLE R THETA A E1 H1 E2 H2 ;
+      VARIABLE L 1 ; VARIABLE TH 1 ;
+
+      L := 2*PI*R*(THETA/360) ;  {Pathlength of central ray}
+     TH := 360/(2*PI*R) ;        {Angle in degrees for 1 meter path}
+
+      write 6 'Working on dipole...' ;
+
+{ First map is for a dipole body with no fringes or edges }
+
+      write 6 '   Section 0 body ' ;
+      FR 0 ; DI R TH*(PARA(1)-1) A 0 0 0 0 ;
+      write 6 '   <aperture> ' ;
+      APERTURE 'DIPOLE' 0 0 ;
+
+{ Second map is for entrance fringe (if needed) followed by
+  a parametric dipole body of first order pathlength X  with
+  entrance edge parameters only }
+
+{ Don't know why, but this dies if the order is greater than 6
+  when doing fringes }
+
+      IF FRMODE#0 ;
+         CO MIN(FORDER,6) ; UM ;
+         write 6 '   Entrance fringe...' ;
+         FR -1 ; DI R THETA A 0 0 0 0 ;
+      ENDIF ;
+
+      write 6 '   Section 1 body ' ;
+      FR 0 ; DI R TH*(PARA(1)-1) A E1 H1 0 0 ;
+      write 6 '   <aperture> ' ;
+      APERTURE 'DIPOLE' 1 0 ;
+
+{ Third map is for a parametric dipole body of first order length L-X
+  and exit edge parameters only
+  followed by dipole exit fringe (if needed) }
+
+      write 6 '   Section 2 body ' ;
+      DI R THETA-(TH*(PARA(1)-1)) A 0 0 E2 H2 ;
+      IF FRMODE#0 ; 
+         write 6 '   Exit fringe...' ;
+         FR -2 ; DI R THETA A 0 0 0 0 ;
+      ENDIF ; {Fringe field}
+      write 6 '   <aperture> ' ;
+      APERTURE 'DIPOLE' 2 L ;
+
+      CO FORDER ; UM ; FR FRMODE ; ENDPROCEDURE ;   {Restore fringe field mode}
+
+{================================= Main Code =================================}
+
+{ Computation order specifications }
+
+   MORDER := 8 ;                        {Max order for calculations}
+   ASK forder 'Order for maps (1-'&SF(morder,'(i1)')&'): ' 1 morder ;
+   OV forder 3 1 ;                      {Order Value <order><phase dim><#par>}
+
+{ Beam specifications }
+
+   RPE 6000. ;                          {REF PARTICLE <Momentum>}
+
+{ Spectrometer name }
+
+   SNAME := 'HDEC' ;
+
+{ Fringe-field specifications.}
+
+   ASK frmode 'Fringe-field mode (0-3): ' 0 3 ; 
+   FR FRMODE ;
+
+{ Magnet geometry - hms-100 tune}
+
+   Z1C := 2.700 + 0.40 ;     {Center of Q1}
+   Z2C := 5.950 + 0.40 ;     {Center of Q2}
+   Z3C := 9.050 + 0.40 ;     {Center of Q3}
+   ZDI := 11.55 ;            {Entrance of dipole}
+
+   L1  := 1.890 ;            {Physical length of Q1}
+   L2  := 2.155 ;            {Physical length of Q2}
+   L3  := 2.186 ;            {Physical length of Q3}
+
+   L1E := 1.8785 ;             {Effective magnetic length of Q1}
+   L2E := 2.1585 ;             {Effective Magnetic length of Q2}
+   L3E := 2.157 ;              {Effective Magnetic length of Q3}
+
+   DR1  := Z1C - (L1/2) ;                  {Drift from target to Q1 entrance}
+   DR2  := (Z2C - Z1C) - ((L1 + L2)/2) ;   {Drift from Q1 exit to Q2 entrance}
+   DR3  := (Z3C - Z2C) - ((L2 + L3)/2) ;   {Drift from Q2 exit to Q3 entrance}
+   DRD  := (ZDI - Z3C) - (L3/2) ;          {Drift from Q3 exit to dipole}
+
+   DR1E := Z1C - (L1E/2) ;                 {Drift: TGT to Q1 entrance EFB}
+   DR2E := (Z2C - Z1C) - ((L1E + L2E)/2) ; {Drift: Q1 exit EFB to Q2 entr EFB}
+   DR3E := (Z3C - Z2C) - ((L2E + L3E)/2) ; {Drift: Q2 exit EFB to Q3 entr EFB}
+   DRDE := (ZDI - Z3C) - (L3E/2) ;         {Drift: Q3 exit EFB to dipole}
+
+{ QUAD pole-tip fields }
+
+   Q1 := -1.437206 ; {A range: .010, B range: .015, 0.985 slope constraint}
+   Q2 :=  1.543242 ; 
+   Q3 := -0.7303054 ; 
+
+{ Begin composing forward maps }
+
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_for_maps.dat' ;
+   openf 20 file 'NEW' ;
+
+   UM ; POSITION := 0 ;
+
+{ HMS QUADS }
+
+   POSITION := POSITION + DR1E ;
+   HMSQUAD  L1E Q1 0.25 'Q1';
+
+   POSITION := POSITION + DR2E ;
+   HMSQUAD  L2E Q2 0.35 'Q2';
+
+   POSITION := POSITION + DR3E ;
+   HMSQUAD  L3E Q3 0.35 'Q3';
+
+{ HMS DIPOLE }
+
+   POSITION := POSITION + DRDE ;
+
+{ Consistency check on position }
+
+   IF POSITION#ZDI ;
+     WRITE 6 'Warning: Dipole location is bad:' ;
+     WRITE 6 'POSITION = '&S(POSITION)&', but should be '&S(ZDI) ;
+   ENDIF ;
+
+   HMSDIPOLE 12.05625 25 0.3000 -6 0 -6 0 ;
+
+   closef 20 ;                          {Done outputing forward MAPS}
+
+ENDPROCEDURE ;
+RUN ;
+END ;
+

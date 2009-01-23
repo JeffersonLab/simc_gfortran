@@ -1,0 +1,274 @@
+{------------------------------------------------------------------------------
+ hms100-monte-v1.fox
+
+ Generate Monte-Carlo forward and reconstruction matrix elements for HMS-100
+ spectrometer tune. All output matrix elements are in TRANSPORT coordinates.
+ Note that COSY-7 uses different units than COSY-6 when printing the maps
+ in transport notation (procedure PT.) The reconstruction map is still
+ calculated using the old COSY-6 units.
+
+ X-dependent (raster) reconstruction map generated.
+ Forward maps are SEQUENTIAL.
+ Execution questions removed.
+
+ Author: D. Potterveld, Argonne National Lab, 16-Sep-1998
+
+ Version:  1.0
+
+ Modification History:
+
+ 16-Sep-1998 (DHP) Release of version 1.0. This version calculates
+ transformations to the nominal HMS-100 magnet positions, using the
+ effective magnetic lengths for Q1, Q2, and Q3 as quoted by J. Volmer.
+ The quadrupole field strengths were chosen to try and match the
+ focal plane distributions of MC-tracked rays with optics data from
+ E91-003.
+ 
+ ------------------------------------------------------------------------------
+}
+INCLUDE 'COSY' ;
+PROCEDURE RUN ;
+
+{=========================== Variable Declarations ===========================}
+
+   VARIABLE Z1C 1 ; VARIABLE L1 1 ; VARIABLE L1E 1 ;
+   VARIABLE Z2C 1 ; VARIABLE L2 1 ; VARIABLE L2E 1 ;
+   VARIABLE Z3C 1 ; VARIABLE L3 1 ; VARIABLE L3E 1 ;
+   VARIABLE ZDI 1 ;
+   VARIABLE DR1 1 ;
+   VARIABLE DR2 1 ;
+   VARIABLE DR3 1 ;
+   VARIABLE DRD 1 ;
+   VARIABLE Q1 1 ; VARIABLE Q2 1 ;VARIABLE Q3 1 ;  {QUAD strengths}
+   VARIABLE Q1MID 1 ; VARIABLE Q2MID 1 ; VARIABLE Q3MID 1 ;
+
+   VARIABLE OBJ 1 ;       { function used in evaluating first order focus }
+   VARIABLE FILE 80 ;     { filename }
+   VARIABLE LINE 80 ;     { dummy for user to answer into }
+   VARIABLE TILT 1 ;      { Focal plane tilt angle }
+   VARIABLE I 1 ;
+   VARIABLE TMP 1 ;
+   VARIABLE SNAME 4 ;     { Spectrometer name}
+   VARIABLE FRMODE 1 ;    { Fringe field mode }
+   VARIABLE MORDER 1 ;    { Maximum order of maps }
+   VARIABLE FORDER 1 ;    { Order of forward maps }
+   VARIABLE RORDER 1 ;    { Order of reconstruction map }
+   VARIABLE RES 1 4 ;     { Resolution array }
+
+   VARIABLE TMPSPOS 1000 ;  { Saved value of SPOS }
+   VARIABLE GMAP 2000 8 ;   { Global transfer map }
+   VARIABLE RMAP 2000 5 ;   { Reconstruction map }
+
+{========================== Procedure declarations ===========================}
+
+ { Print rmap to IU }
+
+   PROCEDURE PMR IU ; 
+      VARIABLE I 1 ; VARIABLE M 2000 5 ; 
+      LOOP I 1 5 ; M(I) := RMAP(I) + 0*DD(1) ; ENDLOOP ;
+      DAPRV M 4 5 TWOND IU ; ENDPROCEDURE ;
+
+ { Reconstruction with X as independent variable }
+
+   PROCEDURE RR1 M X0 X A Y B D PR AR N OR MR RES ;{TRAJECTORY RECONSTRUCTION}
+      PROCEDURE REC ; VARIABLE NN 1 ; VARIABLE S MAX(NM1,N+1) ;
+      VARIABLE I 1 ; VARIABLE M4 NM1 5 ; VARIABLE CM 1 6 ;
+      VARIABLE RI N 6 ; VARIABLE RO N 4 ; VARIABLE RB N 4 ; VARIABLE RE N 4 ;
+      VARIABLE IRAN 1 ; VARIABLE J NM1 ; VARIABLE NOM 1 ; VARIABLE IER 1 ;
+      VARIABLE MR4 NM1 4 ;
+      FUNCTION RAN IRAN ; RAN := 98765*IRAN+.12345 ; RAN := 2*(RAN-NINT(RAN)) ;
+         IRAN := RAN ; ENDFUNCTION ; IRAN := 0 ;
+      IF OR>0 ; LOOP I 1 4 ; CM(I+1) := DD(I) ;
+         ENDLOOP ; NOM := NOC ; CO OR ; CM(1) := DD(5) ; CM(6) := 0*DD(1) ;
+         IF ND=3 ; CM(6) := DD(4) ; CM(5) := 0*DD(1) ; ENDIF ;
+         POLVAL 1 M 4 CM 6 M4 4 ; 
+         M4(5) := DD(5) ; MI M4 MR 5 IER ; CO NOM ; ENDIF ;
+      S := 0 ; LOOP I 1 N-1 ; S := S&0 ; ENDLOOP ;
+      LOOP I 1 N ; VELSET S I X0+X*RAN(IRAN) ; ENDLOOP ; RI(1) := S ;
+      LOOP I 1 N ; VELSET S I A*RAN(IRAN) ; ENDLOOP ; RI(2) := S ;
+      LOOP I 1 N ; VELSET S I Y*RAN(IRAN) ; ENDLOOP ; RI(3) := S ;
+      LOOP I 1 N ; VELSET S I B*RAN(IRAN) ; ENDLOOP ; RI(4) := S ;
+      LOOP I 1 N ; VELSET S I D*RAN(IRAN) ; ENDLOOP ; RI(5) := S ;
+      RI(6) := S ;  POLVAL 1 M 4 RI 6 RO 4 ;
+      LOOP I 1 N ; VELSET S I PR*RAN(IRAN) ; ENDLOOP ; RE(1) := S ;
+      LOOP I 1 N ; VELSET S I AR*RAN(IRAN) ; ENDLOOP ; RE(2) := S ;
+      LOOP I 1 N ; VELSET S I PR*RAN(IRAN) ; ENDLOOP ; RE(3) := S ;
+      LOOP I 1 N ; VELSET S I AR*RAN(IRAN) ; ENDLOOP ; RE(4) := S ;
+      RO(1) := RO(1) + RE(1) ; RO(2) := RO(2) + RE(2) ;
+      RO(3) := RO(3) + RE(3) ; RO(4) := RO(4) + RE(4) ;
+      LOOP I 1 4 ; DAPLU MR(I) 5 X0 S ; MR4(I) := S ; ENDLOOP ;
+      POLVAL 1 MR4 4 RO 4 RB 4 ;  RE(1) := RI(2)-RB(1) ; RE(2) := RI(3)-RB(2) ;
+      RE(3) := RI(4)-RB(3)  ; RE(4) := RI(6)-RB(4) ;
+      LOOP J 1 4 ; RES(J) := 0 ; NN := 0 ; LOOP I 1 N ; VELGET RE(J) I S ;
+         IF S#0 ; RES(J) := RES(J) + ABS(S) ; NN := NN + 1 ; ENDIF ; ENDLOOP ;
+         RES(J) := NN/(RES(J)+1E-20)/4 ; IF IER#0 ; RES(J) := 0 ; ENDIF ;
+         ENDLOOP ; ENDPROCEDURE ;
+      NM1 := MAX(NM1,N) ; SCRLEN 2*NM1 ; REC ;
+      NM1 := NMON(NO+1,NV) ; SCRLEN LSCR ; ENDPROCEDURE ;
+
+ { Ask user for input value }
+
+   PROCEDURE ASK VAR PROMPT LL UL ;
+      VAR := 2*ABS(UL) + 1 ;
+      WHILE (VAR<LL)+(VAR>UL) ; WRITE 6 '$'&PROMPT ; READ 5 VAR ;
+      ENDWHILE ; ENDPROCEDURE ;
+
+ { Output forward transformation data at an aperture and update internal maps }
+
+   PROCEDURE APERTURE ;
+      PT 20 ;                           {Output data}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+      WRITE 6 ' Aperture at S = '&S(TMPSPOS) ;
+   ENDPROCEDURE ;
+
+ { Compute and output maps to inner aperture and exit of HMS quad magnet.
+   Note that the physical apertures are not necessarily at the magnet
+   boundaries. }
+
+   PROCEDURE HMSQUAD L LEFF Q A FRAC ;
+      VARIABLE DRIFT 1 ; VARIABLE LMID 1 ;
+
+{ Compute the drift from the physical aperture to the EFB, and the
+  location of the inner aperture }
+
+      DRIFT := (L - LEFF)/2 ;
+      LMID  := (L*FRAC) - DRIFT ;
+
+      DL DRIFT ;                                  {Drift to field boundary}
+
+      IF FRMODE#0 ; FR -1 ; MQ LEFF Q A ; ENDIF ; {Entrance fringe field}
+      FR  0 ; MQ LMID Q A ;                       {First part of quad}
+      APERTURE ;
+
+      MQ LEFF-LMID Q A ;                          {Second part of quad}
+      IF FRMODE#0 ; FR -2 ; MQ LEFF Q A ; ENDIF ; {Exit fringe field}
+
+      DL DRIFT ;                                  {Drift to physical aperture}
+      APERTURE ;
+
+      FR FRMODE ; ENDPROCEDURE ;                  {Restore fringe field mode}
+
+
+{================================= Main Code =================================}
+
+{ Computation order specifications }
+
+   MORDER := 6 ;                        {Max order for calculations}
+   FORDER := 6 ;
+
+   OV FORDER 3 0 ;                      {Order Value <order><phase dim><#par>}
+   CO FORDER ; RORDER := FORDER ;
+
+{ Beam specifications }
+
+   RPE 6000. ;                          {REF PARTICLE <Momentum>}
+
+   SB  0  .030   0   0  .015   0   0 .10   0   0   0 ;
+{  --> PX   PA  R12  PY   PB  R34 PT  PD  R56 PG  PZ      }
+
+{ Spectrometer name }
+
+   SNAME := 'H100' ;
+
+{ Fringe-field specifications.}
+
+   frmode := 3 ;
+   FR FRMODE ;
+
+{ Magnet geometry - hms-100 tune}
+
+   Z1C := 2.700 + 0.40 ;     {Center of Q1}
+   Z2C := 5.950 + 0.40 ;     {Center of Q2}
+   Z3C := 9.050 + 0.40 ;     {Center of Q3}
+   ZDI := 11.55 ;            {Entrance of dipole}
+
+   L1  := 1.890 ;            {Physical length of Q1}
+   L2  := 2.155 ;            {Physical length of Q2}
+   L3  := 2.186 ;            {Physical length of Q3}
+
+   L1E := 1.8785 ;             {Effective magnetic length of Q1}
+   L2E := 2.1585 ;             {Magnetic length of Q2}
+   L3E := 2.157 ;              {Magnetic length of Q3}
+
+   DR1 := Z1C - (L1/2) ;                  {Drift from target to Q1 entrance}
+   DR2 := (Z2C - Z1C) - ((L1 + L2)/2) ;   {Drift from Q1 exit to Q2 entrance}
+   DR3 := (Z3C - Z2C) - ((L2 + L3)/2) ;   {Drift from Q2 exit to Q3 entrance}
+   DRD := (ZDI - Z3C) - (L3/2) ;          {Drift from Q3 exit to dipole}
+
+{ QUAD pole-tip fields }
+
+   Q1 := -1.437206 ; {A range: .010, B range: .015, 0.985 slope constraint}
+   Q2 :=  1.543242 ; 
+   Q3 := -0.7303054 ; 
+
+{ Begin composing forward maps }
+
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_for_maps.dat' ;
+   openf 20 file 'NEW' ;
+
+   FR FRMODE ;
+   UM ; SM GMAP ; TMPSPOS := SPOS ;  {Initialize global map}
+
+{ HMS QUADS }
+
+      DL DR1 ;                   {Drift to Q1 physical aperture}
+      APERTURE ;
+      HMSQUAD  L1 L1E Q1 0.25 2/3 ;   {Q1}
+
+      DL DR2 ;                        {Drift to Q2}
+      APERTURE ;
+      HMSQUAD  L2 L2E Q2 0.35 2/3 ;   {Q2}
+
+      DL DR3 ;                        {Drift to Q3}
+      APERTURE ;
+      HMSQUAD  L3 L3E Q3 0.35 2/3 ;   {Q3}
+
+{ HMS DIPOLE }
+
+      DL DRD ;                        {Drift to dipole}
+      APERTURE ;
+
+{ Consistency check: we better be at the right Z! }
+
+      IF TMPSPOS#ZDI ;
+        WRITE 6 'Warning: Dipole location is bad:' ;
+        WRITE 6 'SPOS = '&S(TMPSPOS)&', but should be '&S(ZDI) ;
+      ENDIF ;
+
+      DI 12.05625 25 0.3000 -6 0 -6 0 ; {B1}
+      APERTURE ;
+
+{ Reconstruction plane }
+
+      DL 6.250 ;                        {Drift to detector plane}
+      APERTURE ;
+
+   closef 20 ;                          {Done outputing forward MAPS}
+
+{ Convert GMAP from canonical to TRANSPORT form}
+
+   CATR GMAP MAP TMPSPOS ; spos := tmpspos ;
+
+{ Compute focal objective function }
+
+   OBJ := SQRT(ME(1,2)*ME(1,2)+ME(3,4)*ME(3,4)) ;
+   WRITE 6 ' Q1,Q2,Q3, 1st order OBJ = ' Q1&Q2&Q3&OBJ ;
+   WRITE 6 ' Total length = '&S(CONS(SPOS))&' meters' ;
+
+{ Compute focal plane tilt angle }
+
+   TILT := (180*atan(ME(1,1)*ME(1,26)/ME(1,6))/pi)+90 ;
+   write 6 ' Focal plane tilt ='&SF(tilt,'(f8.3)')&' degrees' ;
+
+{ Compute RECON map }
+
+   RR1 MAP 0 0 .04 0 .04 .15 0 0 1000 RORDER RMAP RES ;
+   write 6 ' RECON resolutions =  ' RES(1)&RES(2)&RES(3)&RES(4) ;
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_rec.dat' ;
+   openf 20 file 'NEW' ; pmr 20 ; closef 20 ;
+
+ENDPROCEDURE ;
+RUN ;
+END ;
+

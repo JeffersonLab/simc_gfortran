@@ -1,0 +1,632 @@
+\tolerance=10000
+\documentstyle[12pt,epsf]{article}
+\parindent = 12pt
+\voffset = -1in
+\textheight = 8.5in
+%\pagestyle{empty}
+
+\begin{document}
+
+\title{Calculation of Energy Losses in Hall C's Replay Engine }
+\author{Jochen Volmer}
+%       {\it Faculteit Natuurkunde en Sterrenkunde}\\
+%       {\it Vrije Universiteit}\\
+%       {\it De Boelelaan 1081, 1081 HV Amsterdam, Netherland}}
+\date{\today}
+\maketitle
+
+\section{Introduction}
+\hspace*{\parindent}
+
+One of the tasks of Hall C's replay engine is to reconstruct all kinematics
+variables for an event, singles or coincidence, at the point of interaction
+(vertex). The calculation of the energy loss suffered by electrons and heavier 
+ionizing particles in the passage through matter has to be accounted for in 
+this reconstruction. Depending on where it is called from, the subroutine 
+{\tt total\_eloss.f} traces either the incoming (beam) electron through the 
+target entrance window and the target liquid (in case of a cryotarget) or 
+the outgoing electron and hadron through the various gases and windows into 
+the spectrometers. In the case of the incoming beam, {\tt total\_eloss} is
+called once upon runstart, and the calculated beam energy loss is subtracted 
+from the original beam energy. In the case of the particles entering the
+spectrometers, {\tt total\_eloss} is called on an event by event basis, and
+the calculated energy loss is {\em added} to the reconstructed particle
+energy, in order to derive the energy of the particle at the vertex.
+
+\section{Calculation of the Energy Loss}
+%\hspace*{\parindent}
+
+\subsection{Hadrons}
+\hspace*{\parindent}
+
+In the engine, the calculation of the energy loss for hadrons is not specified for a
+specific type of hadrons. The routine {\tt loss} is called with the particle velocity 
+$\beta_p$, which is calculated in {\tt h\_physics} or {\tt s\_physics} from the momentum 
+and mass of the particle. Here, of course, an assumption has been made for the nature of 
+the particle, and the energy loss calculation is correct only for the particle of 
+interest.\\
+The formula used in {\tt loss} is \cite{engine}:
+
+\begin{equation}
+\label{eq:hadronelossincode}
+{E_{lost}} = -t\cdot\frac{dE}{dx} = -t \cdot 2 \cdot K\cdot \frac{Z}{A} \frac{1}{\beta^2}
+\cdot \left( \ln{ \frac{2 m_e c^2 \beta^2 \gamma^2}{I}} - \beta^2 \right).
+\end{equation}
+
+Here, $K$ is 0.1536 GeVcm$^2$/g, $Z$ and $A$ are the atomic number and mass of
+the medium, $t$ the thickness of the medium in (g/cm$^2$), $\beta$ the velocity $(v/c)$
+of the particle, $\gamma=1/\sqrt{1-\beta^2}$, $m_e c^2$ the electron mass in MeV. $I$ 
+is the mean excitation energy: $I$=21.8 eV for hydrogen, $I=16\cdot z^{0.9}$ for heavier 
+target media. It is not known where this parametrization of $I$ came from. A better
+parametrization of $I$ is given in Leo \cite{leo}: $I=12Z+7$ eV for $1<Z<13$, 
+$I=9.76Z+58.8Z^{-0.19}$ eV for $Z\geq13$.\\
+
+Eq.~\ref{eq:hadronelossincode} has to be compared with the Bethe-Bloch formula as 
+presented by the Particle Data Group \cite{PDG54}:
+
+\begin{equation}
+\label{eq:BBPDG54221}
+-\frac{dE}{dx}=K z^2 \frac{Z}{A} \frac{1}{\beta^2} \cdot \left[ 
+  \frac{1}{2} \ln{\frac{2 m_e c^2 \beta^2 \gamma^2 T_{max}}{I^2}} 
+  - \beta^2 - \frac{\delta}{2} \right].
+\end{equation}
+
+Here, most of the variables are defined as above. $ze$ is the charge of the incoming
+particle, $m_e c^2$ is 0.511 MeV, and $T_{max}=\frac{2 m_e c^2 \beta^2 \gamma^2}
+{1+2\gamma m_e/M+(m_e/M)^2}$ is the maximum energy transfer from a heavy particle to an 
+electron, with $M$ the particle mass. 
+
+\subsubsection{Corrections to Bethe-Bloch}
+\label{subsubsection:hadroncorrections}
+\hspace*{\parindent}
+
+The PDG and Leo \cite{leo,PDG54} mention two corrections to the basic Bethe-Bloch formula.
+One is a shell-correction, which treats effects at very low particle momenta, when the
+particle velocity is comparable or lower than the orbital velocity of the bound atomic 
+electrons. The particle momenta where this correction takes effect are so low that it can
+be safely omitted in the context of CEBAF energies.\\
+The other correction is the so-called density correction $\delta$ 
+(Eq.~\ref{eq:BBPDG54221}). As the particle energy increases, its electric field flattens
+and extends, so that the distant-collision contribution to the energy loss increases as
+$\delta/2=\ln{(\hbar \omega_p / I)}+\ln{\beta \gamma}-1/2$. $\beta\gamma = p/Mc$ is the 
+particle momentum in terms of its mass, $\hbar \omega_p$ is the so-called plasma energy, 
+parametrized as $28.816 \cdot \sqrt{\rho <Z/A>}$ eV \cite{leo,PDG54}. The term with 
+$\ln{(\hbar\omega_p/I)}$ accounts for the polarizability of the medium. However, this 
+parametrization of the density correction is only valid at large $\beta\gamma$.\\ 
+For electrons, this parametrization is valid almost always (see section 
+\ref{subsection:electrons}). For hadrons, however, a parametrization is necessary.
+The Particle Data Group \cite{PDG54} cites Sternheimer's parametrization for nonconductors
+\cite{Sternheimer}:
+\begin{equation}
+\label{eq:denscorr}
+ \delta= \left\{ 
+              \begin{array}{ll}
+	        2(\ln{10})x-\bar{C} & if\hspace{6pt} x \geq x_1; \\
+		2(\ln{10})x-\bar{C}+a(x_1-x)^k & if\hspace{6pt} x_0 \leq x < x_1; \\
+		0 & if\hspace{6pt} x<x_0
+	      \end{array}
+           \right. 
+\end{equation}
+Here, $x=\log_{10}{\beta\gamma}$, $\bar{C}=-(2\ln{(I/(\hbar\omega_p))}+1)$. $\bar{C}$,
+$x_0$, $x_1$, $a$ and $k$ are material dependent constants. Leo \cite{leo} cites the
+values of these constants for a number of materials. $x_0$ is usually around zero, with
+the exception of $N_2$, $O_2$ and air, where it is around 1.7. $x_1$ is mostly 
+between 2.5 and 3.5, again with the exception of $N_2$, $O_2$ and air, where it is around
+4.2. Values of $k$ range between 2.9 and 3.6. The value of $a$ is chosen such that it
+provides a smooth passage from $x<x_0$ to $x>x_1$.\\
+In order to parametrize this in a simple way for the replay code, a general
+parametrization for all materials was chosen: $x_0=0$, $x_1=3$, $k=3$ and $a=-C_0/27$.\\
+
+\subsubsection{Comparison of the Energy Loss Calculations for Hadrons}
+\hspace*{\parindent}
+
+\begin{figure}
+\hspace{0.0in}
+\epsfxsize=5.0in
+\epsfysize=6.0in
+\epsffile{hadroneloss.ps}
+\caption{Energy loss of hadrons in LH$_2$ (upper left), graphite (upper right), aluminum 
+(lower left) and copper (lower right). The energy loss as calculated by the standard
+engine (dashed-dotted line) is compared with the standard Bethe-Bloch formula, with two
+parametrizations for the density correction $\delta$ (solid and dashed lines). See text 
+for explanations on the density correction. The momentum scale is $\beta \gamma=p/Mc$, 
+which is the particle momentum in terms of the particle mass.}
+\label{fig:hadronloss}
+\end{figure}
+
+\begin{figure}
+\hspace{0.0in}
+\epsfxsize=5.0in
+\epsfysize=6.0in
+\epsffile{hadronelossrel.ps}
+\caption{The difference in the calculation of the energy loss of hadrons passing through
+matter in \%. The figure on top shows the overprediction of the energy loss at low 
+particle momenta when the density correction is done in a high energy limit expression. 
+The bottom figure shows the error made by the standard replay engine formula, which does
+not contain density corrections. BB stands for Bethe-Bloch with Sternheimer's 
+parametrization of the density correction.}
+\label{fig:hadronlossrel}
+\end{figure}
+
+The different results of Equations \ref{eq:hadronelossincode} and \ref{eq:BBPDG54221} 
+with different parametrizations of the density correction are shown in 
+Fig.~\ref{fig:hadronloss} for four different materials. Most significant are the effect 
+of the density correction at high energies. Fig.~\ref{fig:hadronlossrel} shows what errors
+are made by either omitting the density correction altogether (bottom) or by putting in
+the high energy density correction at low energies (i.e. without using Sternheimer's 
+parametrization). The result of this exercise is that the energy loss calculation in
+the code in its old state (7/98) does a reasonable job ($\pm$10\%) for protons up to 
+about 10 GeV/c and for pions up to 1.5 GeV/c. In order to do a better job for pions, and
+in the light of the upcoming upgrade of the CEBAF accelerator, the density correction in
+the Sternheimer parametrization clearly should be coded into the engine.\\
+The error made by making a general parametrization for the $x_0<x<x_1$ part will be at
+least an order of magnitude lower than the density correction itself and can therefore
+be tolerated.
+
+\newpage
+
+\subsection{Electrons} 
+\label{subsection:electrons}
+%\hspace*{\parindent}
+
+\subsubsection{Corrections to Bethe-Bloch for Electrons}
+\hspace*{\parindent}
+
+For electrons, the matter is more complicated than for hadrons \cite{leo}:
+
+\begin{quote}
+``While the basic mechanism of collision loss [..] for heavy charged particles is
+also valid for electrons, the Bethe-Bloch formula must be modified somewhat for
+two reasons. One, [..], is their small mass. The assumption that the incident
+particle remains undeflected during the collision process is therefore invalid.
+The second is that for electrons the collisions are between identical particles,
+so that the calculation must take into account their indistinguishability. These
+considerations change a number of terms in the formula, in particular, the maximum
+allowable energy transfer becomes $W_{max}=T_e/2$ where $T_e$ is the kinetic energy
+of the incident electron or positron. [..]''
+\end{quote}
+
+The Bethe-Bloch equation (Eq.~\ref{eq:BBPDG54221}) calculates a mean energy loss.
+A relativistic correction for electrons to the Bethe-Bloch equation has been devised
+by Bethe \cite{leo,musiol}. This not only takes into account the changed $T_{max}$, but
+also the effect that a collision between electrons can result in a big change in the
+direction of the particle momentum. With, among others, this correction, the formula 
+reads
+
+\begin{eqnarray}
+\label{eq:bethemusiol}
+-\frac{dE}{dx} = & K \frac{Z}{A} \frac{1}{\beta^2} \cdot 
+  \left[
+	\ln{\frac{m_e c^2 \beta^2 \gamma^2 E_e}{2 I^2}} + (1-\beta^2) 
+ 	- \frac{2\gamma-1}{\gamma^2} \ln{2} + \frac{1}{8}\left( 
+ 		\frac{\gamma-1}{\gamma}
+	\right)^2 - \delta
+  \right] \\
+\label{eq:bethe}
+ = & K \frac{Z}{A} \frac{1}{\beta^2} \cdot 
+  \left[
+   	\ln{\frac{\tau^2(\tau+2)}{2(I/m_e c^2)^2}}
+        +(1-\beta^2)+\frac{\frac{\tau^2}{8}-(2\tau+1)\ln{2}}{(\tau+1)^2} 
+	- \delta
+  \right],
+\end{eqnarray}
+ 
+with K is defined as in Eq.~\ref{eq:BBPDG54221} and $E_e$ the relativistic kinetic
+energy of the electron, $m_e c^2 (\gamma-1)$, and $\tau=\gamma-1$ is the kinetic energy
+of the electron in terms of the electron mass. $\delta$ is the density correction 
+discussed in section \ref{subsubsection:hadroncorrections}.
+In the case of electrons at CEBAF energies (between 0.1 and 4 GeV/c), $x=\log_{10}{\beta
+\gamma}$ is big enough (2.3-3.9) that the density correction can be applied without 
+Sternheimer's parametrization. The error made here is 0.1-0.2\% in the worst case.
+
+\newpage
+\subsubsection{Most Probable versus Average Energy Loss}
+\hspace*{\parindent}
+
+So far, the engine ({\tt total\_eloss}) had used a most probable energy loss 
+\cite{engine}, as measured by O'Brien {\em et al.} for 50 and 100 MeV electrons on a 
+number of solid targets with thicknesses between 48 and 614 mg/cm$^2$ \cite{obrien}:
+
+\begin{equation}
+\label{eq:obrien}
+E_{p}=A^\prime t \left(K+ \ln {\frac{t}{\rho}} \right).
+\end{equation} 
+
+Here, $A^\prime= 0.1536 Z/A$ MeV cm$^2$/g., $K=19.26$, $t$ is the target thickness
+in (g/cm$^2$) and $\rho$ is the target density in (g/cm$^3$). This equation is based
+on ``Landau straggling''. In a Landau straggling distribution, the average energy
+loss is always greater than the most probable energy loss. This equation also does not 
+take into account the energy dependence of the energy loss due to relativistic effects in 
+the medium.\\
+A problem with using the most probable energy loss is that the Landau distribution in the 
+experiment is convoluted with resolutions of gaussian shape which are much broader than
+the Landau distribution. The convolution of a narrow Landau distribution and
+a wide gaussian distribution will still have the shape of a gaussian distribution, and
+it will be shifted by an amount closer to the average energy loss than the most probable
+energy loss\footnote{Thanks to Dave Gaskell for actually proving that!} \cite{Gaskell}. 
+
+\subsubsection{Comparison of the eloss calculations for electrons}
+\hspace*{\parindent}
+
+Fig.~\ref{fig:electronloss} shows the difference of the numerical outcome of energy
+loss calculations after Bethe-Bloch, Bethe and O'Brien for a number of targets.
+Both the Bethe-Bloch calculation and the Bethe calculation with the relativistic 
+correction include the density correction. The dashed-dotted line represents the O'Brien
+formula for the most probable energy loss (Eq.~\ref{eq:obrien}). The dashed line 
+represents the usual Bethe-Bloch calculation, with $T_{max}=T/2$ 
+(Eq.~\ref{eq:BBPDG54221}). The solid curve represents Bethe's parametrization of the 
+relativistic rise for electrons (Eq.~\ref{eq:bethe}). The latter two calculate the 
+average energy loss.\\
+Fig.~\ref{fig:electronrelloss} shows the ratios of the calculated energy losses for a 
+number of targets. It becomes clear that at the momentum where the electron
+is minimum ionizing the difference between the Bethe-Bloch-like calculations of the
+{\em average} energy loss and O'Briens formula for the {\em most probable} energy loss
+is roughly 20-35\%. However, in the region of interest, between 100 MeV/c and 4 GeV/c,
+the difference is significant: the ratio is between 1.3 and 1.8, depending on the 
+material, the thickness and the electron momentum. The difference is most significant for
+heavy materials and thin layers.\\
+The relativistic rise of the average energy loss in the region of interest is roughly 
+15-20\%. We do not know of data
+for a momentum-dependent shift of the most probable energy loss. One can speculate that 
+the behaviour of the average and of the most probable energy losses are similar. 
+Bethe's parametrization of the relativistic rise for electrons (Eq.~\ref{eq:bethe})
+contributes a 4-6\% effect on top of the $T_{max}$ corrected Bethe-Bloch formula 
+(Eq.~\ref{eq:BBPDG54221}).  
+
+\section{Conclusion and Actions Taken}
+%\hspace*{\parindent}
+
+The treatment of energy loss due to the passage of ionizing particles through matter
+as done in the engine has been outlined as well as corrections to it. In the case of 
+hadrons, the difference between a full Bethe-Bloch (Eq.~\ref{eq:BBPDG54221}) with
+Sternheimer's parametrization for the density correction \cite{Sternheimer}
+and the simpler formula that is being used at the moment (Eq.~\ref{eq:hadronelossincode})
+is almost insignificant at low momenta. At high momenta, the density correction will
+contribute up to 15\% to the energy loss, especially for pions, and will therefore be 
+taken into account in the engine code in the future.\\
+In the case of electrons, there are two corrections to the Bethe-Bloch formula
+competing with the O'Brien formula, both of which predict a relativistic rise of the
+energy loss. Unfortunately, one involuntarily compares apples and oranges here, since
+the Bethe-Bloch type formulas treat average energy losses, while O'Briens formula the
+most probable one.\\
+Our expected resolution is bigger than the Landau distribution.
+It can be argued that the convolution of a shifted narrow Landau distribution with a broad
+gaussian resolution will still look like a gaussian, shifted by the average of the Landau
+distribution, not its maximum value. This and the lack of a relativistic rise of the
+O'Brien formula leads us to replace O'Briens formula (Eq.~\ref{eq:obrien}) with Bethe's 
+formula (Eq.~\ref{eq:bethe}) in the engine code.
+
+\section{Acknowledgements}
+%\hspace*{\parindent}
+
+I owe thanks to Rolf Ent and Dave Mack for fruitful discussions, and especially to Dave 
+Gaskell, who actually verified my calculations and caught my mistakes.
+
+\begin{thebibliography}{99}
+\bibitem{engine} Hall C replay engine, source code
+\bibitem{leo} W.R.~Leo, Techniques for Nuclear and Particle Physics Experiments, Second
+Edition, Springer Verlag Berlin, Heidelberg 1987, 1994
+\bibitem{PDG54} Particle Data Group, Eur. Phys. Jour. C3(1998), section 23. 
+\bibitem{Sternheimer} R.M.~Sternheimer, Phys. Rev. 88(1952)851
+\bibitem{musiol} G.~Musiol, J.~Ranft, R.~Reif, D.~Seeliger, Nuclear- and 
+Elementary Particle Physics, VCH Publishers (UK), 1988
+\bibitem{obrien} James T.~O'Brien {\em et al.}, Phys. Rev. C9(1974)1418
+\bibitem{Gaskell} Dave Gaskell, priv.\ comm.
+\end{thebibliography}
+
+\begin{figure}
+\hspace{0.0in}
+\epsfxsize=5.0in
+\epsfysize=6.0in
+\epsffile{elosselectron.ps}
+\caption{-dE/dx for electrons in LH$_2$, graphite and copper. Plotted are the 
+thickness-independent Bethe-Bloch curve with relativistic corrections (solid line), the 
+Bethe calculation with only $T_{max}=T/2$ (long dashed) and the O'Brien formula 
+(dash-dotted).}
+\label{fig:electronloss}
+\end{figure}
+
+\begin{figure}
+\hspace{0.0in}
+\epsfxsize=5.0in
+\epsfysize=6.0in
+\epsffile{elosselrel.ps}
+\caption{Ratio of the calculations of electron energy losses in LH$_2$, graphite and
+copper. Top left: ratio for Bethe-Bloch formula and O'Briens formula; top right: ratio for
+Bethe with relativistic corrections and O'Brien; bottom: ratio between Bethe with
+relativistic corrections and Bethe-Bloch. The Bethe-Bloch calculation is the original
+one with only $T_{max}$ changed to $T/2$.}
+\label{fig:electronrelloss}
+\end{figure}
+
+\newpage
+
+\appendix
+
+\section{Energy Loss in the Code}
+\label{section:elossinthecode}
+%\hspace*{\parindent}
+
+\subsection{The Old Version of {\tt loss}}
+\hspace*{\parindent}
+
+{\tt
+      subroutine loss(electron,z,a,thick,dens,beta,e\_loss)\\
+**-------------------------------------------------------------\\
+**-         Prototype C function \\
+**- \\
+**-\\
+**-    Purpose and Method :  Calculate energy loss \\
+**-    \\
+**-    Output: -\\
+**-    Created   1-Dec-1995  Rolf Ent\\
+**-   \\
+**-    Verification:  The non-electron portion on this subr. is \\
+**-		     Bethe-Bloch equation (Physial Review D vol.50 \\
+**-		     (1994) 1251 with theassumpution that the \\
+**-		     denominator in Tmax is equal to 1.0. By not\\
+**-	  	     making this assumption the change in the dE/dx \\
+**-		     is by a factor on the order 10e-3 less for a \\
+**-		     pi+ particle.\\
+**-                   K. Vansyoc 3/4/98 16:50\\
+**-----------------------------------------------------------------*\\
+      IMPLICIT NONE\\
+      SAVE\\
+**\\
+      include 'gen\_data\_structures.cmn'\\
+**\\
+      LOGICAL electron\\
+      REAL*4 eloss,z,a,thick,dens,beta,e\_loss\\
+      REAL*4 icon\_ev,me\_ev\\
+      REAL*4 particle\\
+      parameter (me\_ev = 510999.)\\
+**\\
+ \\
+ 91   format(7(A10))\\
+ 90   format(7(2x,f8.5))\\
+      e\_loss = 0.0\\
+      eloss  = 0.0\\
+ \\
+*******************************************************\\
+** for debugging print out all variables that have been \\
+** passed on to loss\\
+*******************************************************\\
+ \\
+** electron\\
+      if (electron) then\\
+        if(thick.gt.0.0.and.dens.gt.0.0)then\\
+            eloss = 0.1536e-03*z/a*thick*(19.26 + log(thick/dens))\\
+         endif\\
+      endif\\
+** proton\\
+      if(.not.electron) then\\
+         icon\_ev = 16.*z**0.9\\
+         if (z.lt.1.5) icon\_ev = 21.8\\
+         if(thick.gt.0.0.and.beta.gt.0.0.and.beta.lt.1.0)then\\
+          eloss = log(2.*me\_ev*beta*beta/icon\_ev/(1.-beta*beta))\\
+     \&                - beta*beta\\
+          eloss = 2.*0.1536e-03*z/a*thick/beta/beta * eloss\\
+         endif\\
+      endif\\
+ \\
+** units should be in GeV\\
+      e\_loss = eloss\\
+ \\
+      if (gelossdebug.ne.0) then\\
+         particle=0.0\\
+         if (electron) particle=1.0\\
+         write(6,91) 'electron?','ztgt','atgt','thick','dens','beta','e\_loss'\\
+         write(6,90) particle,z,a,thick,dens,beta,e\_loss\\
+      endif\\
+ \\
+      RETURN\\
+      END\\
+ \\
+ \\
+}
+
+\newpage
+
+\subsection{The New Version of {\tt loss}}
+\hspace*{\parindent}
+%The new version of the subroutine {\tt loss}: \hspace{20pt}
+
+{\tt
+      subroutine loss(electron,z,a,thick,dens,velocity,e\_loss)\\
+**-------------------------------------------------------------\\
+**-         Prototype C function \\
+**- \\
+**-\\
+**-    Purpose and Method :  Calculate energy loss \\
+**-    \\
+**-    Output: -\\
+**-    Created   1-Dec-1995  Rolf Ent\\
+**-   \\
+**-    Verification:  The non-electron portion on this subr. is \\
+**-		     Bethe-Bloch equation (Physial Review D vol.\\
+**-		     50 (1994) 1251 with full calculation of \\
+**-		     Tmax and the density correction. The electron \\
+**-		     part has been switched from O'Brien, Phys. \\
+**-		     Rev. C9(1974)1418, to Bethe-Bloch with \\
+**-		     relativistic corrections and density density \\
+**-		     correction, Leo, Techniques for Nuclear and\\
+**-		     Particle Physics Experiments.\\
+**-                   J. Volmer 8/2/98 16:50\\
+**-----------------------------------------------------------------*\\
+      IMPLICIT NONE\\
+      SAVE\\
+**\\
+      include 'gen\_data\_structures.cmn'\\
+      include 'hms\_data\_structures.cmn'\\
+      include 'sos\_data\_structures.cmn'\\
+**\\
+      LOGICAL electron\\
+      REAL*4 eloss,z,a,thick,dens,beta,e\_loss\\
+      REAL*4 icon\_ev,me\_ev\\
+      REAL*4 icon\_gev,me\_gev\\
+      REAL*4 particle\\
+      REAL*4 denscorr,hnup,c0,log10bg,pmass,tmax,gamma,velocity\\
+      REAL*4 tau,betagamma\\
+      parameter (me\_ev = 510999.)\\
+      parameter (me\_gev = 0.000510999)\\
+**\\
+ \\
+ 91   format(7(A10))\\
+ 90   format(7(2x,f8.5))\\
+      e\_loss = 0.0\\
+      eloss  = 0.0\\
+ \\
+*******************************************************\\
+** for debugging print out all variables that have been\\
+** passed on to loss\\
+*******************************************************\\
+ \\
+*******************************************************\\
+** calculate the mean excitation potential I in a newer \\
+** parametrization given in W.R. Leo's Techniques for \\
+** Nuclear and Particle Physics Experiments\\
+*******************************************************\\
+ \\
+      if (z.lt.1.5) then\\
+         icon\_ev = 21.8\\
+      elseif (z.lt.13) then\\
+         icon\_ev = 12.*z+7.\\
+      elseif (z.ge.13) then\\
+         icon\_ev = z*(9.76+58.8*z**(-1.19))\\
+      endif\\
+      icon\_gev = icon\_ev*1.0e-9\\
+ \\
+***********************************************\\
+** extract the velocity of the particle:\\
+**     hadrons:   velocity = beta\\
+**     electrons: velocity = log\_10(beta*gamma)\\
+***********************************************\\
+ \\
+      if (electron) then\\
+         log10bg=velocity\\
+         betagamma=exp(velocity*log(10.))\\
+         beta=betagamma/(sqrt(1+betagamma**2))\\
+         gamma=sqrt(1.+betagamma**2)\\
+         tau=gamma-1.\\
+      elseif (.not.electron) then\\
+         beta=velocity\\
+         gamma=1./sqrt(1.-beta**2)\\
+         betagamma=beta*gamma\\
+         log10bg=log(betagamma)/log(10.)\\
+         tau=gamma-1.\\
+      endif\\
+ \\
+*******************************************************\\
+** calculate the density correction, as given in Leo,\\
+** with Sternheimer's parametrization\\
+** I is the mean excitation potential of the material\\
+** hnup= h*nu\_p is the plasma frequency of the material\\
+*******************************************************\\
+ \\
+      denscorr=0.\\
+      HNUP=28.816E-9*sqrt(DENS*Z/A)\\
+ \\
+      C0=-2*(log(icon\_gev/hnup)+.5)\\
+ \\
+      if(log10bg.lt.0.) then\\
+         denscorr=0.\\
+      elseif(log10bg.lt.3.) then\\
+         denscorr=C0+2*log(10.)*log10bg+abs(C0/27.)*(3.-log10bg)**3\\
+      else\\
+         denscorr=C0+2*log(10.)*log10bg\\
+      endif\\
+ \\
+****************************************************************\\
+** for hadrons: calculate the maximum possible energy transfer \\
+**		to an orbital electron, find out what the hadron \\
+**		mass is\\
+****************************************************************\\
+ \\
+      pmass=0.\\
+      if (.not.electron) then\\
+         pmass=max(hpartmass,spartmass)\\
+         if (pmass.lt.2*me\_gev) pmass=0.5\\
+         tmax=2*me\_gev*beta**2*gamma**2/\\
+     >        (1+2*gamma*me\_gev/pmass+(me\_gev/pmass)**2)\\
+      endif\\
+ \\
+**********************************************\\       
+** now calculate the energy loss for electrons \\
+**********************************************\\
+** electron\\
+      if (electron) then\\
+         if(thick.gt.0.0.and.dens.gt.0.0)then\\
+            eloss=0.1535e-03*z/a*thick/beta**2*(\\
+     >           log(tau**2*(tau+2.)/2./(icon\_gev/me\_gev)**2)\\
+     >           +1-beta**2+(tau**2/8-(2*tau+1)*log(2.))/(tau+1)**2\\
+     >           -(-(2*log(icon\_gev/hnup)+1)+2*log(betagamma)))\\
+         endif\\
+ \\
+*jv        if(thick.gt.0.0.and.dens.gt.0.0)then\\
+*jv           eloss = 0.1536e-03*z/a*thick*(19.26 + log(thick/dens))\\
+*jv         endif\\
+ \\
+      endif\\
+ \\
+********************************************\\      
+** now calculate the energy loss for hadrons \\
+********************************************\\
+** proton\\
+      if(.not.electron) then\\
+ \\
+**jv         icon\_ev = 16.*z**0.9\\
+**jv         if (z.lt.1.5) icon\_ev = 21.8\\
+ \\
+         if(thick.gt.0.0.and.beta.gt.0.0.and.beta.lt.1.0)then\\
+ \\
+            eloss = 2.*0.1535e-3*Z/A*thick/beta**2*(\\
+     >           .5*log(2*me\_gev*beta**2*gamma**2*tmax/icon\_gev**2)\\
+     >           -beta**2-denscorr/2.)\\
+ \\
+**jv          eloss = log(2.*me\_ev*beta*beta/icon\_ev/(1.-beta*beta))\\
+**jv     \&                - beta*beta\\
+**jv          eloss = 2.*0.1536e-03*z/a*thick/beta/beta * eloss\\
+ \\
+         endif\\
+      endif\\
+ \\
+** units should be in GeV\\
+      e\_loss = eloss\\
+ \\
+      if (gelossdebug.ne.0) then\\
+         particle=0.0\\
+         if (electron) particle=1.0\\
+         write(6,91) 'electron?','ztgt','atgt','thick','dens','velocity'\\
+     > 		,'e\_loss'\\
+         write(6,90) particle,z,a,thick,dens,velocity,e\_loss\\
+         write(6,'(4A10)') 'velocity','beta','pmass','denscorr'\\
+         write(6,'(6(2x,f8.5))') velocity,beta,pmass,denscorr\\
+         write(6,'(6A10)') 'betagamma','log10bg','tau','gamma',\\
+     >		'icon\_ev','hnup (eV)'\\
+         write(6,'(6(2x,F8.3))') betagamma,log10bg,tau,gamma,icon\_ev,hnup*1e9\\
+      endif\\
+ \\
+      RETURN\\
+      END\\
+ \\
+ \\
+}
+
+%\section{Average Energy Loss versus Most Probable Energy Loss}
+%\label{section:appendixaveragevsmostprobable}
+
+%\begin{figure}
+%\hspace{0.0in}
+%\epsfxsize=5.0in
+%\epsfysize=6.0in
+%\epsffile{eloss.nb.ps}
+%\caption{Ratio of the calculations of electron energy losses in LH$_2$, graphite and
+%copper. Top left: ratio for Bethe-Bloch formula and O'Briens formula; top right: ratio for
+%Bethe with relativistic corrections and O'Brien; bottom: ratio between Bethe with
+%relativistic corrections and Bethe-Bloch. The Bethe-Bloch calculation is the original
+%one with only $T_{max}$ changed to $T/2$.}
+%\label{fig:elossnb}
+%\end{figure}
+
+
+\end{document}

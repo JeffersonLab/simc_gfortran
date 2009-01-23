@@ -1,0 +1,146 @@
+tgt_field.txt	Glen A. Warren   Feb. 2000
+
+   This file documents some of the "features" of the code that handles
+the optical transport of particles through a target field.  Questions,
+complaints and praise should be send to me, Glen Warren, at
+gwarren@jlab.org.
+
+
+INTRODUCTION
+
+   Let me first say that the code is not truly a general purpose code.
+It is designed to handle the situation for the E93-026 experiment,
+GeN.  This means that the only configuration addressed is electrons in
+HMS and the proton going into open space (i.e. using_P_arm_montecarlo
+= .false.).  In addition, the target field input assumes cylindrical
+symmetry with the axis of symmetry arbitrarily oriented in the
+horizontal plane.  Despite thes restrictions, it would be relatively
+easy for a motivated individual to follow the existing examples to
+modify the code to handle different situations.
+
+   The second thing that I want to say is that Markus Muehlbauer
+should get much of the credit for this work.  I simply cobbled
+together his code written for the engine to work in SIMC.  This
+information, however, is of little use because Markus has since left
+physics.
+
+   The last introductory point that I want to make is that as of the
+time of writting this file I am maintaining a web page that discusses
+some of my findings.  The address is
+
+http://jazz.physik.unibas.ch/~warren/jlab/gen/targetfield.html
+
+I can make no promises about the future maintaince of this page, but
+it might provide some background info.
+
+
+USAGE
+
+   There are five input variables related to the target field code:
+
+  targ.Bangle[real]: in beamandtargetinfo in the "extra" file.  This is the
+  angle of the target field with respect to the beam.  Zero degrees
+  means along the beam direction.  Positive angle points in the
+  direction of the electron spectrometer.
+
+  using_tgt_field[0,1]: in simulate in the "extra" file.  This turns
+  on/off the target field code.  It is useful for doing checks on the
+  code for zero field.  Clearly, if there is a target field, this
+  parameter must be 1.
+
+  tgt_field_file[string]: in simulate in the "extra" file.  This is
+  the file name of the target field data file.  There are two special
+  options.  If tgt_field_file.eq.' ' then a test field of 5 T is used
+  over a -26<z<26cm and 0<r<16cm.  If tgt_field_file.eq.'0', then the
+  field is set to zero.  This is very useful for trivial debugging.
+  The current target field map file for GeN is 'trg_field_map.dat'.
+  This file should reside in the same directory as the simc
+  executable.
+
+  debug(6)[0,1]: in debug in the input file.  This turns on/off
+  debugging information related to the target field code.
+
+  drift_to_ndet[real]: in simulate in the "extra" file.  This is the
+  distance in cm from the target to the first plane of bars in the
+  neutron detector.  It is used to reconstruct the proton "focal
+  plane" coordinates.
+
+
+   I made some changes in the proton coordinates in the ntuple to
+accommodate aspects of the target field.  Since there is no
+spectrometer optics on the proton side, there is no need to worry
+about proper reconstruction of the event to the target.  The generated
+proton vertex positions in the ntuple remain unchanged.  The
+"reconstructed" proton coordinates, however, are the "vertex"
+coordinates seen outside of the target field region as if there was no
+target field.  That is, once the proton is outside of the target field
+region, it is reconstructed to the vertex plane (defined by the raster
+information) as if there was no target field.  I refer to this type of
+track as an image track.  For this reason, the generated and
+reconstructed vertical angles for the GeN measurement will be quite
+different.  The proton focal plane coordinates are the proton
+coordinates transported to "drift_to_ndet" cm from the target.
+
+
+ALGORITHMS
+
+   There are two distinct parts to the code: the tracking of the
+generated event from the vertex to outside of the target field and the
+reconstruction of the target coordinates from focal plane and raster
+information considering the target field.  The first part is relevant
+to both the electron and the proton tracking.  The second part is
+relevant only to the electron tracking.
+
+   The tracking of the generated event through the target field toward
+HMS is straight forward.  The generated event is mapped from the
+vertex through the target field to a field free region.  Once outside
+of the region, the track is traced back to z=0 as if there was target
+field.  This image track is then used as input in the HMS forward
+optics.
+
+The reconstruction of the target coordinates is not straight forward.
+Here is an outline of the algorithm:
+
+  1) As a first approximation, map the focal plane coordinates to the
+     target (z=0), using the vertical beam position provided (this
+     could come from either the SEM or the slow raster) without
+     considering the target field.  This is wrong for two reasons.
+     First, and most obvious, it does not consider the target field.
+     Second, the vertical position is wrong.  The electromagnetic
+     interaction occurred somewhere along the beam line, which is
+     given by the vertical and horizontal beam positions.  In general,
+     the intersection of the beam line and the particle's trajectory
+     do not occur at z=0.  But as I said, and as the code says, this
+     is a first approximation.
+
+  2) Next, drift the above track back 100 cm (the z=100 cm plane) in
+     the direction of the spectrometer to get outside of the target
+     field region.
+
+  3) Map the above track through the target field to the "beam plane".
+     By beam plane, I mean the vertical plane determined by the
+     vertical and horizontal beam positions.  This plane contains the
+     line of possible interaction vertices.  Note that this track will
+     in general not have the proper vertical position even though we
+     are looking at the correct plane.
+
+  4A) Map the track from above to the z=0 plane.  
+  4B) Modify the track above so that it has the known vertical
+      position at the beam plane and map to the z=0 plane.
+
+  5) Adjust the vertical position used in step 1) by the differences
+     of the final vertical position (x) in 4A) and 4B), and then
+     repeat from step 1) using the new vertical position.  The process
+     is repeated until the difference in vertical position from 4A)
+     and 4B) is below a certain limit or a certain number of
+     iterations have been performed.
+
+  A fair question to ask is why is the code structured like this?  The
+problem is complicated by the need to using the existing HMS optics
+coupled with the target field coupled with the need to specify the
+vertical position.  Actually, a similar process is used to determine
+the target coordinates for the HMS without a target field when one
+must specify the vertical position.
+
+I hope this has provided some useful background.  - GAW 
+

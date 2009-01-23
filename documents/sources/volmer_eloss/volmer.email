@@ -1,0 +1,5 @@
+I put all the tex and ps files that belong to the eloss writeup
+into ~volmer/LaTeX/eloss-writeup. I did a check that it compiles under LaTeX.
+
+The FORTRAN programs I used to produce the plots are located in
+~volmer/Analysis/eloss, in the case you are interested.

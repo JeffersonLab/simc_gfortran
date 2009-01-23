@@ -1,0 +1,110 @@
+09/11/2002: FD
+For linking at Jlab, use one of the following CERN_ROOT variables:
+  CERN_ROOT=/apps/cernlib/i386_redhat72_egcs/2001
+or
+  CERN_ROOT=/apps/cernlib/i386_redhat61/99
+
+  CERN_ROOT=/apps/cernlib/i386_redhat72/2001 (i.e. using gcc3)
+  doesn't seem to work so far (this is a cernlib problem, not a simc
+  or absoft problem) 
+
+07/11/2001: FD
+I have ported Simc to Linux using the Absoft compiler. This
+is a commercially available compiler which is installed at Jlab under
+the ifarm machines.
+
+( Presumably any commercially or freely available Fortran compiler under
+Linux would do, provided it supports compilation of structures and records
+under Fortran. This, unfortunately, excludes the popular g77, it does
+not support these features and according to its developers todo list, these
+features do not have high priority on their list. ) 
+
+The current version of the Absoft Fortran compiler at Jlab is
+FORTRAN 77 Compiler 4.6, Copyright (c) 1987-1999, Absoft Corp.
+
+Preparations:
+
+You need to define the following Environment variable in your 
+.cshrc/.login or whereever you define environments:
+
+setenv ABSOFT /apps/absoft/PRO/usr/absoft
+
+or whereever your absoft compiler directory is located.
+
+
+The only incompatibility is in the include file histogram_init.inc:
+diff ./histograms_init.inc ../../Linux/SIMC_070701/histograms_init.inc
+10c10
+<         real*8        buf(nHbins)/nHbins*0./
+---
+>         real*8        buf(nHbins)
+
+The original code declares the array buf and initializes it on the fly.
+The initialization takes place within the declaration of a structure.
+This, apparently, is too complicated for the Absoft compiler.  The
+workaround is to drop the initialization and, since we use a flag to tell
+the compiler to use static initialization of arrays, it doesn't matter
+here, it initializes the array to contain 0.0.  
+Thus, you would most likely want to save the original file 
+  cp histograms_init.inc histograms_init.inc.org 
+and make this change only for the Linux version.
+
+There are few other general minor changes, which all result in the somewhat
+poorer parsing capabilities of the Absoft compiler. These are all safe
+to do in the general version and would not affect the behaviour of simc
+und SunOS, OSF1 or Linux:
+
+-- Generally, max, min intrinsic functions want to have arguments of type
+   double precision.
+-- The compiler cannot resolve statements like
+   q22*-1e6 
+   but can resolve
+   -q22*1e6, -1.*q22*1.e6 , q22*(-1.e6)
+-  The compiler is picky about the order of statements in the 
+   declaration block, ie data statements in general need to be 
+   placed at the end of the declaration block.
+
+
+If John hasn't taken care of them yet, you need to change right now
+in the version I downloaded on July 10th:
+
+Makefile:
+<   INCLUDES=-I.,..,./sos,./hms,$(Csoft)/SRC/INCLUDE 
+---
+>   INCLUDES=-I.,..,./sos,./hms,./hrsr,./hrsl,$(Csoft)/SRC/INCLUDE 
+
+simc.f:
+diff ./simc.f ../../Linux/SIMC_070701/simc.f
+668c668
+<      >                (100.*ncontribute_no_rad_proton/max(float(ncontribute),0
+.1))
+---
+>      >                (100.*ncontribute_no_rad_proton/max(dble(ncontribut
+e),0.1d0))
+
+eekeek.f:
+diff ./eekeek.f ../../Linux/SIMC_070701/eekeek.f
+28c28
+<       q22=q22*-1.e+06
+---
+>       q22=-q22*1.e+06
+161c161
+<       q22=q22*-1.e+06
+---
+>       q22=-q22*1.e+06
+
+mt19937.f: move the data statements to the end of the declaration block
+
+diff ./mt19937.f ../../Linux/SIMC_070701/mt19937.f
+116,117d115
+<       data   mti/N1/                  !mti==N+1 means mt[N] is not initialized
+< 
+119d116
+<       data mag01/0, MATA/
+121d117
+< 
+123a120,125
+> 
+>       data   mti/N1/                  !mti==N+1 means mt[N] is not initialized
+> 
+>       data mag01/0, MATA/

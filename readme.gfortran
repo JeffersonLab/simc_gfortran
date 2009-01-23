@@ -1,0 +1,108 @@
+1/22/2009
+
+README for gfortran version of SIMC.
+
+SIMC has been ported to use the gfortran compiler. This became necessary when
+the JLab computer center decided to no longer support the ABSOFT fortran
+compiler for Linux. Also, g77 is no longer actively supported - gfortran is the 
+new default.
+
+Because gfortran does support classic fortran structures, but does support
+fortran 90 "types" (which are very similar to structures but with different
+syntax), a choice had to be made whether to to try and eradicate the structures
+completely (replacing with common blocks) or move to "types". For now we (I?)
+have decided to stick with types.
+
+The syntax for using and declaring types is very similar to that used for
+structures. For example, the variable vertex.e.xptar in the old version of simc
+becomes vertex%e%xptar.
+
+Definitions and declarations are also different - see below for some examples. One important
+point is that one cannot simultaneoulsy declare and define a "type" as one can
+with structures (see point 4 below). This has made some of the structure
+definition files a little confusing to read. Another detail is that type
+definitions cannot have the same name as a variable. For example, the structure
+definition "slop" is now a type called "sloptype", although the variable is still called
+"slop" (i.e. slop%MC%e%delta).
+
+
+This version of simc has been tested (to a limited extent) on the JLab Fedora
+and RedHat machines. We will try to help you get it running on other platforms if
+desired.
+
+Another change with this version is that the CTP library code will also be distributed
+with SIMC. 
+
+DJG Summer/Fall 2008
+
+Some notes on conversion to gfortran (fortran 90) (not complete)
+
+Mainly - replacing structure with types.
+
+0. Generic, easy stuff: cannot have Vax tab format for line continuation.
+
+
+1. Generically,
+
+       structure /Cartesian/
+                real*8          x,y,z
+        end structure
+
+    becomes
+
+       type Cartesian
+                sequence
+                real*8          x,y,z
+        end type
+
+2.  instead of recon.e.x for example, references using recon%e%x
+
+3. "sequence" is required if your vairable is used in common block. For now -
+just put in every type.
+
+4. Cannot simulatenously declare and define:
+
+
+        structure /double_arm/
+                structure /arm/ e
+                  real*8                delta, yptar, xptar, z
+                end structure
+                structure /arm2/ p
+                  real*8                delta, yptar, xptar, z
+                end structure
+        end structure
+
+becomes
+
+
+        type arm
+                sequence
+                real*8          delta, yptar, xptar, z
+        end type                
+
+        type arm2
+                sequence
+                real*8          delta, yptar, xptar, z
+        end type                
+
+
+        type double_arm
+                sequence
+                type(arm)::e
+                type(arm2)::p
+        end type
+
+
+5. types cannot have same name as variable.
+
+
+
+
+**Files not needing any changes**
+enerloss_new.f
+gauss1.f
+loren.f
+mt19937.f
+trg_track.f --> removed 'simulate.inc'
+NtupleClose.f
+NtupleInit.f

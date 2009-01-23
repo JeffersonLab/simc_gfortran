@@ -1,0 +1,18 @@
+1/26/2005 DG
+
+This directory contains notes and code for implementing the UVa polarized
+target in SIMC. This was originally done by Glen Warren - I have put
+his coding changes, which were done with an older version of simc and
+for use with the HMS only in the gaw_code directory.  The files contained here.
+
+gaw_code              - subroutines and include files Glen Warren modified 
+     			for original implementation of polarized target in simc
+tgt_field_changes.txt - Glen's list of coding changes
+tgt_field.txt         - Glen's description of the general scheme for target
+			field implementation
+daveg_tgt_field_changes.txt - My list of detailed changes to simc_semi for
+			      THIS version of simc_poltar
+tgt_field_map.dat     - the polarized target field-map
+trg_track.f  	      - Glen's original subroutine that handled tracking
+			through the polarized target field. This has been
+			slightly modified for this version of simc

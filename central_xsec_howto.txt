@@ -1,0 +1,87 @@
+March 9, 2004
+
+I have implemented some new flags to help calculate the "central" cross
+section in simc_semi.
+
+The basic idea is that, starting with a model cross section that describes
+the data well, we can extract the experimental cross section using:
+
+sigma_exp = Ndata/Nsimc * sigma_model
+
+In simc_semi, we want the cross section at some fixed Q2 and xbj and binning
+in either z or pt2.  The modifications to simc_semi will allow you to dump
+the "central" cross section event-by-event to the ntuple. The central cross
+section is given in terms of
+
+	sigcent = dSigma/( dOmega_e dE_e dOmega_had dE_had) 
+
+in units of microbarns/MeV**2/sr**2.  The fixed Q2 and xbj are taken from the
+beam energy and central spectrometer settings.
+
+If you are binning in z, pt2 is fixed at some constant value that you control 
+in the input file.  The z-binning is also determined in the input file where 
+you control z_min, z_max, and the number of bins.  Using the same input 
+parameters, you can likewise bin in pt2 and pick some constant z.  
+
+The new flags of interest are:
+
+sigc_flag = 0  ;  Set this to 0 to bin in z, or 1 to bin in pt2
+sigc_nbin = 10 ; number of bins in z or pt2 for "central" cross section calc
+sigc_kin_min = 0.31  ; minumum z (or pt2) for central cross section calc 
+sigc_kin_max = 0.43  ; maximum z (or pt2) for central cross section calc
+sigc_kin_ind = 0.005 ; value for 'independent' variable (pt2 in GeV2 if 
+	             ; binning in z)
+
+The above example is for binning in z.  One might use the settings below to bin
+in pt2.
+
+
+sigc_flag = 1         ; bin in pt2
+sigc_nbin = 10        ; number of bins for "central" cross section calc
+sigc_kin_min = 0.0    ; minumum pt2  for central cross section calc 
+sigc_kin_max = 0.02   ; maximum  pt2 for central cross section calc
+sigc_kin_ind = 0.37  ; value for 'independent' variable, z in this case
+
+
+Some new variables in the ntuple are:
+
+sigcent - already defined above. the lab cross section
+centjac - the "central" jacobian that converts dz dpt2 dphi -> dE_h dOmega_h
+	you can get dSigma/(dOmega_e dE_e dz dPt2 dphi) by taking 
+	-> sigcent/centjac
+zi = E_hadron/nu at the vertex.  This is what's used in the model
+pt2i + the transverse momentum at the vertex
+
+If you plot, for example, sigcent vs. zi after running simc in the mode that
+calculates the z-binned central cross section, you should see a step-like
+pattern, i.e., a constant cross section for a range in z equal to the bin 
+width.
+
+Something like:
+
+	   ---
+	      ---
+	         ---
+		    ---
+		       ---
+
+
+Note that if you plot vs. the reconstructed z, the pattern will be smeared 
+around because of multiple scattering, energy loss, etc.
+
+
+To get the cross section as a function of z, one can then define the normalized
+yields per z-bin of data and Monte Carlo multiplied by the central cross 
+section in each zi bin or
+
+sig_exp (z-vertex) = Ndata (z-reconstructed) * sig_model(z-vertex)
+		     -----------------------
+                     Nsimc (z-reconstructed)
+
+
+
+
+
+
+
+

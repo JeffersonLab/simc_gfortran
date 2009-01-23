@@ -1,0 +1,15 @@
+He-3(e,e'pi+)H-3 bound state production: Treat as production from heavy neutron
+giving heavy proton.  'nuff said.
+
+Infile:  Set a flag for bound state (I use which_pion=...).  Use normal
+	 Leave all target/recoil masses the same as for QF.
+
+DBASE.F: (have to override some of the masses).
+
+1. set doing_hydpion = .true., doing_deutpi=doing_hepi=.false.
+2. set targ.Mtar_pion = targ.M
+   set targ.Mrec_pion = targ.M + Mp - Mn  ( plus H3/He3 binding energy diff)
+   set targ.Mrec = 0.
+
+Huh.  Well, I guess that's it, according to my kaon code.  Most of the changes
+are for D-N final state.  Bound final state is easy.

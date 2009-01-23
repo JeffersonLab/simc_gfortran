@@ -1,0 +1,164 @@
+!!!SF is 40 Em bins of 5 MeV (0-200 MeV) by 40 Pm bins of 20 MeV (0-800 MeV/c)
+
+!SF is 80 Em bins of 5 MeV             by 40 Pm bins of 20 MeV.
+
+destroy *
+pi=3.14159265
+read\scalar benharsf_?1.dat pbins ebins
+read benharsf_?1.dat\(2) pmbin embin sfpbin sfnbin dp de
+
+stat\nomess sfpbin normfacp\sum
+stat\nomess sfnbin normfacn\sum
+sfpbin=sfpbin/normfacp
+sfnbin=sfnbin/normfacn
+
+sort embin pmbin sfpbin sfnbin
+em = embin[1:#:pbins]
+rebin sfpbin sfp_em pbins
+rebin sfnbin sfn_em pbins
+
+sort pmbin embin sfpbin sfnbin
+pm = pmbin[1:#:ebins]
+rebin sfpbin sfp_pm ebins
+rebin sfnbin sfn_pm ebins
+
+clear
+landscape
+window 5
+set ylog 10
+xlabel `Pm'
+ylabel `n(p) d<^>3<_>p'
+pch 2 .8 1
+auto on
+scales 0 1000 5 -4 0 4
+gr pm sfp_pm
+pch 12 .8 2
+cur pm sfn_pm
+
+copy sfp_pm sfpsum_pm
+copy sfn_pm sfnsum_pm
+do ind=[2:len(pm):1]
+ stat\nomess sfp_pm[1:ind] sfpsum_pm[ind]\sum
+ stat\nomess sfn_pm[1:ind] sfnsum_pm[ind]\sum
+enddo
+sfpsum_pm=sfpsum_pm/sfpsum_pm[len(pm)]
+sfnsum_pm=sfnsum_pm/sfnsum_pm[len(pm)]
+
+set %xloc 35
+set %yloc 85
+set cursor -7
+text `Raw Proton Norm. = '//rchar(nint(10000*normfacp)/10000)
+set %yloc 80
+text `Raw Neutron Norm. = '//rchar(nint(10000*normfacn)/10000)
+
+
+
+
+window 6
+k=pm
+nk_p=sfp_pm/pm**2
+nk_n=sfn_pm/pm**2
+
+
+!interpolate to get more bins.  Since each bin is a probability, we need to
+! scale by the old number of bins vs. the new number of bins.
+
+xx=k
+yy=nk_p
+yy=yy*10**(xx/160)		!minimize the variation.
+yy=yy*(len(xx)/600)
+gen xxnew 0,,xx[#] 600
+yynew=interp(xx,yy,xxnew)
+yynew=yynew/10**(xxnew/160)
+k=xxnew
+nk_p=yynew
+
+yy=nk_n
+yy=yy*10**(xx/160)		!minimize the variation.
+yy=yy*(len(xx)/600)
+gen xxnew 0,,xx[#] 600
+yynew=interp(xx,yy,xxnew)
+yynew=yynew/10**(xxnew/160)
+k=xxnew
+nk_n=yynew
+
+
+xlabel `Pm'
+ylabel `n(p) d<^>3<_>p/p<^>2<_> = n(p)/<Delta>p'
+pch 2 .8 1
+scales 0 1000 5 0 1 1
+auto yaxis
+gr k nk_p
+pch 12 .8 2
+cur k nk_n
+
+!** proton normalization	!note: sfp_pm already normalized to PROBABILITY
+integrand = k**2*nk_p
+intp[1]=integrand[1]		!double count first k step
+do ind=[2:len(k)]
+  intp[ind]=intp[ind-1]+integrand[ind]
+enddo
+pnorm1=nint(10000*intp[#])/10000
+
+intp=intp/intp[#]
+
+!** neutron normalization
+integrand = k**2*nk_n
+intn[1]=integrand[1]
+do ind=[2:len(k)]
+  intn[ind]=intn[ind-1]+integrand[ind]
+enddo
+nnorm1=nint(10000*intn[#])/10000
+intn=intn/intn[#]
+
+set %xloc 40
+set %yloc 85
+set cursor -7
+text `Rebinned p Norm. = '//rchar(pnorm1)
+set %yloc 80
+text `Rebinned n Norm. = '//rchar(nnorm1)
+
+
+window 7
+ylabel `<Int> n(p) d<^>3<_>p'
+pch 2 .8 1
+scales 0 1000 5 0 1 1
+set ylog 0
+auto yaxis
+gr k intp
+pch 12 .8 2
+cur k intn
+
+
+window 8
+ylabel `1 - <Int> n(p) d<^>3<_>p'
+pch 2 .8 1
+set ylog 10
+scales 0 1000 5 -5 0 5
+gr k 1-intp
+pch 12 .8 2
+cur k 1-intn
+
+
+write benhar_pmdist_?1p.dat k intp
+write benhar_pmdist_?1n.dat k intn
+
+terminal
+
+clear
+window 0
+znuc=?2
+anuc=?3
+nnuc=anuc-znuc
+y=-k
+sort y nk_p nk_n
+fy_p=2*pi*integral(y,abs(y)*nk_p)/Znuc
+fy_n=2*pi*integral(y,abs(y)*nk_n)/Nnuc
+fy = (Znuc*fy_p + Nnuc*fy_n) / (Anuc)
+xlabel `y'
+ylabel `F(y)'
+
+scales -800 0 4 -8 -2 6
+gr y fy
+
+write benharsf_?1.fy y fy

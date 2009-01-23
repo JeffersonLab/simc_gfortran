@@ -1,0 +1,99 @@
+SIMC 2002 updates:
+
+Removed hSTOP/sSTOP/lSTOP/rSTOP structures from single arm MCs (for single
+arm simplicity/compatibility).
+
+
+
+SIMC 2001 release:
+
+IMPORTANT NOTE:  This is the first full release in over 18 months.  Many
+changes were made and I've tried to check them carefully, but I did not
+verify that every change made was perfect for all running conditions.
+If you have a running SIMC, you should start by running the new SIMC in
+identical kinematics, and making sure that nothing strange is happening.
+If you have ANY problem getting the new version to run, let me know and
+send me your input file, and I'll see if I can figure out the problem
+(many problems might just be caused by overlooking changes to the input files).
+
+
+New release of SIMC.  Major changes:
+-----------------------------------
+1. Preliminary version of Hall A spectrometers (At the moment, ntuple still
+   uses hms/sos variable names, coordinate systems, units, etc...).  HRSR
+   variables come out in the HMS variables (e.g. hsdelta), HRSL --> SOS.
+   Target can geometry is still the Hall C version, but you can use either
+   Beer can or tuna can targets and give it the length, so it should be an
+   OK approximation.  Kaon decay is handled properly if doing_decay=1 (i.e.
+   simulate decay event by event, though you have to reject just events that
+   decay before the aerogel, not all events).  For doing_decay=0 (apply the
+   survival probability as a weight), the pathlength is calculated for the
+   entire trip through the spectrometer, and the projected back to the approx.
+   location of the aerogel.  This needs to be checked.
+2. Pion and Kaon electroproduction are now done consistantly, event generation
+   limits have been simplified, and variable defns. made more consistent.
+3. The routines that are shared by the different spectrometer models (project,
+   transp, musc, etc...) are now in the 'shared' directory.  They used to
+   be in the SOS.  This was done so that the single arm monte carlos would
+   use the same code and directory structures as the coincidence MC (SIMC).
+4. Many little but fixes, largely in spectrometer models, offsets, etc...
+
+
+EXTERNAL CHANGES (e.g. things that must be modified in the input files):
+-----------------------------------------------------------------------
+These are the changes relative to the latest release (120899).
+1. Replaced doing_piplus flag with which_pion (see comments in .inp files).
+2. "hard_cuts" flag.  Applies 'SPedge' and 'cuts.Em.max' cuts to events
+   before determining success and before ntuple.
+3. "hms_e_flag", which determined which arm had the electron, is now replaced
+   with "electron_arm" and "hadron_arm" flag.  1=hms,2=sos,3=hrsr,4=hrsl.
+4. "targ.mrec_amu"  is the mass of the recoil (A-1) system, for all physics
+   processes (it used to be the A-2 mass for pion/kaon generation).
+
+
+
+ADDITIONAL FEATURES/CHANGES:
+----------------------------
+1. Multiple scattering of incoming beam (record scattering of initial
+   electron, and apply as shifts to both outgoing particles when passed
+   to the spectrometers).
+2. Updated documentation on pion event generation from Dave Gaskell.
+3. Kaon/Pion electroproduction now use a spectral function rather than
+   just a momentum distribution.
+4. Updated HMS optics model (includes small Q2 rotation, and Q3 momentum
+   offset which should be roughly correct for field100 values (post-1999).
+5. 'expert' feature: sieve slits in the spectrometer.  You have to go into
+   mc_***.f and set "use_sieve" to .true. and open the apertures.  It 
+   puts in a 'mock' sieve slit by forcing the angles of events to go through
+   the nearest 'hole'.  There are no missing/large/smaller holes, but the
+   spacing should match the sieve slit for each spectrometer.
+6. Fixed coordinate system with target/spectrometer offsets.  For target
+   offsets, x=right, y=up (as with most raster/BPM info), z=downstream.
+   For spectrometer offsets, we use the spec. coord system (x=down, y=left).
+   The spectrometer offsets are meant to give the actual value of the
+   spectrometer, relative to the nominal kinematics (i.e. a positive x offset
+   means that the spectrometer is too low, and so applying it will raise
+   particles w.r.t. the spectrometer, and shift the x distribution to negative
+   values).
+
+
+MINOR OR PURELY INTERNAL UPDATES:
+---------------------------------
+1. Checking drift distances thru spectrometer against MEs to avoid errors in
+   total drift length.
+2. Sanity check for multiple scattering (MeV vs. GeV problems)
+3. Decdist array replaced with permanent variables.
+4. Em/Pm added to default histos (.gen file - showing generated Em/Pm)
+5. Bug fix - HMS aperture checks, drift lengths, collimator offsets, etc...
+
+
+THINGS TO COME:
+---------------
+Mostly cosmetic changes and more sanity checks of input variables.
+Note however, that physics.f (which determines the cross sections) and
+complete_recon_ev (which calculates physics quantities from the reconstructed
+tracks) are user routines.  They have reasonable starting cross section models
+and event reconstruction, but it is important that you verify that the
+physics variables are reconstructed in a way consistent with your analysis of
+the data, especially when it comes to things like energy loss corrections, 
+raster corrections, etc....

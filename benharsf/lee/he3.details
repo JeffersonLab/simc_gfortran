@@ -1,0 +1,87 @@
+From Omar.Benhar@roma1.infn.it Fri Jun  1 11:03:18 2001
+Date: Fri, 1 Jun 2001 13:35:36 +0200 (MET DST)
+From: "Omar Benhar - INFN, Roma - ++39-06-49914298"
+    <Omar.Benhar@roma1.infn.it>
+To: John R. Arrington <johna@cedar.phy.anl.gov>
+Cc: Omar Benhar <benhar@roma1.infn.it>
+
+John: 
+
+the tabulated 4He spectral function that I sent a while ago looks 
+allright to me. 
+The spectral function consists of two contributions: the two body 
+breakup contribution, whose energy dependence is a delta-function, and the 
+background, giving rise to a continuum starting at the three-body breakup 
+threshold.
+The first bin in the table is indeed 1 MeV wide. It represents the 
+delta-function contribution. The following bins, starting at 28.2 MeV, 
+give the background.    
+I have also checked that the normalization is correct to fractions of
+a percent. 
+
+Attached are the files with the A=3 spectral functions, whose structure 
+is explained below. 
+
+Best
+		Omar
+
+
+*******************************************************************************
+
+The files are organized as follows
+
+ *** 3He: Paris potential, Faddeev calculations of the Hannover 
+     group (see H. Meier-Hajduk, Ch. Hajduk, P.U. Sauer and W. Theis,
+     Nucl. Phys. A395(1983)332). file 'spec3he_paris.data' ***
+
+ - the first line gives the number of momentum and energy bins (65 and 15, 
+   respectively)
+
+ - the central values of momentum bins (MeV) are given in lines 2-66 (GeV)
+
+ - lines 67-81 give central values and size of the energy bins (GeV)
+
+ - then follow 15 blocks of 34 lines each, giving the proton and neutron spectral 
+   functions as a function of momentum for each energy. The first 17 lines give the 
+   proton spectral function, while the next 17 lines give the neutron spectral 
+   function. For example, lines 82 iand 99 gives the proton and neutron spectral 
+   functions corresponding to the first energy bin and the first four momentum bins, 
+   respectively.
+
+ - the spectral functions are given in units of GeV^-4
+
+ - the normalizations of the proton and neutron spectral functions are
+
+    4 \pi \int dE dk k^2*P_p(k,E) = 1
+    
+    4 \pi \int dE dk k^2*P_n(k,E) = 1
+
+
+ *** 3He: Argonne v_14 + Urbana VII three-body force. Calculation carried
+     out using the model described in O. Benhar and V.R. Pandharipande, Phys. Rev. 
+     C 47(1993)2218. file 'spec3he_mod.dat' ***
+
+ - the file is organized in exactly the same way as that containing the Hannover 
+   spectral function. The only difference is that the  proton and neutron spectral 
+   functions are normalized according to 
+
+    4 \pi \int dE dk k^2*P_p(k,E) = 2
+   
+    4 \pi \int dE dk k^2*P_n(k,E) = 1
+
+********************************************************************************
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Omar Benhar                      phone  ++39-06-49914298
+INFN, Sezione Roma 1             fax    ++39-06-4454749
+Piazzale Aldo Moro, 2            e-mail benhar@roma1.infn.it
+I-00185 Rome, Italy
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    [ Part 2, ""  Text/PLAIN (Name: "spec3he_paris.data")  703 lines. ]
+    [ Unable to print this part. ]
+
+
+    [ Part 3, ""  Text/PLAIN (Name: "spec3he_mod.dat")  1,247 lines. ]
+    [ Unable to print this part. ]
+

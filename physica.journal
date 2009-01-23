@@ -1,0 +1,59 @@
+********************************************************************************
+***                                                                          ***
+*** PHYSICA                      VERSION # 2.13               April     1998 ***
+*** Copyright (C) 1992,1993,1994,1995,1996,1997,1998         Joseph L. Chuma ***
+***                           All rights reserved                            ***
+***                                                                          ***
+***  Enter NEWS to get the latest information on new commands and features   ***
+***  Latest news added on April 6, 1998                                      ***
+***  Journal file: physica.journal                                           ***
+***                                                                          ***
+***            UNAUTHORIZED COMMERCIAL USE IS STRICTLY PROHIBITED            ***
+***                                                                          ***
+********************************************************************************
+User: johna   Date: 16-Oct-1902 18:04:22
+ Default graphics hardcopy device (bitmap): HPLASERJET 150 dpi
+ executing initialization file: /disk1/users/johna/.physicarc
+ PHYSICA: exec solutions 3
+ *** WARNING from READ\VECTORS
+     no vectors made
+ *** ERROR in expression evaluator
+     E1 is undefined: not a function or a variable
+ PHYSICA: exec solutions 3
+ vector E1 has been created with 1001 values
+ vector E2 has been created with 1001 values
+ PHYSICA: scales 0 5 5 0 4 4
+  Xmin Xmax #Xincs Ymin Ymax #Yincs
+  0    5    5      0    4    4
+ PHYSICA: replot
+ PHYSICA: scales 0 6 6 0 4 4
+  Xmin Xmax #Xincs Ymin Ymax #Yincs
+  0    6    6      0    4    4
+ PHYSICA: replot
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: hard p color
+ PHYSICA: hard p color
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: hard p color
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: hard p color
+ PHYSICA: hard p color
+ PHYSICA: exec solutions 2
+ vector E1 has been created with 11425 values
+ vector E2 has been created with 11425 values
+ PHYSICA: quit

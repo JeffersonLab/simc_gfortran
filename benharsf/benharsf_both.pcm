@@ -1,0 +1,85 @@
+!!!SF is 40 Em bins of 5 MeV (0-200 MeV) by 40 Pm bins of 20 MeV (0-800 MeV/c)
+
+!SF is 80 Em bins of 5 MeV             by 40 Pm bins of 20 MeV.
+
+destroy *
+read\scalar benharsf_?1.dat pbins ebins
+read benharsf_?1.dat\(2) pmbin embin sfpbin sfnbin dp de
+
+stat\nomess sfpbin normfacp\sum
+stat\nomess sfnbin normfacn\sum
+sfpbin=sfpbin/normfacp
+sfnbin=sfnbin/normfacn
+
+sort embin pmbin sfpbin sfnbin
+em = embin[1:#:pbins]
+rebin sfpbin sfp_em pbins
+rebin sfnbin sfn_em pbins
+
+sort pmbin embin sfpbin sfnbin
+pm = pmbin[1:#:ebins]
+rebin sfpbin sfp_pm ebins
+rebin sfnbin sfn_pm ebins
+
+clear
+portrait
+window 3
+set ylog 10
+xlabel `Pm'
+pch 2 .8 1
+auto on
+scales 0 1000 5 -4 0 4
+gr pm sfp_pm
+pch 12 .8 2
+cur pm sfn_pm
+
+copy sfp_pm sfpsum_pm
+copy sfn_pm sfnsum_pm
+do ind=[2:len(pm):1]
+ stat\nomess sfp_pm[1:ind] sfpsum_pm[ind]\sum
+ stat\nomess sfn_pm[1:ind] sfnsum_pm[ind]\sum
+enddo
+sfpsum_pm=sfpsum_pm/sfpsum_pm[len(pm)]
+sfnsum_pm=sfnsum_pm/sfnsum_pm[len(pm)]
+
+set %xloc 40
+set %yloc 80
+set cursor -7
+text `Raw Proton Norm. = '//rchar(nint(10000*normfacp)/10000)
+set %yloc 75
+text `Raw Neutron Norm. = '//rchar(nint(10000*normfacn)/10000)
+
+window 4
+xlabel `Em'
+set ylog 10
+scales 0 250 5 -4 0 0
+pch 2 .8 1
+gr em sfp_em
+pch 12 .8 2
+cur em sfn_em
+
+!terminal
+
+!cl
+!set ylog 10
+!landscape
+!window 0
+!nbins=10		!must be mult of 40
+!scales 0 400 8 -8 0 8
+!graph\axesonly
+!do ind=[1:nbins:1]
+! pmlo=nint(800/nbins)*(ind-1)+1
+! pmhi=nint(800/nbins)*ind
+! destroy x y
+! copy embin sfpbin xtmp ytmp IFF (pmbin>=pmlo & pmbin<=pmhi)
+! sort xtmp ytmp
+! x=xtmp[1:#:nint(40/nbins)]
+! rebin ytmp y nint(40/nbins)
+! pch ind 1 ind
+! destroy x y IFF (y<1.d-30)
+
+! stat\nomess y ysum\sum
+! y=y/ysum		!fixed normalization
+
+! cur x y
+!enddo

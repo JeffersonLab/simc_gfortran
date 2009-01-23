@@ -1,0 +1,57 @@
+Below is a description of changes necessary to include the code for
+the target field optics for the Gen E93-026 experiment.
+
+structures.inc and structures_init.inc
+  added rasterx to event_target structure
+
+simulate.inc and simulate_init.inc
+  extended debug to 6 element array
+  declared tgt_field_file,using_tgt_field,drift_to_ndet
+  put these three variables in the grnl common block
+
+target.inc
+  added Bangle (angle of magnetic field)
+
+dbase.f
+  convert targ.Bangle to radians
+  print comment about using target field
+  register debug as a 6 element array
+  register targ.Bangle, using_tgt_field, tgt_field_file, drift_to_ndet
+
+event.f
+  load value for main.target.rasterx
+
+mc_hms.f
+  added frx to passed variables in declaration
+  included simulate.inc instead of constants.inc
+  declared frx,ctheta,stheta
+  added call to target field mapping routine
+  print coords when (debug(6)=.true)
+
+results_write.f
+  changed ntu(12) and ntu(24) to something that is a better analogy 
+     target variable.  Feel free to not use this.  I left it in so 
+     that one could see the connection to other parts in the code.
+
+simc.f
+  initialize target fields for both arms
+  output values of tgt_field_file and using_tgt_field in *.hist file
+  declare frx
+  fill frx
+  fill in_P_arm.z to be generated y component at z=0.  See note 
+     in results_write.f
+  added frx to variables passes in call to mc_hms
+  added call to routine that transports protons through a magnetic field
+  fill in_E_arm.z to be generated y component at z=0.  See note 
+     in results_write.f
+  added code to transport electron from target to hms in target field
+  print coordinates (only does this when debug(6)=.true.)
+  more debug(6) stuff
+
+trg_track.f
+  contains the new code for the target field tracking
+
+Makefile
+  defined simcdir and Csoft for my system. 
+  added trg_track.o to OBJ2.  
+  commented out the definition of CERN_ROOT

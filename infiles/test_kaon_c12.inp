@@ -1,0 +1,67 @@
+; This is a CTP file
+
+; 'TF' stands for 'this field'
+; ONE equals TRUE unless specified otherwise
+
+
+begin parm experiment
+  ngen = 1000    		;  POS: # of successes; NEG: # of tries
+  EXPER.charge = 1.0		;  total charge (mC)
+  doing_phsp = 0		;  (ONE = TRUE)
+  doing_kaon = 1		;  (ONE = TRUE)
+  which_kaon = 0		;  (0=p-->K+lamda0,1=p-->K+sigma0,2=n-->K+sigma)
+                                ;  (+10 for bound hypernucleus in final state)
+  doing_pion = 0		;  (ONE = TRUE)
+  doing_decay = 0		;  1=decay ON, 0=decay OFF.
+  ctau = 371.3			;  decay length (cm). 780.4 for pi, 371.3 for K
+  extra_dbase_file='extra_KAON' ;  additional input parameters.
+end parm experiment
+
+begin parm kinematics_main
+  Ebeam = 3244.8                ;  (MeV)
+  dEbeam = 0.05                 ;  beam energy variation (%)
+  electron_arm = 1              ;  1=hms,2=sos,3=hrsr,4=hrsl
+  hadron_arm = 2                ;  1=hms,2=sos,3=hrsr,4=hrsl
+  spec.e.P = 1571.272           ;  e arm central momentum (MeV/c)
+  spec.e.theta = 14.92          ;  e arm angle setting (degrees)
+  spec.p.P = 1292.58            ;  p arm central momentum (MeV/c)
+  spec.p.theta = 13.399         ;  p arm angle setting (degrees)
+end parm kinematics_main
+
+begin parm target
+  targ.A = 12.			;  target A
+  targ.Z = 6.			;  target Z
+  targ.mass_amu = 12.		;  target mass in amu !!!CHECK THIS!!!!
+  targ.mrec_amu = 11.01		;  recoil mass in amu (eep=A-1 system,pion=A-2)
+  targ.rho = 1.			;  target density (g/cm^3)
+  targ.thick = 100.		;  target thick (mg/cm^2) 4.00cm long
+  targ.angle = 0.		;  target angle (for solid target) (degrees)
+  targ.abundancy = 100.		;  target purity (%)
+  targ.can = 2			;  1=beer can (fpi), 2=pudding can (nucpi)
+end parm target
+
+begin parm debug		;  (ONES give helpful debug info)
+  debug(1) = 0			;  turns on output from brem.f
+  debug(2) = 0			;  into/outa subs
+  debug(3) = 0			;  spit out values (init. and main loop).
+  debug(4) = 0			;  mostly comp_ev, gen_rad diagnostics.
+  debug(5) = 0			;  a bit of everything
+end parm debug
+
+begin parm e_arm_accept
+  SPedge.e.delta.min = -14.0    ;  delta min (%) (SPECTROMETER ACCEPTANCE!)
+  SPedge.e.delta.max =  14.0    ;  delta max (%)
+  SPedge.e.yptar.min = -60.0    ;  yptar min = (mrad)
+  SPedge.e.yptar.max =  60.0    ;  yptar max = (mrad)
+  SPedge.e.xptar.min = -100.0   ;  xptar min = (mrad)
+  SPedge.e.xptar.max =  100.0   ;  xptar max = (mrad)
+end parm e_arm_accept
+
+begin parm p_arm_accept
+  SPedge.p.delta.min = -22.0    ;  delta min (%) (SPECTROMETER ACCEPTANCE!)
+  SPedge.p.delta.max =  22.0    ;  delta max (%)
+  SPedge.p.yptar.min = -90.0    ;  yptar min = (mrad)
+  SPedge.p.yptar.max =  90.0    ;  yptar max = (mrad)
+  SPedge.p.xptar.min = -50.0    ;  xptar min = (mrad)
+  SPedge.p.xptar.max =  50.0    ;  xptar max = (mrad)
+end parm p_arm_accept

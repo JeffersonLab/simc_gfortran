@@ -1,0 +1,263 @@
+{-------------------------------------------------------------------------------
+ Generate Monte-Carlo forward and reconstruction matrix elements for HMS-100
+ spectrometer tune. All output matrix elements are in TRANSPORT coordinates.
+ Note that COSY-7 uses different units than COSY-6 when printing the maps
+ in transport notation (procedure PT.) The reconstruction map is still
+ calculated using the old COSY-6 units.
+
+ X-dependent (raster) reconstruction map generated.
+
+ Author: D. Potterveld, Argonne National Lab, 3-Sep-1996
+ Updated for HMS-100, DHP, 02-Mar-1998
+ -------------------------------------------------------------------------------
+}
+INCLUDE 'COSY' ;
+PROCEDURE RUN ;
+
+{=========================== Variable Declarations ===========================}
+
+   VARIABLE Q1 1 ; VARIABLE Q2 1 ;VARIABLE Q3 1 ;  {QUAD strengths}
+   VARIABLE Q1MID 1 ; VARIABLE Q2MID 1 ; VARIABLE Q3MID 1 ;
+
+   VARIABLE OBJ 1 ;       { function used in evaluating first order focus }
+   VARIABLE FILE 80 ;     { filename }
+   VARIABLE LINE 80 ;     { dummy for user to answer into }
+   VARIABLE TILT 1 ;      { Focal plane tilt angle }
+   VARIABLE SNAME 4 ;     { Spectrometer name}
+   VARIABLE FRMODE 1 ;    { Fringe field mode }
+   VARIABLE MORDER 1 ;    { Maximum order of maps }
+   VARIABLE FORDER 1 ;    { Order of forward maps }
+   VARIABLE RORDER 1 ;    { Order of reconstruction map }
+   VARIABLE RES 1 4 ;     { Resolution array }
+
+   VARIABLE TMPSPOS 1000 ;  { Saved value of SPOS }
+   VARIABLE GMAP 2000 8 ;   { Global transfer map }
+   VARIABLE RMAP 2000 5 ;   { Reconstruction map }
+
+{========================== Procedure declarations ===========================}
+
+ { Print rmap to IU }
+
+   PROCEDURE PMR IU ; 
+      VARIABLE I 1 ; VARIABLE M 2000 5 ; 
+      LOOP I 1 5 ; M(I) := RMAP(I) + 0*DD(1) ; ENDLOOP ;
+      DAPRV M 4 5 TWOND IU ; ENDPROCEDURE ;
+
+ { Reconstruction with X as independent variable }
+
+   PROCEDURE RR1 M X0 X A Y B D PR AR N OR MR RES ;{TRAJECTORY RECONSTRUCTION}
+      PROCEDURE REC ; VARIABLE NN 1 ; VARIABLE S MAX(NM1,N+1) ;
+      VARIABLE I 1 ; VARIABLE M4 NM1 5 ; VARIABLE CM 1 6 ;
+      VARIABLE RI N 6 ; VARIABLE RO N 4 ; VARIABLE RB N 4 ; VARIABLE RE N 4 ;
+      VARIABLE IRAN 1 ; VARIABLE J NM1 ; VARIABLE NOM 1 ; VARIABLE IER 1 ;
+      VARIABLE MR4 NM1 4 ;
+      FUNCTION RAN IRAN ; RAN := 98765*IRAN+.12345 ; RAN := 2*(RAN-NINT(RAN)) ;
+         IRAN := RAN ; ENDFUNCTION ; IRAN := 0 ;
+      IF OR>0 ; LOOP I 1 4 ; CM(I+1) := DD(I) ;
+         ENDLOOP ; NOM := NOC ; CO OR ; CM(1) := DD(5) ; CM(6) := 0*DD(1) ;
+         IF ND=3 ; CM(6) := DD(4) ; CM(5) := 0*DD(1) ; ENDIF ;
+         POLVAL 1 M 4 CM 6 M4 4 ; 
+         M4(5) := DD(5) ; MI M4 MR 5 IER ; CO NOM ; ENDIF ;
+      S := 0 ; LOOP I 1 N-1 ; S := S&0 ; ENDLOOP ;
+      LOOP I 1 N ; VELSET S I X0+X*RAN(IRAN) ; ENDLOOP ; RI(1) := S ;
+      LOOP I 1 N ; VELSET S I A*RAN(IRAN) ; ENDLOOP ; RI(2) := S ;
+      LOOP I 1 N ; VELSET S I Y*RAN(IRAN) ; ENDLOOP ; RI(3) := S ;
+      LOOP I 1 N ; VELSET S I B*RAN(IRAN) ; ENDLOOP ; RI(4) := S ;
+      LOOP I 1 N ; VELSET S I D*RAN(IRAN) ; ENDLOOP ; RI(5) := S ;
+      RI(6) := S ;  POLVAL 1 M 4 RI 6 RO 4 ;
+      LOOP I 1 N ; VELSET S I PR*RAN(IRAN) ; ENDLOOP ; RE(1) := S ;
+      LOOP I 1 N ; VELSET S I AR*RAN(IRAN) ; ENDLOOP ; RE(2) := S ;
+      LOOP I 1 N ; VELSET S I PR*RAN(IRAN) ; ENDLOOP ; RE(3) := S ;
+      LOOP I 1 N ; VELSET S I AR*RAN(IRAN) ; ENDLOOP ; RE(4) := S ;
+      RO(1) := RO(1) + RE(1) ; RO(2) := RO(2) + RE(2) ;
+      RO(3) := RO(3) + RE(3) ; RO(4) := RO(4) + RE(4) ;
+      LOOP I 1 4 ; DAPLU MR(I) 5 X0 S ; MR4(I) := S ; ENDLOOP ;
+      POLVAL 1 MR4 4 RO 4 RB 4 ;  RE(1) := RI(2)-RB(1) ; RE(2) := RI(3)-RB(2) ;
+      RE(3) := RI(4)-RB(3)  ; RE(4) := RI(6)-RB(4) ;
+      LOOP J 1 4 ; RES(J) := 0 ; NN := 0 ; LOOP I 1 N ; VELGET RE(J) I S ;
+         IF S#0 ; RES(J) := RES(J) + ABS(S) ; NN := NN + 1 ; ENDIF ; ENDLOOP ;
+         RES(J) := NN/(RES(J)+1E-20)/4 ; IF IER#0 ; RES(J) := 0 ; ENDIF ;
+         ENDLOOP ; ENDPROCEDURE ;
+      NM1 := MAX(NM1,N) ; SCRLEN 2*NM1 ; REC ;
+      NM1 := NMON(NO+1,NV) ; SCRLEN LSCR ; ENDPROCEDURE ;
+
+ { Ask user for input value }
+
+   PROCEDURE ASK VAR PROMPT LL UL ;
+      VAR := 2*ABS(UL) + 1 ;
+      WHILE (VAR<LL)+(VAR>UL) ; WRITE 6 '$'&PROMPT ; READ 5 VAR ;
+      ENDWHILE ; ENDPROCEDURE ;
+
+{================================= Main Code =================================}
+
+{ Beam specifications }
+
+   MORDER := 6 ;                        {Max order for calculations}
+   OV MORDER 3 0 ;                      {Order Value <order><phase dim><#par>}
+
+   RPE 600. ;                           {REF PARTICLE <Momentum>}
+   PTY 0 ;
+   SB .01 .100   0  .01 .030   0   0 .05   0   0   0 ;
+{  --> PX   PA  R12  PY   PB  R34 PT  PD  R56 PG  PZ      }
+
+{ Spectrometer name }
+
+   SNAME := 'H100' ;
+
+{ Fringe-field specifications.}
+
+   ASK frmode 'Fringe-field mode (0,1,2 or 3): ' 0 3 ; 
+   FR FRMODE ;
+
+{ Computation order specifications }
+
+   ASK forder 'Order for maps (1-'&SF(morder,'(i1)')&'): ' 1 morder ;
+   CO FORDER ; RORDER := FORDER ;
+
+{ QUAD pole-tip fieldS }
+
+{ HMS-100 Nominal values  }
+
+   Q1 := -0.1384960 ; 
+   Q2 :=  0.1519521 ; 
+   Q3 := -0.0738509 ; 
+
+{ After COSY optimization 
+
+   Q1 := ? ; 
+   Q2 := ? ; 
+   Q3 := ? ;
+}
+
+{ Begin composing forward maps }
+
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_for_maps.dat' ;
+   openf 20 file 'NEW' ;
+
+{ Compute and save map to Q1 entrance }
+
+      FR FRMODE ;
+      UM ; SM GMAP ; TMPSPOS := SPOS ;  {Initialize global map}
+
+      DL 2.155 ;                       {Drift to Q1}
+      PT 20 ;
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q1 inner aperture }
+
+      Q1MID := 2.0/3 ;                  {Fraction of Q1 length}
+      FR -1 ; MQ 1.890       Q1 0.25 ;  {Entrance fringe}
+      FR  0 ; MQ 1.890*Q1MID Q1 0.25 ;  {Fractional quad}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q1 exit }
+
+      FR  0 ; MQ 1.890*(1-Q1MID) Q1 0.25 ;  {Fractional quad}
+      FR -2 ; MQ 1.890           Q1 0.25 ;  {Exit fringe}
+      FR FRMODE ;                           {Restore fringe-field mode}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q2 entrance }
+
+      DL 1.2275 ;                       {Drift to Q2}
+      PT 20 ;
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q2 inner aperture }
+
+      Q2MID := 2.0/3 ;                  {Fraction of Q2 length}
+      FR -1 ; MQ 2.155       Q2 0.35 ;  {Entrance fringe}
+      FR  0 ; MQ 2.155*Q2MID Q2 0.35 ;  {Fractional quad}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q2 exit }
+
+      FR  0 ; MQ 2.155*(1-Q2MID) Q2 0.35 ;  {Fractional quad}
+      FR -2 ; MQ 2.155           Q2 0.35 ;  {Exit fringe}
+      FR FRMODE ;                       {Restore fringe-field mode}
+      PT 20 ;
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q3 entrance }
+
+      DL 0.9295 ;                      {Drift to Q3}
+      PT 20 ;
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q3 inner aperture }
+
+      Q3MID := 2.0/3 ;                  {Fraction of Q3 length}
+      FR -1 ; MQ 2.186       Q3 0.35 ;  {Entrance fringe}
+      FR  0 ; MQ 2.186*Q3MID Q3 0.35 ;  {Fractional quad}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to Q3 exit }
+
+      FR  0 ; MQ 2.186*(1-Q3MID) Q3 0.35 ;  {Fractional quad}
+      FR -2 ; MQ 2.186           Q3 0.35 ;  {Exit fringe}
+      FR FRMODE ;                       {Restore fringe-field mode}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to B1 entrance }
+
+      DL 1.007 ;                       {Drift to B1}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to B1 exit }
+
+      DI 12.05625 25 0.3000 -6 0 -6 0 ; {B1}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+{ Compute and save map to reconstruction plane }
+
+      DL 6.250 ;                        {Drift to detector plane}
+      PT 20 ;                           {Output TRANSPORT matrix elements}
+      TMPSPOS := TMPSPOS + SPOS ;       {Update saved spos}
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+
+   closef 20 ;                          {Done outputing forward MAPS}
+
+{ Convert GMAP from canonical to TRANSPORT form}
+
+   CATR GMAP MAP TMPSPOS ; spos := tmpspos ;
+
+{ Compute focal objective function }
+
+   OBJ := SQRT(ME(1,2)*ME(1,2)+ME(3,4)*ME(3,4)) ;
+   WRITE 6 ' Q1,Q2,Q3, OBJ = ' Q1&Q2&Q3&OBJ ;
+   WRITE 6 ' Total length = '&S(CONS(SPOS))&' meters' ;
+
+{ Compute focal plane tilt angle }
+
+   TILT := (180*atan(ME(1,1)*ME(1,26)/ME(1,6))/pi)+90 ;
+   write 6 ' Focal plane tilt ='&SF(tilt,'(f8.3)')&' degrees' ;
+
+{ Compute RECON map }
+
+   RR1 MAP 0 0 .04 0 .04 .15 0 0 1000 RORDER RMAP RES ;
+   write 6 ' RECON resolutions =  ' RES(1)&RES(2)&RES(3)&RES(4) ;
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_rec.dat' ;
+   openf 20 file 'NEW' ; pmr 20 ; closef 20 ;
+
+ENDPROCEDURE ;
+RUN ;
+END ;
+

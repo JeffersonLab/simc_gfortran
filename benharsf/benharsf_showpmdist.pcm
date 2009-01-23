@@ -1,0 +1,65 @@
+!!!SF is 40 Em bins of 5 MeV (0-200 MeV) by 40 Pm bins of 20 MeV (0-800 MeV/c)
+
+!SF is 80 Em bins of 5 MeV             by 40 Pm bins of 20 MeV.
+
+destroy *
+pi=3.14159265
+read\scalar benharsf_?1.dat pbins ebins
+read benharsf_?1.dat\(2) pmbin embin sfpbin sfnbin dp de
+
+stat\nomess sfpbin normfacp\sum
+stat\nomess sfnbin normfacn\sum
+sfpbin=sfpbin/normfacp
+sfnbin=sfnbin/normfacn
+
+sort embin pmbin sfpbin sfnbin
+em = embin[1:#:pbins]
+rebin sfpbin sfp_em pbins
+rebin sfnbin sfn_em pbins
+
+sort pmbin embin sfpbin sfnbin
+pm = pmbin[1:#:ebins]
+rebin sfpbin sfp_pm ebins
+rebin sfnbin sfn_pm ebins
+
+clear
+landscape
+
+copy sfp_pm sfpsum_pm
+copy sfn_pm sfnsum_pm
+do ind=[2:len(pm):1]
+ stat\nomess sfp_pm[1:ind] sfpsum_pm[ind]\sum
+ stat\nomess sfn_pm[1:ind] sfnsum_pm[ind]\sum
+enddo
+sfpsum_pm=sfpsum_pm/sfpsum_pm[len(pm)]
+sfnsum_pm=sfnsum_pm/sfnsum_pm[len(pm)]
+
+portrait
+window 31 5 50 100 100
+
+
+k=pm
+nk_p=sfp_pm/pm**2
+nk_n=sfn_pm/pm**2
+
+
+!interpolate to get more bins.  Since each bin is a probability, we need to
+! scale by the old number of bins vs. the new number of bins.
+
+xx=k
+yy=nk_p
+yy=yy*10**(xx/160)		!minimize the variation.
+yy=yy*(len(xx)/150)
+gen xxnew 0,,xx[#] 150
+yynew=interp(xx,yy,xxnew)
+yynew=yynew/10**(xxnew/160)
+k=xxnew
+nk_p=yynew
+
+xlabel `p [MeV/c]'
+ylabel `n(p) [MeV<^>-3<_>]'
+pch 2 .6 2
+scales 0 1000 5 0 1 1
+destroy k nk_p IFF (k<10)
+auto yaxis
+gr k nk_p

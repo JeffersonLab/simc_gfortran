@@ -1,0 +1,9 @@
+Date: Tue, 18 May 1999 10:08:08 -0500
+From: David Potterveld <POTTERVELD@ANLMEP.PHY.ANL.GOV>
+Subject: RE: SOS MEs.
+
+My latest SOS ME's are on laurel in ~dhp/sos/monte in files
+forward_cosy.dat and recon_cosy.dat. The recon ME's are refit to
+forward-tracked rays in the same way as I described for the HMS.
+(see <simc>/hms/MATRIX_ELEMENTS.README for details on the procedure).
+

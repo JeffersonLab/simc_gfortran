@@ -1,0 +1,395 @@
+\documentstyle {article}
+\begin{document}
+\textheight8.5in
+\hsize6.0in
+\oddsidemargin0.25in
+\evensidemargin0in
+\topmargin0in
+\title{Pion Production in SIMC}
+\author{Dave Gaskell}
+\date{\today}
+\maketitle
+
+\section{Introduction}
+SIMC has been shown to be a powerful tool in analyzing elastic scattering,
+(e,e'p), and kaon production data.  This report will summarize how we extend
+SIMC to handle pion production and point out some of the ambiguities one must 
+face in extending models of pion production from hydrogen to nuclei with A$>$1.
+
+\section{Event Generation}
+In SIMC, the beam energy is fixed (modulo some small smearing) and the 
+scattered electron quantities ($E_e$,$cos{\theta_e}$,$\phi_e$) are thrown flat 
+in the lab frame.  For pion production, the pion angles are also thrown flat.
+In the case of production from the free proton, the magnitude of the pion 
+momentum is fixed by energy and momentum conservation.  In the case of 
+production from the Deuteron and Helium-3 the following procedure is followed.
+It is assumed that the pion is produced from a single nucleon in the nucleus 
+and the other nucleon(s) are non-participating
+spectators.  A momentum, $\vec{p}_{fermi}$, is chosen for the target nucleon.  
+The magnitude of the nucleon momentum is drawn from a normalized distribution
+derived from an appropriate momentum space wave function, while the direction
+is thrown flat in $\phi$ and $cos{\theta}$.  The final element that must be
+fixed is the target nucleon energy.  In general, the nucleons in a nucleus are
+not on mass shell, so the nucleon momentum does not fix its energy.  In SIMC, 
+we choose the target nucleon energy to be defined as
+$$
+E_{target} = M_{D} - \sqrt{m_{spectator}^2+p^2_{fermi}} 
+$$
+for Deuterium, and
+$$
+E_{target} = M_{He} - \sqrt{m_{spectator}^2+p^2_{fermi}} - m_{proton}
+$$
+for Helium.  
+For the Deuterium case, this just puts the spectator on mass shell.  In 
+Helium-3, we are essentially saying that the nucleus is a Deuteron with a 
+stationary proton. Now with the target nucleon energy and momentum fixed, one
+can solve for the magnitude of the pion momentum using energy and momentum
+conservation.  More specifically,
+$$
+\omega + E_{target} = E_{\pi} + E_{recoil}
+$$
+$$
+\vec{q} + \vec{p}_{fermi} = \vec{p}_{\pi} + \vec{p}_{recoil}.
+$$
+Note that it is assumed that the recoiling struck nucleon is now on the mass 
+shell (i.e. $E^2_{recoil}=m^2_{recoil}+p^2_{recoil}$).
+
+\section{Physics Model}
+\subsection{Proton Target}
+In SIMC, each event is weighted by some model cross section calculated
+from the generated (vertex) kinematics.  In the models used in SIMC, 
+the electroproduction cross section is written as,
+$$
+\frac{d\sigma}{d\Omega_{e}dE_ed\Omega_{\pi}^{*}} = \Gamma_{v}
+\frac{d\sigma}{d\Omega_{\pi}^{*}}
+$$
+where $\Gamma_v$ is the virtual photon flux defined as
+$$
+\Gamma_v = \frac{\alpha}{2\pi^2}\frac{E'}{E}\frac{K_{eq}}{Q^2}
+\frac{1}{1-\epsilon}
+$$
+and $\frac{d\sigma}{d\Omega^{*}}$ is the center of mass virtual photon cross 
+section.  $K_{eq}$ is the equivalent photon energy (the energy required for a
+real photon to excite a nucleon to a mass W) and is defined (Hand 
+convention)
+$$
+K_{eq} = \frac{W^2-m_{n}^2}{2m_{n}},
+$$
+where $m_n$ is the mass of the nucleon.
+
+The center of mass virtual photon cross section is written in terms of 
+transverse, longitudinal, and interference terms,
+$$
+\frac{d\sigma}{d\Omega_{\pi}^{*}} = \frac{d\sigma_T}{d\Omega_{\pi}^{*}}+
+\epsilon\frac{d\sigma_L}{d\Omega_{\pi}^{*}} + \sqrt{2\epsilon(\epsilon+1)}
+ \frac{d\sigma_{TL}}{d\Omega_{\pi}^{*}}\cos{\phi_{\pi}^*} +
+ \epsilon\frac{d\sigma_{TT}}{d\Omega_{\pi}^{*}}\cos{2\phi_{\pi}^{*}}.
+$$
+The center of mass cross section is calculated differently depending on 
+the model.  For the high W data (W=1.6 GeV), we use Henk Blok's 
+parameterization of $d\sigma/dtd\phi$ from Brauel et. al. \cite{Brauel}, as 
+well as the so-called MAID model.  MAID is 
+somewhat of a black box since we do not have the original code, although the 
+paper describing the physics on which it is based is available \cite{Tiator}.
+In essence, the MAID model calculates resonant and non-resonant multipoles
+constrained by existing data.  The MAID model is also used for the low W
+data (W=1.16 GeV) in addition to an older multipole model (which I will call 
+Multipole).  While MAID takes $W$,$Q^2$,and $\cos{\theta_{\pi}^*}$ as inputs 
+and uses some analytical parameterization to calculate the multipoles, 
+Multipole uses a simple look-up table (binned in $K_{eq}$ and $Q^2$).
+In MAID and Multipole one ends up with response functions ($R_T$,$R_L$,etc.) 
+that must be multiplied by a kinematic factor to get the center of mass cross 
+sections.  Modulo factors of two, the kinematic factors are identical for both
+models:
+$$
+\frac{d\sigma_T}{d\Omega^*} = \frac{p_{\pi}W}{2K_{eq}m_n}R_T
+$$
+$$
+\frac{d\sigma_L}{d\Omega^*} = \frac{p_{\pi}W}{K_{eq}m_n}R_L
+$$
+$$
+\frac{d\sigma_{TL}}{d\Omega^*} = 2\frac{p_{\pi}W}{K_{eq}m_n}REAL(R_{TL})
+$$
+$$
+\frac{d\sigma_{TT}}{d\Omega^*} = \frac{p_{\pi}W}{2K_{eq}m_n}R_{TT}.
+$$
+
+For pion production from the proton, the above prescription is unambiguous.
+Given an event, one simply needs to calculate $\Gamma_v$ in the lab, boost
+the pion to the center of mass and calculate $d\sigma/d\Omega_{\pi}^*$.  Then
+one must transform the virtual photon cross section back to the lab via a 
+Jacobian (see Appendix A).
+
+\subsection{A$>$1}
+When A is greater than one, we take the approach that the model cross section
+is just the proton cross section with the caveat that the proton (or neutron)
+is now allowed to move.  Implementing this alone is difficult enough, but we 
+must also face the ambiguities inherent in extending the model to a particle 
+that is not on the mass shell.
+
+First we must deal with the virtual gamma flux ($\Gamma_v$). In calculating
+any cross section one generally starts with the inverse of the relative 
+electron-target flux, v.  Typically
+(i.e. for a stationary target) this is just $E_e/p_e$.  When the target is
+allowed to move, however, we must account for the relative velocity of the 
+target particle.  Thus we must correct the incident flux, v, by a factor
+$[1 - \vec{p}_{fermi}\cdot\vec{p}_e/(E_{target}p_e)]$. 
+Furthermore, if one takes $K_{eq}$ to be the real photon energy needed to 
+excite a mass W from the target nucleon we then might naively calculate,
+$$
+K_{eq} = \frac{W^2 - (E_{target}^2-p_{fermi}^2)}{2(E_{target}-
+\vec{p}_{fermi}  \cdot \vec{q}/|\vec{q}|)}.
+$$
+$K_{eq}$ in the virtual photon flux cancels when
+combined with the center of mass photon cross section.  However, since it is
+used in the Multipole model look-up table, the choice of convention is still
+important.  It turns out that when the above form of $K_{eq}$ is used in the 
+Multipole model, the center of mass cross section does not have the correct 
+dependence on W.  For that reason, the same form for $K_{eq}$ as was used
+in the stationary nucleon case is used in the moving nucleon case (this gives
+the correct W dependence).  Note, however, that W is calculated differently:
+$$
+W^2 = (E_{target}+\omega)^2 - (\vec{p}_{fermi}+\vec{q})^2.
+$$
+
+A more subtle issue is how to treat the ``off-shellness'' of the target 
+nucleon.  Recall that in 
+the generation of an event, the spectator nucleon is on the mass shell while
+the target is not.  However, the models we use generally assume the target is
+on mass shell.  We are free to redefine the target nucleon energy such that
+the particle is on shell, but then this energy will be inconsistent with
+the energy calculated for the pion.  More specifically, when the pion is 
+boosted to the center of mass, it will not actually be boosted to a frame 
+where the sum of all momenta is zero.  Currently, we choose to treat the 
+struck nucleon the same in both event generation and in the physics
+models.
+
+Once we choose a convention for the target nucleon energy, it is not always 
+possible to implement it in a consistent manner.  Both MAID and Multipole
+require that the fundamental amplitudes (squared) be multiplied by various
+kinematic factors.  Since these are calculated outside the model, we are free
+to choose whatever convention we like.  The amplitudes themselves, however,
+are another story. 
+For the Multipole model, once one has chosen a prescription
+for calculating the ``off-shell'' $K_{eq}$, there are no ambiguities.  The 
+MAID model is a bit more complicated, though.  Recall that the MAID model 
+takes $W$,$Q^2$,and $cos{\theta^*}$ as its inputs.  It is unknown how it 
+determines the fundamental amplitudes, but from the paper describing this 
+model it almost certainly requires the center of mass virtual photon energy 
+and momentum.  The 
+problem arises from the fact that we have calculated $W$ and $cos{\theta^*}$
+assuming some off-shell prescription.  When MAID determines $\omega^*$ 
+from the input quantities, it assumes the target nucleon is on shell so that 
+the virtual photon energy (and momentum), and therefore the
+amplitudes it returns may not be consistent with the kinematics that we 
+generated for this event.  This is not a problem if we change the event 
+generation scheme and put the target nucleon on shell and put the spectator 
+off shell, but then at some kinematic settings, the agreement between data and
+SIMC suffers in regard to distribution offsets.  In addition, the spectator 
+nucleon is now off shell in the final state.
+
+\section{Appendix A - The Jacobian}
+In calculating the cross section section for a given event in SIMC, we 
+generally use models that describe the virtual photon cross section in the
+center of mass ($d\sigma/d\Omega^*$) multiplied by a virtual photon flux factor
+($\Gamma_v$).  Thus, we must transform the virtual photon cross section to the
+lab in order to properly weight the event.
+
+The first step is to transform $d\sigma/d\Omega^*$ to $d\sigma/dtd\phi^*$.  
+This transformation actually reduces to complexity of the Jacobian somewhat.
+The invariant t is written,
+$$
+t = -Q^2 + m_{\pi}^2 - 2\omega E_{\pi} + 2p_{\pi}qcos{\theta}.
+$$
+In the center of mass, all energy and momenta do not depend on $\theta$, so
+$$
+\frac{dt}{d\cos{\theta^*}} = 2p_{\pi}^*q^*
+$$
+and
+$$
+\frac{d\sigma}{dtd\phi^*} = \frac{d\sigma}{d\Omega^*}\frac{d\cos{\theta^*}}{dt}
+= \frac{1}{2p_{\pi}^*q^*} \frac{d\sigma}{d\Omega^*}.
+$$
+
+Next, we need to transform from $(t,\phi^*)$ to $(\cos{\theta}\phi)$.  For that
+we need to calculate a Jacobian,
+$$J=
+\left|\matrix{
+\frac{\partial{t}}{\partial{\cos{\theta}}}
+&\frac{\partial{t}}{\partial{\phi}} \cr
+\frac{\partial{\phi^*}}{\partial{\cos{\theta}}} & 
+\frac{\partial{\phi^*}}{\partial{\phi}} \cr
+}\right|
+$$
+First, I will note a couple of useful derivatives.  These are big and ugly - 
+the derivation of which are left to the reader as an exercise.  
+One derivative that will appear repeatedly is $\partial{p_{\pi}}/
+\partial{\cos{\theta_{q\pi}}}$.
+$$
+\frac{\partial{p_{\pi}}}{\partial{\cos{\theta_{q\pi}}}} = 
+\frac{ p_{\pi}\sqrt{q+p_N\cos{\theta_{qN}}-p_{\pi}\cos{\theta_{q\pi}}} + 
+p_{\pi}^2\cos{\theta_{q\pi}} - 
+p_N\sin{\theta_{qN}}p_{\pi}\frac{\cos{\theta_{q\pi}}}{\sin{\theta_{q\pi}}}
+F(\phi_{qN},\phi_{q\pi})}
+{p_{\pi}\sin^2{\theta_{q\pi}}-p_N\sin{\theta_{qN}}\sin{\theta_{q\pi}}
+F(\phi_{qN},\phi_{q\pi}) + 
+(\omega+E_N-E_{\pi})\frac{p_{\pi}}{E_{\pi}} - 
+\cos{\theta{q\pi}}\sqrt{q+p_N\cos{\theta_{qN}}-p_{\pi}\cos{\theta_{q\pi}}}}
+$$
+where $F(\phi_{qN},\phi_{q\pi}) =  
+\cos{\phi_{q\pi}}\cos{\phi_{qN}}+\sin{\phi_{q\pi}}\sin{\phi_{qN}}$.  Another 
+useful derivative is $\partial{p_{\pi}}/\partial{\phi_{q\pi}}$.
+$$
+\frac{\partial{p_{\pi}}}{\partial{\phi_{q\pi}}} = 
+\frac{p_N\sin{\theta_{qN}}p_{\pi}\sin{\theta_{q\pi}}G(\phi_{qN},\phi_{q\pi})/
+(q+p_N\cos{\theta_{qN}}-p_{q\pi}\cos{\theta_{q\pi}})}{\cos{\theta_{q\pi}} +
+\frac{1}{\sqrt{q+p_N\cos{\theta_{qN}}-p_{\pi}\cos{\theta_{q\pi}}}}
+(p_N\sin{\theta_{qN}}\sin{\theta_{q\pi}}F(\phi_{qN},\phi_{q\pi}) -
+p_{\pi}\sin^2{\theta_{q\pi}} - (\omega+E_N-E_{\pi})\frac{p_{\pi}}{E_{\pi}})}
+$$
+where $F(\phi_{qN},\phi_{q\pi})$ is as defined above and 
+$G(\phi_{qN},\phi_{q\pi}) = \cos{\phi_{qN}}\sin{\phi_{q\pi}}
+-\sin{\phi_{qN}}\cos{\phi_{q\pi}}$.
+
+With these two partial derivatives in hand, the derivatives of $t$ with 
+respect to the pion angles are relatively simple:
+$$
+\frac{\partial{t}}{\partial{\cos{\theta_{q\pi}}}} = 
+2p_{\pi}q + 2(q\cos{\theta_{q\pi}}-\omega\frac{p_{\pi}}{E_{\pi}})
+\frac{\partial{p_{\pi}}}{\partial{\cos{\theta_{q\pi}}}}
+$$
+and
+$$
+\frac{\partial{t}}{\partial{\phi_{q\pi}}} = 
+2(q\cos{\theta_{q\pi}}-\omega\frac{p_{\pi}}{E_{\pi}})
+\frac{\partial{p_{\pi}}}{\partial{\phi_{q\pi}}}.
+$$
+
+The derivatives of $\phi^*_{q\pi}$ are somewhat involved.  The first step is
+to describe how it is calculated.  First, all relevant vectors are described 
+in the lab using what I will call the ``q'' coordinate system.  This coordinate
+system is defined such that the z-axis lies along $\vec{q}$.  Then, since
+$\vec{q}$ and $\vec{P}_{beam}$ describe the scattering plane, the y-axis is 
+defined to be in the direction $\vec{q} \times \vec{P}_{beam}$, and then the
+x-axis is $\vec{y} \times \vec{z}$.  Then $\phi_{q\pi}$ is simply 
+$\arctan{\frac{p_y}{p_x}}$.  Typically, when the target is stationary, the 
+boost to the center of mass is along $\vec{q}$, so that $\phi_{q\pi}$ is 
+the same in the lab and the center of mass.  When the target is allowed to 
+move, however, we do not in general boost along $\vec{q}$, so we must 
+recalculate  $\phi^*_{q\pi}$.
+
+To calculate $\phi^*_{q\pi}$, we define the ``q'' system as before, but in 
+terms of all variables in the center of mass.  Just to make the calculation 
+clear, I will spell out the steps.  Assuming I start with some $p_{\pi}^x$ and
+$p_{\pi}^y$ in the ``q'' system in the lab, I must first boost to the center of
+mass (note that I will drop the $\pi$ subscript - unless specifically noted, 
+all momenta refer to the pion).  In this calculation, I write the explicit 
+angular dependence of $p_x$ ($=p\sin{\theta}\cos{\phi}$), etc. so that it is 
+clearer how to take the partial derivatives later.
+$$
+p_x^* = p\sin{\theta_{q\pi}}\cos{\phi_{q\pi}} + 
+p\frac{\gamma-1}{\beta^2}\beta_x(\beta_x\sin{\theta_{q\pi}}\cos{\phi_{q\pi}}+
+\beta_y\sin{\theta_{q\pi}}\sin{\phi_{q\pi}}+\beta_z\cos{\theta_{q\pi}}) - 
+\gamma\beta_xE
+$$
+
+$$
+p_y^* = p\sin{\theta_{q\pi}}\sin{\phi_{q\pi}} + 
+p\frac{\gamma-1}{\beta^2}\beta_y(\beta_x\sin{\theta_{q\pi}}\cos{\phi_{q\pi}}+
+\beta_y\sin{\theta_{q\pi}}\sin{\phi_{q\pi}}+\beta_z\cos{\theta_{q\pi}}) - 
+\gamma\beta_yE
+$$
+
+$$
+p_z^* = p\cos{\theta_{q\pi}} + 
+p\frac{\gamma-1}{\beta^2}\beta_z(\beta_x\sin{\theta_{q\pi}}\cos{\phi_{q\pi}}+
+\beta_y\sin{\theta_{q\pi}}\sin{\phi_{q\pi}}+\beta_z\cos{\theta_{q\pi}}) - 
+\gamma\beta_zE
+$$
+
+Note that the above center of mass quantities are written in terms of the lab
+``q'' coordinate system and must be rotated to the center of mass ``q'' 
+coordinate system as described previously. This rotation is totally determined
+by the boosted beam and q vectors (so do not depend on the pion angles).
+$$
+p_x^{*'} = p_x^* R_{xx} + p_y^* R_{xy} + p_z^* R_{xz}
+$$
+$$
+p_y^{*'} = p_x^* R_{yx} + p_y^* R_{yy} + p_z^* R_{yz}
+$$
+Then, finally, we can calculate $\phi_{q\pi}^*$.
+$$
+\phi_{q\pi}^* = \arctan{\frac{p_y^{*'}}{p_x^{*'}}}
+$$
+
+Now, at last we can calculate the partial derivatives for the Jacobian.  First
+I use the fact that,
+$$
+\frac{\partial{\tan{\phi_{q\pi}}}}{\partial{R}} = 
+(1+\tan^2{\phi_{q\pi}})\frac{\partial{\phi_{q\pi}}}{\partial{R}}.
+$$
+This gives,
+$$
+\frac{\partial{\phi_{q\pi}}}{\partial{R}} = 
+\frac{1}{1+\frac{p_y^{*'}}{p_x^{*'}}} 
+\frac{ \partial{ (\frac{p_y^{*'}}{p_x^{*'}} }) }{\partial{R}}
+$$
+$$
+\frac{\partial{\phi_{q\pi}}}{\partial{R}} =
+\frac{p_x^{*'} \frac{\partial{p_y^{*'}}}{\partial{R}} - 
+      p_y^{*'} \frac{\partial{p_x^{*'}}}{\partial{R}} }{(p_x^{*'})^2 + 
+ (p_y^{*'})^2}
+$$
+So, the derivative of $\phi^*_{q\pi}$ with respect to some lab variable can
+be done using the above formula, with the expressions for the $p_n^{*'}$ 
+derived above and assuming that the $R_{nn}$ and $\beta_n$ do not depend on
+the pion angles (which they should not because they are calculated completely
+from initial quantities).  I won't list every derivative here, but just as an 
+example, I will write out one in all its glory.
+$$
+\frac{ \partial{p_y^{*'}}}{\partial{\phi_{q\pi}}} = 
+R_{yx}\frac{\partial{p_x^*}}{\partial{\phi_{q\pi}}} + 
+R_{yy}\frac{\partial{p_y^*}}{\partial{\phi_{q\pi}}} +
+R_{yz}\frac{\partial{p_z^*}}{\partial{\phi_{q\pi}}}
+$$
+where,
+$$
+\frac{\partial{p_x^*}}{\partial{\phi_{q\pi}}} = 
+-p\sin{\theta_{q\pi}}\sin{\phi_{q\pi}} + 
+p \frac{\gamma-1}{\beta^2} \beta_x \sin{\theta_{q\pi}} 
+(\beta_y\cos{\phi_{q\pi}} - \beta_x\sin{\phi_{q\pi}}) + 
+(\frac{p_x^*+\gamma\beta_xE}{p} - \gamma\beta_x\frac{p}{E})
+\frac{\partial{p}}{\partial{\phi_{q\pi}}},
+$$
+$$
+\frac{\partial{p_y^*}}{\partial{\phi_{q\pi}}} = 
+p\sin{\theta_{q\pi}}\cos{\phi_{q\pi}} + 
+p \frac{\gamma-1}{\beta^2} \beta_y \sin{\theta_{q\pi}} 
+(\beta_y\cos{\phi_{q\pi}} - \beta_x\sin{\phi_{q\pi}}) + 
+(\frac{p_y^*+\gamma\beta_yE}{p} - \gamma\beta_y\frac{p}{E})
+\frac{\partial{p}}{\partial{\phi_{q\pi}}}
+$$
+and,
+$$
+\frac{\partial{p_z^*}}{\partial{\phi_{q\pi}}} = 
+p \frac{\gamma-1}{\beta^2} \beta_z \sin{\theta_{q\pi}} 
+(\beta_y\cos{\phi_{q\pi}} - \beta_x\sin{\phi_{q\pi}}) + 
+(\frac{p_z^*+\gamma\beta_xE}{p} - \gamma\beta_z\frac{p}{E})
+\frac{\partial{p}}{\partial{\phi_{q\pi}}}
+$$
+
+\begin{thebibliography}{99}
+\bibitem{Brauel} P. Brauel {\it et al.},
+``Electroproduction Of Pi+ N, Pi- P And K+ Lambda, K+ Sigma0 Final States
+                  Above The Resonance Region,"
+Zeit. Phys. {\bf C3}, 101 (1979).
+
+\bibitem{Tiator}
+D.~Drechsel, O.~Hanstein, S.S.~Kamalov and L.~Tiator,
+``A Unitary isobar model for pion photoproduction and electroproduction on
+                  the proton up to 1-GeV,"
+Nucl. Phys. {\bf A645}, 145 (1999)
+nucl-th/9807001.
+\end{thebibliography}
+
+\end{document}

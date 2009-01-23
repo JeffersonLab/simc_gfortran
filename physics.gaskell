@@ -1,0 +1,1128 @@
+!------------------------------------------------------------------------
+
+	real*8 function peepi(ev,mev)
+
+* Purpose:
+* This routine calculates p(e,e'pi+)n cross sections from a fit to the data of
+* Brauel et al., Z.Phys.C. 3(1979)101.
+*
+* variables:
+*
+*   input:
+*	qmag		!3-momentum of virtual photon		(MeV/c)
+*	omega		!energy of virtual photon		(MeV)
+*	theta_pq	!angle between pi and q			(rad)
+*	efinal_p	!energy of pion				(MeV/c)
+*	Q2_g            !4-momentum of virtual photon, squared  (GeV/c)^2
+*	e0_i		!incident electron beam energy		(MeV)
+*	pf_e_i		!momentum of scattered electron		(MeV/c)
+*	epsilon		!epsilon				(dimensionless)
+*	phi_x		!angle between hadron & electron planes	(rad)
+*	eject_mass	!mass of the pion			(MeV/c^2)
+*
+*   output:
+*	sigma_eepi	!d3sigma/dEe'dOmegae'Omegapi	(microbarn/GeV/sr^2)
+
+	implicit none
+	include 'simulate.inc'
+
+	record /event_main/ mev
+	record /event/	ev
+
+* NOTE: when we refer to the center of mass system, it always refers to the
+* photon-NUCLEON center of mass, not the photon-NUCLEUS!  The model gives
+* the cross section in the photon-nucleon center of mass frame.
+
+	real*8 sigma_eepi		!final cross section (returned as peepi)
+	real*8 mrho
+	real*8 fpi,fpi2			!pion form factor (squared).
+	real*8 sig219,sig,factor
+	real*8 sigt,sigl,siglt,sigtt	!components of dsigma/dt
+	real*8 s5lab			!dsigma/dE_e/dOmega_e/dOmega_pi (in some lab)
+	real*8 mtar,mrec,efer		!mass (energy) of target/recoil particle
+	real*8 epsi			!epsilon of virtual photon
+	real*8 gtpr			!gamma_t prime.
+	real*8 tcos,tsin		!cos/sin of theta between ppi and q
+	real*8 tfcos,tfsin		!cos/sin of theta between pfermi and q
+	real*8 bstar,bstarx,bstary,bstarz,gstar	!beta/gamma of C.M. system in lab
+	real*8 ppix,ppiy,ppiz,ppidummy		!pion momentum in lab.
+	real*8 thetacm,phicm			!C.M. scattering angles
+	real*8 costcm,costo2cm
+	real*8 sintcm,sinto2cm
+	real*8 ppicm,ppicmx,ppicmy,ppicmz,epicm	 !pion E,p in C.M.
+	real*8 pstar,pstarx,pstary,pstarz,estar	 !c.m. pion   momentum/energy
+	real*8 qstar,qstarx,qstary,qstarz,nustar !c.m. photon momentum/energy
+	real*8 pfx,pfy,pfz			 !p_fermi x,y,z components.
+	real*8 qx,qy,qz
+	real*8 zero
+
+	real*8 efinal_e,efinal_p		!total energy for final state pion/elec.
+	real*8 s,t,Q2_g				!t,s, Q2 in (GeV/c)**2
+	real*8 nu				!equivilent photon energy (MeV)
+
+	real*8 root_two,mpi_to_microbarn
+	real*8 CLEB(2,3),qfm,Q2_table(8),nu_table(10),atemp(42)
+	real*8 Q2_high,Q2_low,deltaQ2,nu_high,nu_low,delta_nu,F
+	real*8 new_x_x,new_x_y,new_x_z
+	real*8 new_y_x,new_y_y,new_y_z
+	real*8 new_z_x,new_z_y,new_z_z
+	real*8 dummy,p_new_x,p_new_y,phiqn
+	real*8 adphi,bdphi,dphidphi
+	real*8 davesig,phipq
+	real*8 square_root,dp_dcos_num,dp_dcos_den,dp_dcos
+	real*8 dp_dphi_num,dp_dphi_den,dp_dphi
+	real*8 dt_dcos_lab,dt_dphi_lab,psign,dpdphi
+	real*8 dpxdphi,dpydphi,dpxdcos,dpydcos,dpzdcos,dpzdphi
+	real*8 dpxnewdphi,dpynewdphi,dpxnewdcos,dpynewdcos
+	real*8 dpznewdphi,dpznewdcos
+	real*8 dphicmdphi,dphicmdcos
+	real*8 jacobian
+
+	real*8 pbeam,beam_newx,beam_newy,beam_newz
+	real*8 pbeamcmx,pbeamcmy,pbeamcmz,ebeamcm,pbeamcm
+	real*8 ppicm_newx,ppicm_newy,ppicm_newz
+
+	real*8 davesig2,jacobian2,dpzcmdphi
+	real*8 dEcmdcos,dEcmdphi,dcoscmdcos,dcoscmdphi
+	real*8 theta_temp
+
+	complex*8 H1,H2,H3,H4,H5,H6         !Helicity amplitudes
+	complex*8 amplitude(7),A1,A2,A3,A4,A12,A34,A1234
+	complex*8 AT(7,3,8,10)
+	complex*8 gf1,gf2,gf3,gf4,gf7,gf8
+	complex*8 hnperp,hfperp,hnpar,hfpar,hnlong,hflong
+	complex*8 XL,XT,XTT,XLT
+
+	integer Q2_count,nu_count,multipole,IT1,IT2,IT3,IT4,IT5
+	integer final_state,isospin
+
+	logical first,low_w_flag
+
+	data first /.TRUE./
+	data low_w_flag /.FALSE./   !Assume high W kinematics to start
+
+* Initialize some stuff.
+	Q2_g = ev.Q2/1000000.
+	phipq = mev.oop_angle
+	mtar=Mp
+	mrec=Mp
+	if (doing_peepi) then
+	  if(doing_piplus) then
+	    mtar=Mp
+	    mrec=Mn
+	    final_state = 1
+	  else
+	    mtar=Mn
+	    mrec=Mp
+	    final_state = 2
+	  endif
+	endif
+
+* calculate energy of initial (struck) nucleon, using the same assumptions that
+* go into calculating the pion angle/momentum (in event.f).  For A>1, the struck
+* nucleon is off shell, the 2nd nucleon (always a neutron) is on shell, and has
+* p = -p_fermi, and any additional nucleons are at rest.
+
+	efer = sqrt(pfer**2+mtar**2)
+	if(doing_deutpi.or.doing_hepi) then
+	 efer = target.M-sqrt(mn**2+pfer**2)
+	 if(doing_hepi)efer=efer-mp
+c	 mtar = sqrt(efer**2-pfer**2)
+	endif
+
+
+* calculate some kinematical variables
+* f's and fer indicate fermi momenta, s, star or cm CM system
+
+	tcos = ev.up.x*ev.uq.x+ev.up.y*ev.uq.y+ev.up.z*ev.uq.z
+	if(tcos-1..gt.0..and.tcos-1..lt.1.E-8)tcos=1.0
+	tsin=sqrt(1.-tcos**2)
+
+	tfcos = pferx*ev.uq.x+pfery*ev.uq.y+pferz*ev.uq.z
+	if(tfcos-1..gt.0..and.tfcos-1..lt.1.E-8)tfcos=1.0
+	tfsin=sqrt(1.-tfcos**2)
+
+	epsi = 1./(1.+2*(1.+ev.omega**2/ev.Q2)*tan(ev.e.th/2.)**2)
+
+c	s = (ev.omega+sqrt(pfer**2+mtar**2))**2
+c     &      -(ev.q+pfer*tfcos)**2-(pfer*tfsin)**2
+	s = (ev.omega+efer)**2-(ev.q+pfer*tfcos)**2-(pfer*tfsin)**2
+	nu = (s-(efer**2-pfer**2))/2./(efer-pfer*tfcos) !equiv pho energy(MeV)
+	if((nu.lt.500.).and.(first))then
+	   write(6,*) 'nu is less than 500 Mev!!',nu
+	   write(6,*) 'Using low W multipole model...'
+	   low_w_flag = .TRUE.
+	endif
+	s = s/1.e6				!CONVERT TO (GeV)**2
+	mev.w = sqrt(s)
+
+	efinal_e = sqrt(ev.e.P**2 + Me2)
+	efinal_p = sqrt(ev.p.P**2 + Mh2)
+
+c	t = (ev.q-ev.p.P*tcos)**2 + (ev.p.P*tsin)**2-(ev.omega-efinal_p)**2
+	t = ev.Q2-Mh2+2.*ev.omega*efinal_p-2.*ev.p.P*ev.q*tcos
+	t = t/1.e6				!CONVERT TO (GeV/c)**2
+	mev.t = t
+
+* Calculate velocity of PHOTON-NUCLEON C.M. system in the lab frame. Use beta
+* and gamma of the cm system (bstar and gstar) to transform particles into
+* c.m. frame.  Define z along the direction of q, and x to be along the
+* direction of the pion momentum perpendicular to q.
+
+* DJG: Get pfer components in the lab "q" system
+        dummy=sqrt((ev.uq.x**2+ev.uq.y**2)*(ev.uq.x**2+ev.uq.y**2+ev.uq.z**2))
+        new_x_x = -(-ev.uq.x)*ev.uq.z/dummy
+        new_x_y = -(-ev.uq.y)*ev.uq.z/dummy
+        new_x_z = ((-ev.uq.x)**2 + (-ev.uq.y)**2)/dummy
+
+        dummy   = sqrt(ev.uq.x**2 + ev.uq.y**2)
+        new_y_x =  (-ev.uq.y)/dummy
+        new_y_y = -(-ev.uq.x)/dummy
+        new_y_z =  0.0
+
+        p_new_x = pfer*((-pferx)*new_x_x + (-pfery)*new_x_y + pferz*new_x_z)
+        p_new_y = pfer*((-pferx)*new_y_x + (-pfery)*new_y_y + pferz*new_y_z)
+
+        if(p_new_x.eq.0.)then
+           phiqn=0.
+        else
+           phiqn = atan2(p_new_y,p_new_x)
+        endif
+        if(phiqn.lt.0.)phiqn = phiqn+2.*pi
+
+* get beam in "q" system.
+
+	pbeam = sqrt(ev.Ein**2-me**2)
+	beam_newx = pbeam*new_x_z
+	beam_newy = pbeam*new_y_z
+	beam_newz = pbeam*ev.uq.z
+
+	bstar=sqrt((ev.q+pfer*tfcos)**2+(pfer*tfsin)**2)/(efer+ev.omega)
+	gstar=1./sqrt(1. - bstar**2)
+
+	bstarz = (ev.q+pfer*tfcos)/(efer+ev.omega)
+	bstarx = p_new_x/(efer+ev.omega)
+	bstary = p_new_y/(efer+ev.omega)
+	
+* DJG: Boost virtual photon to CM.
+
+	zero =0.d0
+	call loren_real8(gstar,bstarx,bstary,bstarz,ev.omega,
+     &              zero,zero,ev.q,nustar,qstarx,qstary,qstarz,qstar)
+
+* DJG: Boost pion to CM.
+	
+	ppiz = ev.p.P*tcos
+	ppix = ev.p.P*tsin*cos(phipq)
+	ppiy = ev.p.P*tsin*sin(phipq)
+	call loren_real8(gstar,bstarx,bstary,bstarz,ev.p.E,
+     &		ppix,ppiy,ppiz,epicm,ppicmx,ppicmy,ppicmz,ppicm)
+	thetacm = acos((ppicmx*qstarx+ppicmy*qstary+ppicmz*qstarz)/ppicm/qstar)
+
+* DJG Boost the beam to CM.
+
+	call loren_real8(gstar,bstarx,bstary,bstarz,ev.Ein,beam_newx,
+     &		beam_newy,beam_newz,ebeamcm,pbeamcmx,pbeamcmy,pbeamcmz,pbeamcm)
+
+* Thetacm is defined as angle between ppicm and qstar.
+* To get phicm, we need out of plane angle relative to scattering plane
+* (plane defined by pbeamcm and qcm).  For stationary target, this plane 
+* does not change.  In general, the new coordinate system is defined such 
+* that the new y direction is given by (qcm x pbeamcm) and the new x 
+* is given by (qcm x pbeamcm) x qcm.
+ 
+	dummy = sqrt((qstary*pbeamcmz-qstarz*pbeamcmy)**2+
+     &          (qstarz*pbeamcmx-qstarx*pbeamcmz)**2
+     &         +(qstarx*pbeamcmy-qstary*pbeamcmx)**2)
+	new_y_x = (qstary*pbeamcmz-qstarz*pbeamcmy)/dummy
+	new_y_y = (qstarz*pbeamcmx-qstarx*pbeamcmz)/dummy
+	new_y_z = (qstarx*pbeamcmy-qstary*pbeamcmx)/dummy
+
+	dummy = sqrt((new_y_y*qstarz-new_y_z*qstary)**2
+     &         +(new_y_z*qstarx-new_y_x*qstarz)**2
+     &         +(new_y_x*qstary-new_y_y*qstarx)**2)
+	new_x_x = (new_y_y*qstarz-new_y_z*qstary)/dummy
+	new_x_y = (new_y_z*qstarx-new_y_x*qstarz)/dummy
+	new_x_z = (new_y_x*qstary-new_y_y*qstarx)/dummy
+
+	new_z_x = qstarx/qstar
+	new_z_y = qstary/qstar
+	new_z_z = qstarz/qstar
+
+        ppicm_newx = ppicmx*new_x_x + ppicmy*new_x_y + ppicmz*new_x_z
+        ppicm_newy = ppicmx*new_y_x + ppicmy*new_y_y + ppicmz*new_y_z
+	ppicm_newz = ppicmx*new_z_x + ppicmy*new_z_y + ppicmz*new_z_z
+
+	sintcm = sin(thetacm)
+	costcm = cos(thetacm)
+	sinto2cm = sin(thetacm/2.)
+	costo2cm = cos(thetacm/2.)
+	phicm = atan2(ppicm_newy,ppicm_newx)
+	if(phicm.lt.0.) phicm = 2.*3.141592654+phicm
+
+	mev.thetacm = thetacm
+	mev.phicm = phicm
+
+*******************************************************************************
+	if((nu.ge.500.0).and.(low_w_flag)) then
+	    WRITE(6,*) 'LOOK OUT CHEESY POOF BREATH!'
+	    WRITE(6,*) 'W IS TOO HIGH FOR THIS MODEL'
+	    WRITE(6,*) 'SETTING NU to 499.9'
+	    nu=499.9
+	endif
+
+	if(low_w_flag) then     !Use multipole expansion for low W.
+
+* DJG Initialize CG Coefficients for low W model.
+*       Clebsch-Gordon Coefficients  CLEB(FINAL STATE, ISOSPIN)
+*                                         1: PI+ N--------1(IS.1/2)
+*                                         2: PI- P--------2(IV.1/2)
+*                                                 --------3(IV.3/2)
+         root_two = sqrt(2.)
+	 mpi_to_microbarn = 197.327/mh
+         CLEB(1,1)=root_two
+         CLEB(1,2)=root_two/3.
+         CLEB(1,3)=-root_two/3.
+	
+         CLEB(2,1)=root_two
+         CLEB(2,2)=-root_two/3.
+         CLEB(2,3)=root_two/3.
+
+* DJG Read in multipoles for low W model.
+
+	 if(first) then
+	  first = .FALSE.
+	  write(6,*) 'READING IN MULTIPOLES...'
+	  OPEN(3,FILE='MULTIPOL.file',STATUS='OLD')
+          do Q2_count = 1,8
+	     read(3,202) qfm                           !q**2 in fm**2
+	     Q2_table(Q2_count) = qfm*0.0389379        !convert to GeV**2
+             do nu_count=1,10
+               read(3,203)nu_table(nu_count)
+               read(3,204)atemp		!multipolarity amplitudes, see,eg,table below
+               do multipole=1,7
+                 IT1=multipole+7
+                 IT2=multipole+14
+                 IT3=multipole+21
+                 IT4=multipole+28
+                 IT5=multipole+35
+
+C      Multipoles in units of  10**-2 MPI+**-1
+C  Multipole Amplitude Table: AT(TYPE    ,  ISOSPIN ,-Q**2 , P.EQ.PH.R.)
+C                                 1:-----E0+-------0(IS.1/2)
+C                                 2:-----M1--------1(IV.1/2)
+C                                 3:-----E1+-------3(IV.3/2)
+C                                 4:-----M1+
+C                                 5:-----S0+
+C                                 6:-----S1-
+C                                 7:-----S1+
+                 AT(multipole,3,Q2_count,nu_count)=
+     &                                       CMPLX(ATEMP(multipole),ATEMP(IT1))
+                 AT(multipole,2,Q2_count,nu_count)=CMPLX(ATEMP(IT2),ATEMP(IT3))
+                 AT(multipole,1,Q2_count,nu_count)=CMPLX(ATEMP(IT4),ATEMP(IT5))
+               enddo	!multipole
+             enddo	!nu
+          enddo		!Q2
+	  close(unit=3)
+	 endif		!if first time.
+
+* Interpolate multipole amplitudes from table.
+	 do Q2_count=1,8
+	    Q2_high=0.
+	    Q2_low=0.
+	    nu_high=0.
+	    nu_low=0.
+	    if((Q2_g.gt.Q2_table(Q2_count)).and.
+     &                      (Q2_g.lt.Q2_table(Q2_count+1))) then
+	      Q2_high = Q2_table(Q2_count+1)
+	      Q2_low = Q2_table(Q2_count)
+	      deltaQ2 = (Q2_high-Q2_low)
+	      do nu_count=1,10
+	       if((nu.gt.nu_table(nu_count)).and.
+     &            (nu.lt.nu_table(nu_count+1))) then
+	         nu_high = nu_table(nu_count+1)
+	         nu_low =  nu_table(nu_count)
+	         delta_nu = nu_high-nu_low
+		 do multipole=1,7
+		   amplitude(multipole) = 0.
+		   do isospin = 1,3
+		      A1 = AT(multipole,isospin,Q2_count,nu_count)
+		      A2 = AT(multipole,isospin,Q2_count+1,nu_count)
+		      A3 = AT(multipole,isospin,Q2_count,nu_count+1)
+		      A4 = AT(multipole,isospin,Q2_count+1,nu_count+1)
+		      A12= (A1*(Q2_high-Q2_g) + A2*(Q2_g-Q2_low))/deltaQ2
+		      A34= (A3*(Q2_high-Q2_g) + A4*(Q2_g-Q2_low))/deltaQ2
+		      A1234 = (A12*(nu_high-nu)+A34*(nu-nu_low))/delta_nu
+		      amplitude(multipole) = amplitude(multipole) + 
+     &                                    CLEB(final_state,isospin)*A1234
+		   enddo
+*                                        !Convert multipoles to microb^.5
+		   amplitude(multipole) = mpi_to_microbarn*amplitude(multipole)
+	         enddo
+	       endif	!nu check
+	      enddo	!nu
+	    endif	!Q2 check
+	 enddo		!Q2
+
+* Now calculate the Helicity amplitudes
+
+	 gf1 = amplitude(1) + 3.*costcm*(amplitude(4)+amplitude(3))
+	 gf2 = 2.*amplitude(4) + amplitude(2)
+	 gf3 = 3.*(amplitude(3)-amplitude(4))
+	 gf4 = (0.,0.)
+	 gf7 = amplitude(6) - 2.*amplitude(7)
+	 gf8 = amplitude(5) + 6.*costcm*amplitude(7)
+
+* DJG WALKER helicity amplitudes
+	 H5 = -costo2cm*(gf7+gf8)
+	 H6 = -sinto2cm*(gf7-gf8)
+	 H4 = (2.*sinto2cm*(gf1+gf2)+costo2cm*sintcm*(gf3+gf4))/root_two
+	 H2 = (-2.*costo2cm*(gf1-gf2)+sinto2cm*sintcm*(gf3-gf4))/root_two
+	 H1 = (-costo2cm*sintcm*(gf3+gf4))/root_two
+	 H3 = (-sinto2cm*sintcm*(gf3-gf4))/root_two
+
+* DJG Bartl helicity amplitudes
+* key:          hnperp -----> photon pol. perp. to scatt. plane,no baryon flip
+*               hfpar -----> photon pol. par. to scatt. plane, baryon flip
+*               hnlong -----> longitudinal photon pol., no baryon flip
+*               hflong -----> longitudinal photon pol., baryon flip
+*               hnpar -----> photon pol. par. to scatt. plane, no baryon flip
+*               hfperp -----> photon pol. perp. to scatt. plane, baryon flip
+
+	 hnperp = (H4+H1)/root_two
+	 hfpar = (H3+H2)/root_two
+	 hnlong = H5
+	 hflong = H6
+	 hnpar = (H4-H1)/root_two
+	 hfperp = (H3-H2)/root_two
+
+	 XT = hnperp*CONJG(hnperp)+hfpar*CONJG(hfpar)+hnpar*CONJG(hnpar)+
+     &       hfperp*CONJG(hfperp)
+	 XL = hnlong*CONJG(hnlong) + hflong*CONJG(hflong)
+	 XTT = hnpar*CONJG(hnpar)+hfperp*CONJG(hfperp)-hnperp*CONJG(hnperp)-
+     &        hfpar*CONJG(hfpar)
+	 XLT = hnlong*CONJG(hnpar)+hflong*CONJG(hfpar)
+
+	 F = 2.*((efer-pfer*tfcos)/1000.)*sqrt(s)*(ppicm/1000.)/
+     &      (s-(mtar/1000.)**2)/(mtar/1000.)
+	 write(6,*) 'EFER..',efer,pfer,sqrt(efer**2-pfer**2)
+
+	 sigt = F/2.*XT
+	 sigl = F*XL
+	 sigtt = F/2.*XTT
+	 siglt = 2.*F*REAL(XLT)
+	 siglt=siglt/2.           !Divide siglt by 2 because Henk uses
+                                  !a different convention when adding
+                                  !the four terms together. DJG
+
+	 sig219=(sigt+epsi*sigl+epsi*cos(2.*phicm)*sigtt
+     &		+sqrt(2.0*epsi*(1.+epsi))*cos(phicm)*siglt)/1.d0
+
+* DJG: This is dsig/dOmega_cm - convert to dsig/dtdphi_cm
+* DJG: using dt/dcos_cm = 2ppicmqcm
+
+ 	 sig = sig219/ppicm/qstar/2.
+
+	else                 !If equivalent gamma energy too high
+	                     !use Henk Blok's fit to Brauel data
+
+* Fits to p(e,e'pi+)n cross-sections
+* HPB: cross sections for pi-fits to Brauel's n(e,e'pi-)p
+* HPB: dsigma/dt cross sections at W=2.19 and Q^2=0.70 MODIFIED BY HAND!!!
+
+	 sigl = 27.8*exp(-11.5*abs(t))
+	 sigt = 10.0*(5.*abs(t))*exp(-5.*abs(t))
+	 siglt= 0.0*sin(thetacm)
+ 	 sigtt= -(4.0*sigl+0.5*sigt)*(sin(thetacm))**2
+
+cDJG	 if (.not.doing_piplus) then
+cDJG	   sigt =sigt *0.25*(1.+3.*exp(-10.*abs(t)))
+cDJG	   sigtt=sigtt*0.25*(1.+3.*exp(-10.*abs(t)))
+cDJG	 endif
+
+* GMH: Now scale sigl by Q2*pion_formfactor
+* HPB: parametrization of pion formfactor in the region 0.5<Q2<1.8
+
+	 mrho = 0.712   !DETERMINED BY EMPIRICAL FIT TO FORMFACTOR (GeV/c**2)
+
+ 	 fpi=1./(1.+1.65*Q2_g+0.5*Q2_g**2)
+	 fpi2=fpi**2
+
+* HPB: now convert to different Q^2
+* HPB: s_L follows Q^2*Fpi^2; s_T and s_TT go as 1/(0.3+Q^2)?
+* HPB: factor 0.1215 therefore is value of q2*fpi**2 for q2=0.7
+
+	 sigl=sigl*(fpi2*Q2_g)/0.1215
+	 sigt=sigt/(0.3+Q2_g)
+	 sigtt=sigtt/(0.3+Q2_g)
+
+	 sig219=(sigt+epsi*sigl+epsi*cos(2.*phicm)*sigtt
+     &		+sqrt(2.0*epsi*(1.+epsi))*cos(phicm)*siglt)/1.d0
+
+* GMH: Brauel scaled all his data to W=2.19 GeV,so rescale by 1/(W**2-mp**2)**2
+* HPB: factor 15.333 therefore is value of (W**2-mp**2)**2 at W=2.19
+
+	 sig=sig219*15.333/(s-(mtar/1000.)**2)**2
+	 sig=sig/2./pi/1e+06   !dsig/dtdphicm in microbarns/MeV**2/rad
+
+        endif        !end test on high or low W
+
+*******************************************************************************
+* GMH: Virtual photon to electron beam flux conversion factor
+* DJG: Replace mtar in denominator of gammaflux with more general
+* DJG: efer-pfer*tfcos, for pfer =0 this reverts to old form
+c	gtpr = alpha/2./(pi**2)*efinal_e/ev.Ein*(s-(mtar/1000.)**2)/2./
+c     &          (mtar/1000.)/Q2_g/(1.-epsi)
+
+	gtpr = alpha/2./(pi**2)*efinal_e/ev.Ein*(s-(mtar/1000.)**2)/2./
+     &		((efer-pfer*tfcos)/1000.)/Q2_g/(1.-epsi)
+
+* GH: Now determine momentum of pion in n-pi cm frame, needed to properly add
+* GH: together the components of the cross-section
+
+* Now, Henk's CM -> LAB transformation
+* HPB: Brauel's cross section is expressed in an invariant way as dsigma/dtdphi,
+* HPB: with a virtual photon flux factor based on a full cross section, written
+* HPB: as: dsigma/dQ2dWdtdphi. One can convert this cross section to dsigma/domega  
+* HPB: in the lab frame or the cm frame by multiplying with the factor q*p_pi/3.14
+* HPB: (with the variables in the lab frame, or the cm frame)
+* HPB: this factor is built from dt/dcos(theta)=2pq, and a factor 1/2pi, which
+* HPB: comes from the conversion of Brauel's virtual photon flux factor and the
+* HPB: one we use, based on dsigma/dE_e'dOmega_e'dOmega_pi
+* HPB: see Devenish and Lyth, Phys. Rev.  C D5, 47(1972)
+
+* Simpler (I hope) explanation:  sig is d2sigma/dt/dphi_cm.  In order to get
+* d2sigma/domega_cm (=s2cm), we multiply by dt/domega_cm = 1/2/pi*dt/dcos(theta_cm)
+* = 1/pi*q_cm*p_cm.  We can then get d5sigma/dE_e'/dOmega_e'/dOmega_pi_cm by
+* multiplying by gammav.  Either of these can be converted to the dOmega_lab
+* by multiplying by dOmega_lab/dOmega_cm = dcos(theta_lab)/dcos(theta_cm)
+* (dphi_cm/dphi_lab=1 since the frames are collinear).  This is 'factor',
+* which is equal to dt/dcos(theta_cm) / dt/dcos(theta_lab).  Hence, the
+* following cross sections can be calculated:
+*       s2cm =       sig*qcm*ppicm       /pi
+*       s5cm =gammav*sig*qcm*ppicm       /pi
+*       s2lab=       sig*q  *ppi  *factor/pi
+*       s5lab=gammav*sig*q  *ppi  *factor/pi
+
+c	factor = mtar/(mtar+ev.omega-ev.q*ev.p.E/ev.p.P*tcos)
+c	s5lab = gtpr*sig*ev.q*ev.p.P*factor/pi/1.e+06
+
+* DJG The above assumes target at rest.  We need a full blown Jacobian: 
+* DJG | dt/dcos(theta) dphicm/dphi - dt/dphi dphicm/dcos(theta) |
+* DJG: Calculate dt/d(cos(theta)) and dt/dphi for the general case.
+
+	psign = cos(phiqn)*cos(phipq)+sin(phiqn)*sin(phipq)
+
+	square_root = ev.q + pfer*tfcos - ev.p.P*tcos
+	dp_dcos_num = ev.p.P + (ev.p.P**2*tcos - 
+     &		psign*pfer*ev.p.P*tfsin*tcos/tsin)/square_root
+	dp_dcos_den = ( (ev.omega+efer-ev.p.E)*ev.p.P/ev.p.E + 
+     &		ev.p.P*tsin**2-psign*pfer*tfsin*tsin )/square_root - tcos
+	dp_dcos = dp_dcos_num/dp_dcos_den
+
+	dp_dphi_num = pfer*ev.p.P*tsin*tfsin*(cos(phiqn)*sin(phipq)-
+     &          sin(phiqn)*cos(phipq))/square_root
+	dp_dphi_den = tcos + (pfer*tsin*tfsin*psign - ev.p.P*tsin**2
+     &          - (ev.omega+efer-ev.p.E)*ev.p.P/ev.p.E)/square_root
+ 	dp_dphi = dp_dphi_num/dp_dphi_den
+
+	dt_dcos_lab = 2.*(ev.q*ev.p.P + 
+     &		(ev.q*tcos-ev.omega*ev.p.P/ev.p.E)*dp_dcos)
+
+	dt_dphi_lab = 2.*(ev.q*tcos-ev.omega*ev.p.P/ev.p.E)*dp_dphi
+
+* DJG: Now calculate dphicm/dphi and dphicm/d(cos(theta)) in the most 
+* DJG: excruciating way possible.
+
+	dpxdphi = ev.p.P*tsin*(-sin(phipq)+(gstar-1.)*bstarx/bstar**2*
+     &          (bstary*cos(phipq)-bstarx*sin(phipq)) ) +
+     &          ( (ppicmx+gstar*bstarx*ev.p.E)/ev.p.P - 
+     &              gstar*bstarx*ev.p.P/ev.p.E)*dp_dphi
+	dpydphi = ev.p.P*tsin*(cos(phipq)+(gstar-1.)*bstary/bstar**2*
+     &          (bstary*cos(phipq)-bstarx*sin(phipq)) ) +
+     &          ( (ppicmy+gstar*bstary*ev.p.E)/ev.p.P - 
+     &              gstar*bstary*ev.p.P/ev.p.E)*dp_dphi
+	dpzdphi =  ev.p.P*(gstar-1.)/bstar**2*bstarz*tsin*
+     &            (bstary*cos(phipq)-bstarx*sin(phipq)) +
+     &          ((ppicmz+gstar*bstarz*ev.p.E)/ev.p.P-
+     &            gstar*bstarz*ev.p.P/ev.p.E)*dp_dphi
+
+	dpxdcos = -ev.p.P*tcos/tsin*(cos(phipq)+(gstar-1.)*bstarx/bstar**2*
+     &          (bstarx*cos(phipq)+bstary*sin(phipq)-bstarz*tsin/tcos)) +
+     &          ( (ppicmx+gstar*bstarx*ev.p.E)/ev.p.P - 
+     &              gstar*bstarx*ev.p.P/ev.p.E)*dp_dcos
+	dpydcos = -ev.p.P*tcos/tsin*(sin(phipq)+(gstar-1.)*bstary/bstar**2*
+     &          (bstarx*cos(phipq)+bstary*sin(phipq)-bstarz*tsin/tcos)) +
+     &          ( (ppicmy+gstar*bstary*ev.p.E)/ev.p.P - 
+     &              gstar*bstary*ev.p.P/ev.p.E)*dp_dcos
+	dpzdcos = ev.p.P*(1.-(gstar-1.)/bstar**2*bstarz*tcos/tsin*
+     &              (bstarx*cos(phipq)+bstary*sin(phipq)-tsin/tcos*bstarz))
+     &              +((ppicmz+gstar*bstarz*ev.p.E)/ev.p.P-gstar*bstarz*
+     &              ev.p.P/ev.p.E)*dp_dcos
+
+	dpxnewdphi = dpxdphi*new_x_x+dpydphi*new_x_y+dpzdphi*new_x_z
+	dpynewdphi = dpxdphi*new_y_x+dpydphi*new_y_y+dpzdphi*new_y_z
+	dpznewdphi = dpxdphi*new_z_x+dpydphi*new_z_y+dpzdphi*new_z_z
+
+	dphicmdphi = (dpynewdphi*ppicm_newx - ppicm_newy*dpxnewdphi)/
+     &                (ppicm_newx**2+ppicm_newy**2)
+
+	dpxnewdcos = dpxdcos*new_x_x+dpydcos*new_x_y+dpzdcos*new_x_z
+	dpynewdcos = dpxdcos*new_y_x+dpydcos*new_y_y+dpzdcos*new_y_z
+	dpznewdcos = dpxdcos*new_z_x+dpydcos*new_z_y+dpzdcos*new_z_z
+
+	dphicmdcos = (dpynewdcos*ppicm_newx - ppicm_newy*dpxnewdcos)
+     &                /(ppicm_newx**2+ppicm_newy**2)
+
+	dcoscmdcos = dpznewdcos/ppicm-ppicm_newz*epicm*dEcmdcos/ppicm**1.5
+	dcoscmdphi = dpznewdphi/ppicm-ppicm_newz*epicm*dEcmdphi/ppicm**1.5
+
+	jacobian = abs(dt_dcos_lab*dphicmdphi-dt_dphi_lab*dphicmdcos)
+	mev.davejac = jacobian
+
+	mev.johnjac = 2*(efer-2*pferz*pfer*ev.p.E/ev.p.P*tcos)*
+     &		(ev.q+pferz*pfer)*ev.p.P /
+     &		( efer+ev.omega-(ev.q+pferz*pfer)*ev.p.E/ev.p.P*tcos )
+     &		- 2*ev.p.P*pfer
+
+	davesig = gtpr*sig*jacobian
+	sigma_eepi = davesig
+
+	peepi = sigma_eepi
+	decdist(21) = peepi	!d5sig
+	decdist(22) = sig	!sig_cm
+
+202	format(/11X,f5.1/)
+203	format(11X,f5.0)
+204	format(6(/9X,7f8.3))
+
+	return
+	end
+!------------------------------------------------------------------------
+
+	real*8 function sigep(ev)
+
+	implicit none
+	include 'simulate.inc'
+
+	real*8	q4sq,qmu4mp,W1p,W2p,Wp,GE,GM,sigMott
+	record /event/	ev
+
+	q4sq	= ev.Q2
+	call fofa_best_fit(-q4sq/hc**2,GE,GM)
+	qmu4mp	= q4sq/4./Mp2
+	W1p = GM**2*qmu4mp
+	W2p = (GE**2+GM**2*qmu4mp)/(1.0+qmu4mp)
+	Wp = W2p + 2.*W1p*tan(ev.e.th_phys/2.)**2
+	sigep = sigMott(ev) * ev.e.E/ev.Ein * Wp
+	if(debug_flag(5).eq.1)write(6,*) 'sigMott',GE,GM
+	sigep=sigep*10000.	!  convert from fm^2 to ub
+
+	return
+	end
+
+!-------------------------------------------------------------------------
+
+	real*8 function deForest(ev)
+
+	implicit none
+	include 'simulate.inc'
+
+	record /event/	ev
+
+	real*8	q4sq,ebar,qbsq,GE,GM,f1,kf2,qmu4mp,sigMott,sin_gamma,cos_phi
+	real*8	pbarp,pbarq,pq,qbarq,q2,f1sq,kf2_over_2m_allsq
+	real*8	sumFF1,sumFF2,termC,termT,termS,termI,WC,WT,WS,WI,allsum
+
+! Compute deForest sigcc cross-section, according to value of DEFOREST_FLAG:
+!	Flag = 0    -- use sigcc1
+!	Flag = 1    -- use sigcc2
+!	Flag = -1   -- use sigcc1 ONSHELL, replacing Ebar with E = E'-omega
+!			and qbar with q (4-vector)
+! N.B.	Beware of deForest's metric when taking all those 4-vector inner
+!	products in sigcc2 ... it is (-1,1,1,1)!
+!	Here, I've defined all the inner products with the regular signs,
+!	and then put them in the structure function
+!	formulas with reversed signs compared to deForest.
+
+	q4sq = -ev.Q2
+	q2 = ev.q**2
+	if (deForest_flag.ge.0) then
+	  ebar = sqrt(ev.Pm**2 + Mh2)
+	  qbsq = (ev.p.E-ebar)**2 - q2
+	else
+	  ebar = ev.p.E - ev.omega
+	  qbsq = q4sq
+	endif
+
+	sin_gamma = 1. - (ev.uq.x*ev.up.x+ev.uq.y*ev.up.y+ev.uq.z*ev.up.z)**2
+	if (sin_gamma.lt.0) then
+	  write(6,'(1x,''WARNING: deForest came up with sin_gamma = '',f10.3,'' at event '',i10)') sin_gamma, nevent
+	  sin_gamma = 0.0
+	endif
+	sin_gamma = sqrt(sin_gamma)
+	cos_phi = 0.0
+	if (sin_gamma.ne.0) cos_phi =
+	1	(ev.uq.y*(ev.uq.y*ev.up.z-ev.uq.z*ev.up.y) -
+	1	ev.uq.x*(ev.uq.z*ev.up.x-ev.uq.x*ev.up.z))
+	1	/ sin_gamma / sqrt(1.-ev.uq.z**2)
+	if (abs(cos_phi).gt.1.) then
+	  write(6,'(1x,''WARNING: deForest came up with cos_phi = '',f10.3,'' at event '',i10)') cos_phi, nevent
+	  cos_phi = sign(dble(1.),cos_phi)
+	endif
+
+	call fofa_best_fit(q4sq/hc**2,GE,GM)
+	qmu4mp = q4sq/4./Mp2
+	f1 = (GE-GM*qmu4mp)/(1.0-qmu4mp)
+	kf2 = (GM-GE)/(1.0-qmu4mp)
+	f1sq = f1**2
+	kf2_over_2m_allsq = kF2**2/4./Mh2
+
+	termC = (q4sq/q2)**2
+	termT = (tan(ev.e.th_phys/2.))**2 - q4sq/2./q2
+	termS = tan(ev.e.th_phys/2.)**2 - (q4sq/q2)*cos_phi**2
+	termI = (-q4sq/q2)*sqrt(tan(ev.e.th_phys/2.)**2-q4sq/q2)*cos_phi
+
+	if (deForest_flag.le.0) then
+	  sumFF1 = (f1 + kf2)**2
+	  sumFF2 = f1sq - qbsq*kf2*kf2/4./Mh2
+
+	  WC = ((ebar+ev.p.E)**2)*sumFF2 - q2*sumFF1
+	  WT = -2*qbsq*sumFF1
+	  WS = 4*(ev.p.P**2)*(sin_gamma**2)*sumFF2
+	  WI = -4*(ebar+ev.p.E)*ev.p.P*sin_gamma*sumFF2
+	else
+	  pbarp = ebar*ev.p.E - ev.p.p * (ev.up.x*ev.Pmx + ev.up.y*ev.Pmy +
+	1	ev.up.z*ev.Pmz)
+	  pbarq = ebar*ev.omega - ev.q*(ev.uq.x*ev.Pmx + ev.uq.y*ev.Pmy +
+	1	ev.uq.z*ev.Pmz)
+	  pq = ev.p.E*ev.omega - ev.p.p * ev.q * (ev.up.x*ev.uq.x +
+	1	ev.up.y*ev.uq.y + ev.up.z*ev.uq.z)
+	  qbarq = (ev.p.E-ebar)*ev.omega - q2
+
+	  WC =	(ebar*ev.p.E+(-pbarp+Mh2)/2.) * f1sq - q2*f1*kf2/2.
+	1	- ( (-pbarq*ev.p.E-pq*ebar)*ev.omega + ebar*ev.p.E*q4sq +
+	1	pbarq*pq - (-pbarp-Mh2)/2.*q2 ) * kf2_over_2m_allsq
+	  WT =	- (-pbarp+Mh2)*f1sq - qbarq*f1*kF2
+	1	+ (2.*pbarq*pq + (-pbarp-Mh2)*q4sq) * kf2_over_2m_allsq
+	  WS =	(ev.p.p*sin_gamma)**2 * (f1sq - q4sq*kf2_over_2m_allsq)
+	  WI =	ev.p.p*sin_gamma * ( -(ebar+ev.p.E)*f1sq + ((-pbarq-pq)*
+	1	ev.omega+(ebar+ev.p.E)*q4sq)*kf2_over_2m_allsq )
+	endif
+
+	allsum = termC*WC + termT*WT + termS*WS + termI*WI
+	if (deForest_flag.le.0) allsum = allsum/4.0
+	deForest = sigMott(ev) * ev.p.P * allsum/ebar
+	if(debug_flag(5).eq.1)write(6,*) 'deForest',GE,GM
+	deForest = deForest*10000.	! convert from fm^2 to ub
+
+	return
+	end
+
+!-------------------------------------------------------------------------
+
+	subroutine fofa(qsquar,GE,GM)
+
+	implicit none
+	include 'simulate.inc'
+
+	real*8	qsquar,GE,GM
+	real*8	qqg,qqp,c1,c2,c3,c4,f1a,f2a,f1v,f2vk,f1s,f2sk,f1p,f2p
+	real*8	rmrho2,crho,rkrho,rks,rmomg2,comg,rkomg,rkv,rlam12,rlam22
+	real*8	rlamq2
+
+! Form factor computation
+! Use dipole fit for electric formfactor, Gari Krumpelmann for magnetic
+! formfactor
+
+	qqg = abs(hc**2*qsquar*1.e-6)
+
+! ... Gari and Krumpelmann fit to form factors
+! ... From subroutine PHASPA:NFORM.FOR (Peter's), ref Zeit. Phys. A322
+! ... (1985), 689
+
+	rmrho2	= 0.6022
+	crho	= 0.377
+	rkrho	= 6.62
+	rks	= -0.12
+	rmomg2	= 0.6147
+	comg	= 0.411
+	rkomg	= 0.163
+	rkv	= 3.706
+	rlam12	= 0.632
+	rlam22	= 5.153
+	rlamq2	= 0.0841
+
+	qqp	= qqg*log(((rlam22+qqg)/rlamq2))/log(rlam22/rlamq2)
+	c1	= rlam12/(rlam12+qqp)
+	c2	= rlam22/(rlam22+qqp)
+	f1a	= c1*c2
+	f2a	= f1a*c2
+	c3	= rmrho2/(rmrho2+qqg)
+	c4	= rmomg2/(rmomg2+qqg)
+	f1v	= (c3*crho+(1-crho))*f1a
+	f2vk	= (c3*crho*rkrho+(rkv-crho*rkrho))*f2a
+	f1s	= (c4*comg+(1-comg))*f1a
+	f2sk	= (c4*comg*rkomg+(rks-comg*rkomg))*f2a
+	f1p	= 0.5*(f1s+f1v)
+	f2p	= 0.5*(f2sk+f2vk)
+
+! ........ GE = f1p + qmu4mp*f2p
+
+	GE	= (1/(1-qsquar/18.234))**2
+	GM	= f1p + f2p
+
+	return
+	end
+
+!-------------------------------------------------------------------------
+
+	subroutine fofa_best_fit(qsquar,GE,GM)
+
+*	csa 9/14/98 -- This calculates the form factors Gep and Gmp using
+*	Peter Bosted's fit to world data (Phys. Rev. C 51, 409, Eqs. 4
+*	and 5 or, alternatively, Eqs. 6)
+
+	implicit none
+	include 'simulate.inc'
+
+	real*8  qsquar,GE,GM,mu_p
+	real*8  Q,Q2,Q3,Q4,Q5,denom
+
+	mu_p = 2.793
+
+	Q2 = -qsquar*(hc**2.)*1.e-6
+	Q  = sqrt(max(Q2,0.d0))
+
+	Q3 = Q**3.
+	Q4 = Q**4.
+	Q5 = Q**5.
+
+* Use Eqs 4, 5:
+	denom = 1. + 0.62*Q + 0.68*Q2 + 2.8*Q3 + 0.83*Q4
+	GE = 1./denom
+	denom = 1. + 0.35*Q + 2.44*Q2 + 0.5*Q3 + 1.04*Q4 + 0.34*Q5
+	GM = mu_p/denom
+
+* OR Eqs 6:
+*	denom = 1. + 0.14*Q + 3.01*Q2 + 0.02*Q3 + 1.20*Q4 + 0.32*Q5
+*	GE = 1./denom
+*	GM = mu_p/denom
+
+	return
+	end
+
+
+!-------------------------------------------------------------------------
+
+	real*8 function sigMott(ev)
+
+	implicit none
+	include 'simulate.inc'
+
+	record /event/	ev
+
+! The Mott cross section (for a point nucleus)
+
+	sigMott = ( 2.*alpha*hc * ev.e.E * cos(ev.e.th_phys/2.) / ev.Q2 ) **2
+
+	return
+	end
+
+!--------------------------------------------------------------------------
+
+	real*8 function get_s_ji(ev)
+
+C========================================================================c
+c  calculate the spectral function for Fe using                          c
+c  using Ji's G matrix for nuclear matter. There are three corrections:  c
+c  1. An energy shift to give the correct nucleon sep. energy            c
+c  2. A relativistic correction for large momentum                       c
+c  3. A correction for the ratio of momentum distributions of a Finite   c
+c     Nucleus relative to Nuclear Matter                                 c
+c========================================================================c
+
+	include 'simulate.inc'
+
+	include 'gmats.inc'
+
+	double precision ee, xk, relcor, spec_Ji
+	real*8 E_s,p1_mag,S_p_E,FNcorrection,integ_Ji
+	real*8 NM_theory(ntheorymax),FN_theory(ntheorymax)
+	real*8 Pm_values(ntheorymax)
+	record /axis/ nk_NM_theory,nk_FN_theory
+	integer i,iNM,iFN
+	logical first/.true./
+
+	record /event/ ev
+
+	parameter	(k_f=270.)
+
+	if (first) then
+	  first = .false.
+	  open(unit=80, file='gmat.theory', status='old', readonly)
+	  read(80,*) gmat
+	  close(80)
+
+	  open(unit=1,file='4pi_nk_nm.dat',status='old',readonly,shared)
+	  open(unit=2,file='4pi_nk_'//theory_target//'.dat',
+	1	status='old',readonly,shared)
+	  if (theory_target .eq. 'c12') integ_Ji = 4.80e-04
+	  if (theory_target .eq. 'fe56') integ_Ji = 4.85e-04
+	  if (theory_target .eq. 'au197') integ_Ji = 4.74e-04
+
+	  i = 1
+ 10	  read(1,*,end=11) Pm_values(i),NM_theory(i)
+	  i = i + 1
+	  goto 10
+
+ 11	  nk_NM_theory.n = i-1
+	  nk_NM_theory.bin = Pm_values(2) - Pm_values(1)
+
+	  i = 1
+ 12	  read(2,*,end=13) Pm_values(i),FN_theory(i)
+	  i = i + 1
+	  goto 12
+
+ 13	  nk_FN_theory.n = i-1
+	  nk_FN_theory.bin = Pm_values(2) - Pm_values(1)
+
+	  close(1)
+	  close(2)
+	endif
+
+	E_s    = ev.Em
+	p1_mag = abs(ev.Pm)
+
+C correct for nucleon sep. energy and unit conversion
+
+! ... assuming a separation energy for nuclear matter of 27.5 MeV
+
+	ee = -(E_s + (27.5-E_Fermi))/hc
+	xk = p1_mag/hc
+
+C relativistic correction
+	if (p1_mag .ge. k_f) then
+	   relcor = sqrt(p1_mag*p1_mag+Mh2)-Mh-p1_mag*p1_mag/2./Mh
+	   ee = ee + relcor/hc
+	endif
+
+	iNM = nint(1.0 + abs(ev.Pm/1000.)/nk_NM_theory.bin)
+	iFN = nint(1.0 + abs(ev.Pm/1000.)/nk_FN_theory.bin)
+	if (abs(ev.Pm)/1000. .ge. 0.5) then
+	  if (theory_target .eq. 'c12') then
+	    FNcorrection = 1./1.42
+	  else
+	    FNcorrection = 1.0
+	  endif
+	else
+	  FNcorrection = FN_theory(iFN)/NM_theory(iNM)
+	endif
+
+	S_p_E = FNcorrection * target.Z / integ_Ji * spec_Ji(ee, xk)
+	get_s_ji = S_p_E/(1000.**4)
+
+	return
+	end
+
+	function spec_Ji(ee, xk)
+c=================================================================c
+c  calculate the spectral function for nuclear matter             c
+c=================================================================c
+	implicit double precision(a-h, o-z)
+
+	include 'gmats.inc'
+
+	xkf = 1.36d0
+	pi = 3.14159265359d0
+	em = 939.d0/197.3d0
+	fac = 4.d0*pi/3.d0*xkf**3
+
+	sim = ximse(xk, ee)
+	deno = sim**2 + (ee - spe(xk))**2
+	spec_Ji = sim/pi/fac/deno     !final spectral function for ee, xk
+	return
+
+	end
+
+	real*8 function ximse(xk, ee)
+c==================================================================c
+c  calculate imaginary part of the self-energy                     c
+c==================================================================c
+	implicit double precision(a-h, o-z)
+
+	include 'gmats.inc'
+
+	pi = 3.14159265359d0
+	xkf = 1.36d0
+	sum = 0.d0
+	nqp = 27
+	do 10 iqp = 1, nqp
+	  qp = dble(iqp) * xkf / dble(nqp)
+	  jqp = int(qp*20)
+
+	  rat = dble(qp) / xkf
+	  qba = dsqrt(0.6d0 * xkf**2 * (1.d0-rat)*(1.d0+rat**2/3.d0/(2.d0+rat)))
+
+	  call root(xk, ee, qba, qp, q, skip)
+	  if(skip.eq.1.d0) go to 10
+	  jq = int(q*20)
+	  if(jq.gt.330) go to 10
+	  if(jq.eq.0.or.jqp.eq.0) go to 10
+
+	  if(xk.ge.xkf) then
+	    if(q.gt.0.5d0*(xk-xkf).and.q.lt.0.5d0*(xk+xkf)) then
+	      qbmin = dsqrt(0.5d0*(xk**2+xkf**2)-q**2)
+	      qbmax = q + xk
+	    else
+	      qbmin = dabs(q-xk)
+	      qbmax = q + xk
+	    endif
+	  elseif(xk.lt.xkf) then
+	    if(q.gt.0.5d0*(xkf-xk).and.q.lt.0.5d0*(xk+xkf)) then
+	      qbmin = dsqrt(0.5d0*(xk**2+xkf**2)-q**2)
+	      qbmax = q + xk
+	    elseif(q.ge.0.5d0*(xkf+xk)) then
+	      qbmin = dabs(q-xk)
+	      qbmax = q + xk
+	    else
+	      go to 10
+	    endif
+	  endif
+
+	  sum1 = 0.d0
+	  nqb = 20
+	  dqb = (qbmax-qbmin)/nqb
+	  do 20 iqb = 1, nqb
+	    qb = dble(iqb)*dqb + qbmin
+	    if(qp.gt.0.d0.and.qp.lt.xkf-qb.and.qb.lt.xkf) then
+	      pp = 1.d0
+	    else if(qp.gt.xkf-qb.and.qp.lt.dsqrt(xkf**2-qb**2)
+     &		    .and.qb.lt.xkf) then
+	      pp = (xkf**2 - qp**2-qb**2)/2.d0/qp/qb
+	    else if(qb.gt.xkf.or.(qp.gt.sqrt(xkf**2-qb**2).and.qp.lt.xkf)) then
+	      pp = 0.d0
+	    endif
+	    sum1 = sum1 + qb * pp * dqb
+20	  continue
+
+	  deri = dabs( (deno(qba,xk,q+0.010d0,qp,ee) -
+     &		 deno(qba,xk,q,qp,ee) )/0.01d0 )
+	  fac1 = 8.d0*q/pi/xk/deri
+
+	  sum = sum + fac1 * qp**2 * sum1 * gmat(jq, jqp)/22.65d0
+10	continue
+	ximse = sum * xkf / nqp
+	return
+	end
+
+	real*8 function deno(qba, xk, q, qp, ee)
+c==================================================================c
+c   energy conservation function in two-body channel               c
+c==================================================================c
+	implicit double precision(a-h, o-z)
+
+	xkf = 1.36d0
+	if(qp.gt.0.d0.and.qp.lt.xkf-qba.and.qba.lt.xkf) then
+	  pp = 1.d0
+	else if(qp.gt.xkf-qba.and.qp.lt.dsqrt(xkf**2-qba**2).and.qba.lt.xkf)then
+	  pp = (xkf**2 - qp**2 - qba**2)/2.d0/qp/qba
+	else if(qba.gt.xkf.or.(qp.gt.sqrt(xkf**2-qba**2).and.qp.lt.xkf)) then
+	  pp = 0.d0
+	endif
+	y1 = 2.d0*q**2+2.d0*qba**2-xk**2
+	y2 = qp**2 + qba**2 + 2./dsqrt(3.d0)*qp*qba*pp
+	y3 = qp**2 + qba**2 - 2./dsqrt(3.d0)*qp*qba*pp
+	x1 = dsqrt(y1 + 1.d-6)
+	x2 = dsqrt(y2 + 1.d-6)
+	x3 = dsqrt(y3 + 1.d-6)
+	deno = ee + spe(x1) - spe(x2) - spe(x3)
+	return
+
+	end
+	real*8 function spe(xx)
+c==================================================================c
+c   single-particle energy                                         c
+c==================================================================c
+	implicit double precision(a-h, o-z)
+
+	xkf = 1.36d0
+	if(xx**2.le.0.7d0*xkf**2) then
+	  spe = xx**2/2/0.607d0 + (-1.49d0*xx**4-86.72d0)/41.47d0
+	elseif(xx**2.ge.0.7d0*xkf**2.and.xx**2.le.3.4d0*xkf**2) then
+	  spe = xx**2/2/0.650d0 + (-0.549d0*xx**4-84.95d0)/41.47d0
+	elseif(xx**2.ge.3.4d0*xkf**2) then
+	  spe = -0.0766d0*xx**2
+	  if (spe .lt. -70.d0) then
+	    spe = xx**2/2.d0 + 28.87d0/41.47d0
+	  else
+	    spe = xx**2/2.d0 + (28.87d0-103.34d0*dexp(spe))/41.47d0
+	  end if
+	endif
+	spe = spe*41.47d0/197.3d0
+	return
+
+	end
+
+	subroutine root(xk, ee, qba, qp, q, skip)
+c==================================================================c
+c  find the root of the energy denominator                         c
+c==================================================================c
+	implicit double precision(a-h, o-z)
+
+	skip = 0.d0
+	kk = 0
+	if(qba.gt.xk/dsqrt(2.d0)) then
+	  aa = 0.d0
+	else
+	  aa = dsqrt(xk**2/2.d0 - qba**2 + 1.d-6)
+	endif
+
+	bb = deno(qba, xk, aa, qp, ee)
+
+	if(qba.gt.xk/dsqrt(2.d0)) then
+	  q0 = 0.d0
+	else
+	  q0 = dsqrt(xk**2/2.d0 - qba**2 + 1.d-6)
+	endif
+	f0 = deno(qba, xk, q0, qp, ee)
+
+	q1 = 30.d0
+	f1 = deno(qba, xk, q1, qp, ee)
+	if(f0*f1.gt.0.d0) then
+	  skip = 1.d0
+	  go to 30
+	endif
+
+10	q2 = q1 - f1 * (q1 - q0)/(f1-f0)
+	f2 = deno(qba, xk, q2, qp, ee)
+	kk = kk + 1
+	if(dabs(f2).gt.1.d-5.and.kk.lt.50) then
+	  if(kk.lt.20) then
+	    q0 = q1
+	    f0 = f1
+	    q1 = q2
+	    f1 = f2
+	    if(q2.lt.aa) then
+	      print*, xk, ee, q2, aa
+	      q1 = aa
+	      f1 = bb
+	    endif
+	  else
+	    if(f2*f0.lt.0.d0) then
+	      q1 = q2
+	      f1 = f2
+	    else if(f2*f1.lt.0.d0) then
+	      q0 = q2
+	      f0 = f2
+	    endif
+	  endif
+	  go to 10
+	else
+	  go to 20
+	endif
+20	q = q2
+30	return
+
+	end
+!								gnome :)

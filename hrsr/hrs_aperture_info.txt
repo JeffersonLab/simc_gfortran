@@ -1,0 +1,100 @@
+HRS (COSY) driftlengths:
+-----------------------
+
+element     drift(cm)   total drift(cm)	radius(cm)
+Q1  IN     159.03000    159.030000	15.0
+Q1  MID    62.753333    221.783333	15.0
+Q1  OUT    31.376666    253.160000	15.0
+Q2  IN     117.20000    370.360000	30.22
+Q2  MID    121.77333    492.133333	30.22
+Q2  OUT    60.886666    553.020000	30.22
+DIP IN     443.08000    996.100000	* (trapezoid - see below)
+DIP OUT    659.73446    1655.83446	* (trapezoid - see below)
+Q3  IN     159.25000    1815.08446	30.22
+Q3  MID    121.78667	1936.87112	30.22
+Q3  OUT     60.89333	1997.76446	30.22
+FP         345.23000    2342.99446	
+
+
+HRS Apertures: (units in cm!!!, transport coordinates!!!)
+--------------
+
+* = distance from pivot comes from COSY magnet entr/exit, not from schematics.
+
+distance    shape	size			note
+from pivot
+  [cm]			[cm]
+ 65.686	     circle	d=14.7574,r=7.3787	before slitbox
+ 80.436	     circle	d=14.8184,r=7.4092	before slitbox
+
+106.794	     circle     d=19.837		'entrance' to slit box
+120.865      circle	d=25.0444		'exit' to slit box
+
+135.064	     circle	d=25.0444,r=12.5222	Q1 mech. entrance
+300.464	     circle	d=29.8450,r=14.9225	Q1 mech. exit
+314.464	     circle	d=41.9100,r=20.9550	Q2 mech. entrance
+609.664	     circle	d=60.0146,r=30.0073	Q2 mech. exit
+641.800	     circle	d=60.0146,r=30.0073	Q2-dipole trans.
+641.800	     rectangle	64.6608x64.6608		from this flared to D1 entr.
+						[redundant with prev. circle]
+
+819.489	     rectangle	30.000x100.000		Q2-dipole trans.
+						(mechananical entrance of dipole
+						vacuum can, 176.611 cm before
+						the start of the coils)
+DIPOLE:
+*996.1	     trapezoid	see below		dipole vacuum can (~COSY entr)
+
+*1655.83446  trapezoid	see below		dipole vacuum can (~COSY exit)
+
+*1745.33546  circle+	d=60.6552,r=30.3276	dipole-Q3 trans.
+	     rectangle	30.0000x100.000		(due to dipole exit!)
+					(@mech. exit=89.501cm past D1 coils)
+
+*1759.00946  circle	d=60.6552,r=30.3276	Q3 mech. entrance
+					(13.674cm past D1 mech. exit)
+
+*2054.03446  circle	d=70.6438,r=35.3219	Q3 mech. exit
+						[redundant w/nominal r=30.22]
+
+-247.085     rectangle	34.2900x71.1200		distance before vacuum window!!
+*2080.38746
+
+vac.window   rectangle	34.2900x199.5327	flared from last D1 vacuum can
+*2327.47246
+
+-------------------------------------------------------------------------------
+
+Positions from drawings (here we assume:
+
+Q1 center position	= 207.064 cm
+Q2 center position	= 462.064 cm
+Q3 center position	= 421.038 cm before vacuum window.
+
+Q1 mechanical length 	= 165.40  cm
+Q2/Q3 mechanical length	= 295.20  cm
+
+Q1 optical length	=  94.13  cm
+Q2/Q3 optical length	= 182.66  cm	!COSY Q3 is actually 182.68.
+
+Focal plane		= 436.56  cm after Q3 optical exit.
+Vacuum window		= 273.44  cm after Q3 mechanical exit.
+
+So taking focal plane = 2342.99446 from COSY, we work backwards:
+
+Q3 center	= 2342.99446 - 436.56	= 1906.43446
+Q3 optical exit	= 1906.43446 + 182.66/2	= 1997.76446
+Q3 mech. exit	= 1906.43446 + 295.20/2	= 2054.03446
+Vacuum window	= 1906.43446 + 421.038	= 2327.47246 = 15.522 cm before FP.
+Rectangle before
+vacuum window	= 2327.47246 - 247.085	= 2080.38746
+
+
+-------------------------------------------------------------------------------
+DIPOLE	      -51.7282 < x < 56.7821	! This is a CHANGE!!!
+trapezoid:    abs(y)+tan(1.066)*x < 12.500
+	      (tan(1.066) is close to 0.0186, that should work o.k.)
+     *** This is the cut as seen at the coil edge, i.e. rotated by 30 degrees
+
+Thus, at the top of the vacuum can (x = -50.000), the y width = 26.8607
+             bottom                (x = +55.000)                22.9540

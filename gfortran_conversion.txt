@@ -1,0 +1,73 @@
+DJG Summer/Fall 2008
+
+Notes on conversion to gfortran (fortran 90)
+
+Mainly - replacing structure with types.
+
+0. Generic, easy stuff: cannot have Vax tab format for line conitnuation.
+
+
+1. Generically,
+
+       structure /Cartesian/
+                real*8          x,y,z
+        end structure
+
+    becomes
+
+       type Cartesian
+                sequence
+                real*8          x,y,z
+        end type
+
+2.  instead of recon.e.x for example, references using recon%e%x
+
+3. "sequence" is required if your vairable is used in common block. For now -
+just put in every type.
+
+4. Cannot simulatenously decalre and define:
+
+
+        structure /double_arm/
+                structure /arm/ e
+                  real*8                delta, yptar, xptar, z
+                end structure
+                structure /arm2/ p
+                  real*8                delta, yptar, xptar, z
+                end structure
+        end structure
+
+becomes
+
+
+        type arm
+                sequence
+                real*8          delta, yptar, xptar, z
+        end type                
+
+        type arm2
+                sequence
+                real*8          delta, yptar, xptar, z
+        end type                
+
+
+        type double_arm
+                sequence
+                type(arm)::e
+                type(arm2)::p
+        end type
+
+
+5. types cannot have same name as variable.
+
+
+
+
+**Files not needing any changes**
+enerloss_new.f
+gauss1.f
+loren.f
+mt19937.f
+trg_track.f --> removed 'simulate.inc'
+NtupleClose.f
+NtupleInit.f

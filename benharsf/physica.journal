@@ -1,0 +1,212 @@
+********************************************************************************
+***                                                                          ***
+*** PHYSICA                      VERSION # 2.13               April     1998 ***
+*** Copyright (C) 1992,1993,1994,1995,1996,1997,1998         Joseph L. Chuma ***
+***                           All rights reserved                            ***
+***                                                                          ***
+***  Enter NEWS to get the latest information on new commands and features   ***
+***  Latest news added on April 6, 1998                                      ***
+***  Journal file: physica.journal                                           ***
+***                                                                          ***
+***            UNAUTHORIZED COMMERCIAL USE IS STRICTLY PROHIBITED            ***
+***                                                                          ***
+********************************************************************************
+User: johna   Date: 12-Feb-1902 15:22:12
+ Default graphics hardcopy device (bitmap): HPLASERJET 150 dpi
+ executing initialization file: /disk1/users/johna/.physicarc
+ PHYSICA: exec benharsf_pmdist
+ *** ERROR in EXECUTE
+     opening file benharsf_pmdist
+ PHYSICA: %ls *.pcm
+ PHYSICA: exec benharsf_getpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ Type the <RETURN> key to continue
+ PHYSICA: exec benharsf_getpmdist 3 2 3
+     cannot EXECUTE a file from within TERMINAL mode
+ PHYSICA: exec benharsf_getpmdist 3 2 3
+ *** ERROR in READ\SCALARS
+     opening benharsf_3.dat
+ no scalars were created
+ PHYSICA: exec benharsf_getpmdist 3 2 3
+ *** ERROR in READ\SCALARS
+     opening benharsf_3.dat
+ no scalars were created
+ PHYSICA: exec benharsf_getpmdist 3par 2 3
+ 2 scalars have been created
+ vector PMBIN has been created with 975 values
+ vector EMBIN has been created with 975 values
+ vector SFPBIN has been created with 975 values
+ vector SFNBIN has been created with 975 values
+ vector DP has been created with 975 values
+ vector DE has been created with 975 values
+ Type the <RETURN> key to continue
+ PHYSICA: exec benharsf_getpmdist 4 2 4
+     cannot EXECUTE a file from within TERMINAL mode
+ PHYSICA: exec benharsf_getpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ Type the <RETURN> key to continue
+ PHYSICA: \
+ *** Syntax error: invalid qualifier
+ \
+ ^
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ Type the <RETURN> key to continue
+ PHYSICA: stat k
+ Minimum =            0                 | Maximum =           976.769           
+ Index of minimum =  [1]                | Index of maximum = [600]              
+ Sum  =               293030.7          |                                       
+ Mean =               488.3845          | Geometric mean unavailable            
+ Median not requested                   | Variance =          79905.1125        
+ Standard deviation = 282.674924        | Average deviation = 244.599917        
+ Skewness =           9.0491304D-16     | Kurtosis =          -1.20600164       
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ Type the <RETURN> key to continue
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ *** ERROR in GET_VARIABLE routine
+     SFP_PM is undefined: not a function or a variable
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: =len(yy)
+ 50
+ PHYSICA: =len(yy)
+ 50
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ *** WARNING from DESTROY
+     no variable names were given
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: exec benharsf_showpmdist 4 2 4
+ 2 scalars have been created
+ vector PMBIN has been created with 1750 values
+ vector EMBIN has been created with 1750 values
+ vector SFPBIN has been created with 1750 values
+ vector SFNBIN has been created with 1750 values
+ vector DP has been created with 1750 values
+ vector DE has been created with 1750 values
+ PHYSICA: hard s benharsf_showpmdist_4.ps
+  Hardcopy file: benharsf_showpmdist_4.ps
+ PHYSICA: quit

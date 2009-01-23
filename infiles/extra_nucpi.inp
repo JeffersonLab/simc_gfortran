@@ -1,0 +1,53 @@
+; This is a CTP file
+
+begin parm beamandtargetinfo
+  gen.xwid = 0.008868		;  beam width - one sigma (cm)  (89microns)
+  gen.ywid = 0.004235		;  beam width - one sigma (cm)  (42microns)
+  targ.fr_pattern = 3.		;  raster pattern: 1=square, 2=circular 3=square (flat)
+  targ.fr1 = 0.015		;  horizontal size OR inner radius(2)
+  targ.fr2 = 0.15		;  vertical size OR outer radius(2)
+  targ.xoffset = 0.1		;  target x-offset (cm): +x = beam right
+  targ.yoffset = 0.0		;  target y-offset (cm): +y = up
+  targ.zoffset = -0.1		;  target z-offset (cm): +z = downstream
+				;   zreal = znominal + zoffset
+end parm beamandtergetinfo
+
+;These are offsets applied before the call to the single arm montecarlos.
+begin parm spect_offset
+  spec.e.offset.x = 0.		;  x offset (cm)
+  spec.e.offset.y = 0.		;  y offset (cm)
+  spec.e.offset.z = 0.		;  z offset (cm)
+  spec.e.offset.xptar = 0.	;  xptar offset (mr)	!x(y)ptar is slope, so
+  spec.e.offset.yptar = 0.	;  yptar offset (mr)	!it's really unitless.
+  spec.p.offset.x = 0.		;  x offset (cm)
+  spec.p.offset.y = 0.		;  y offset (cm)
+  spec.p.offset.z = 0.		;  z offset (cm)
+  spec.p.offset.xptar = 2.62	;  xptar offset (mr)
+  spec.p.offset.yptar = 0.	;  yptar offset (mr)
+end parm spect_offset
+
+begin parm simulate
+  hard_cuts = 0         ;  (ONE = TRUE) SPedge and Em.max are hard cuts(ntuple)
+  using_rad = 1		;  (ONE = TRUE)
+  use_expon = 0		;  (LEAVE AT 0)
+  one_tail = 0		;  0=all, 1=e, 2=e', 3=p, -3=all but p
+  intcor_mode = 1	;  (LEAVE AT 1)
+  spect_mode = 0	;  0=e+p arms, -1=p arm, -2=e arm only, 1=none
+  cuts.Em.min = 0.	;  (Em.min=Em.max=0.0 gives wide open cuts)
+  cuts.Em.max = 0.	; Must be wider than cuts in analysis(elastic or e,e'p)
+  using_Eloss = 1	;  (ONE = TRUE)
+  correct_Eloss = 1	;  ONE = correct reconstructed events for eloss.
+  correct_raster = 1	;  ONE = Reconstruct events using 'raster' matrix elements.
+  mc_smear = 1		;  ONE = target & hut mult scatt AND DC smearing.
+  deForest_flag = 0	;  0=sigcc1, 1=sigcc2, -1=sigcc1 ONSHELL
+  rad_flag = 0		;  (radiative option #1...see init.f)
+  extrad_flag = 2	;  (rad. option #2...see init.f)
+  lambda(1) = 0.0	;  if rad_flag.eq.4 then lambda(1) = {TF}
+  lambda(2) = 0.0	;  if rad_flag.eq.4 then lambda(2) = {TF}
+  lambda(3) = 0.0	;  if rad_flag.eq.4 then lambda(3) = {TF}
+  Nntu = 1		;  ONE = generate ntuples
+  using_Coulomb = 1	;  (ONE = TRUE)
+  dE_edge_test = 0.	;  (move around energy edges)
+  use_offshell_rad = 1	;  (ONE = TRUE)
+  Egamma_gen_max = 0. ;  Set >0 to hardwire the Egamma limits.
+end parm simulate

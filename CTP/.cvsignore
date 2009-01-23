@@ -1,0 +1,5 @@
+O.*
+daVarRpc.h
+daVarRpc_clnt.c
+daVarRpc_svc.c
+daVarRpc_xdr.c

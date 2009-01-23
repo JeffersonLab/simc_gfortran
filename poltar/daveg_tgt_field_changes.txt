@@ -1,0 +1,57 @@
+Makefile:
+Add trg_track.o and semi_dilution.o to OBJ3
+
+structures.inc and structures_init.inc:
+1)  added theta_tarq,phi_tarq,beta,phi_s,phi_c to event structure
+2)  added rasterx to event_target structure
+3)  added theta_tarq, phi_targ, beta to event_main structure 
+
+simulate.inc and simulate_init.inc:
+1)  extended debug to 6 element array
+2)  add targ_Bangle,targ_Bphi,targ_pol,drift_to_cal,sign_hadron,
+    tgt_field_file,using_tgt_field
+3)  put these three variables in the grnl common block
+4)  add dilu to ntupvars record
+
+
+dbase.f:
+1) define sign_hadron for various cases
+1) convert targ_Bangle and targ_Bphi to radians
+2) change debug intialization to 6
+3) register targ_Bangle,targ_Bphi,targ_pol, set to 0
+4) register using_tgt_field,tgt_field_file,and drift_to_ndet
+
+event.f
+1) add rasterx calc
+2) in complete_ev: 
+   a) add targ_new_x,targ_new_y,targx,targy,targz
+   b) calculate phi_targ - azimuthal angle between target polarization
+       and scattering plane
+   c) calculate beta, angle between target polarization and reaction plane
+   d) calculate theta_tarq, angle between target vector and q vector
+   e) calculate Collines and Sievers angles
+3) in complete_recon_ev: 
+   a) add targ_new_x,targ_new_y,targx,targy,targz
+   b) calculate phi_targ - azimuthal angle between target polarization
+       and scattering plane
+   c) calculate beta, angle between target polarization and reaction plane
+   d) calculate theta_tarq, angle between target vector and q vector
+   e) calculate Collines and Sievers angles
+4) in complete_main: set ntup.dilu=semi_dilution
+
+simc.f
+1) add ang_targ_parm,ang_targ_earm
+2) add Mark's calculation of angle between target polarization and 
+   spectrometers
+3) add call to trgInit
+4) in montecarlo:
+   a) add frx, set = -target.rasterx (makes left pos. as looking downstream)
+   b) add calls to track_from_target, then project back to z=0 plane
+   c) in calls to single arm MC's, add frx, using_tgt_field, and the sign 
+      of the particle
+
+mc_hms.f (and others)
+1) add frx,using_tgt_field, and sign_part to variables passed
+2) calculate ctheta and stheta
+3) call track to target if using target field
+

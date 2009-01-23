@@ -1,0 +1,163 @@
+	Announcing the release of "SIMC-The Phantom Menace"
+
+
+	OK, here is the new SIMC (SIMC99). As far as I can tell, it works 
+fine for H/D/A(e,e'p), as well as H/D/He(e,e'pi).  The phase space options
+does not work, but I can make it work once it's clear exactly what we want
+it to do (note that it also did not work in previous versions).  I have
+a few things left to do, but I'm relasing this now so that people can
+start testing it.  The remaining changes (that I'm aware of) should not
+affect 'look' of the code or the input/output files, so upgrading to a newer
+version should be relatively easy.  For now, I'm just notifying the few people
+that have been the most interested in the new version, but feel free to
+tell others about it. 
+
+I currently have only two input files that are fully compatable with the
+new SIMC.  IronA1.inp is the SIMC99 version of DD's IronA1.dbfx file
+(from the e91-013 experiment).  I compared my result to DD's, and it agreed
+at better than 5%.  I couldn't really check it better than that, since
+DDs code uses the old HMS tune, and SIMC99 uses the HMS-100.  SAMPLE.inp
+is for fpi (the simc99 version of the fpi1056.inp file).
+
+
+
+To do:
+
+-For pions, physics.f uses a different coord. system for generating the
+boost.  Need to fix it the same way as was done in complete_ev.  THIS
+IS DONE.  However, for Deforest, there is a similar question in the way
+cos_phi is determined.  Must figure out the coord system.
+
+-There was still a small question about getting the correct limits for
+radiation.  Event by event, the limits are being calculated correctly, but
+there was a report on a previous version that the normalization changed
+when these limits were opened.  I'll look into it, but as far as I know,
+it's OK.
+
+-PmPar/Per/Oop were NOT being calculated relative to q.  I fixed PmPar
+and PmOop.  I was lazy with PmPer and just calculate the magnitude (no sign).
+I'll fix this once I convince myself that I know the correct convention.
+
+-Many of the calculations were approximations, assuming that xptar and yptar
+were very small.  I hope that all of the calculations are now exact (though
+they mostly require that the spectrometers are in plane), and I need to write
+up a sheet with the equations I use to convert between spectrometer coordinates
+and physics angles - DONE: geometry.ps.  Will do similar for event
+generation/radiation generation/etc... limits.
+
+-SINCE THE PROTON PART OF THE CODE HAS NOT BEEN USED IN A VERY LONG TIME,
+IT IS IMPORTANT THAT PEOPLE WHO WANT TO LOOK AT A(e,e'p) CHECK THAT THE
+CALCULATIONS OF EXPERIMENT-SPECIFIC THINGS LIKE Em, Pm, Trec, etc...
+FOLLOW THE DESIRED CONVENTIONS.
+
+-I am in the process of collecting all of the miscellaneous SIMC documentation
+that exists and writing up a new SIMC primer.  These will be available soon.
+
+-The 'control logic' for Kaon electroproduction is there, but not all of the
+necessary code.  However, since the kinematics are identical to the pion
+electroproduction, it's just a matter of adding kaon code that's nearly
+identical to the pion code, with some mass/parameter changes.  This will
+be done for the Kaon run in the fall, but I'm FAR to sick of SIMC to do it
+right now.
+
+-And finally, SIMC is still not Y2K complient, but come Dec 31, 1999,
+I will fix it.  Promise.
+
+-There are two slight inconsitencies in mc_sos.  First, we use the forward
+MEs to get to z=-10cm, and then drift.  However, there is a matrix to
+take you through the last 10cm, and it has non-zero coeffs, due to fringe
+fields.  Second, we take to particle to -3.20 cm in mc_sos (to check apertures)
+and then 'drift forwards' to -3.22 for a mult. scattering check.  Since
+the code dies if you drift backwards, we set the drift distance from -3.20
+to -3.22 cm to 0.001 cm.  Thus there is a tiny error in the total length.
+This is mostly important if we change these distances, because it does
+not warn us that it's setting the drift dist. to a positive value.
+
+-Finally, a list of things that are not in simc, and which I do not have
+any specific plans to include, but which you might want to be aware of:
+
+1-Nuclear interactions of the particles with detector elements (which appears
+to be a significant effect in NucPi, for example)
+2-There is no multiple scattering for the incoming beam electron.  It would
+take major work to actually shift the incoming electron direction for each
+event, but it may be possible to mock it up by applying an offset to both
+the scattered electron and hadron.
+3-There is a coulomb correction for the energies of the incoming and outgoing
+electrons.  However, there is no modeling of the deflection of the particles
+by the coulomb field.
+4-Dave Potterveld has created MEs that allow you to transport a particle
+to any point in the spectrometer.  This would allow continuous decay of 
+pions/kaons within the magnets.  However, it would require non-trivial
+changes to the single arm monte carlos, and there has not yet been a
+real need for this.
+
+Big Changes: Of course, what this means depends on what version (if any) you
+started with.  I am currently getting questions about at least 4 different
+versions of SIMC (the OLD one from ~cdaq/MC, DD's latest version (e,e'p only),
+the old pion version (Doug's modification of the kaon version), and the
+current pion (NucPi/Fpi) version.  The following changes are mostly
+changes with respect to the new and old pion versions, but I'll try to hit
+the (e,e'p)-relevent highlights.
+
+-This is not new, but remember that you need to comment/uncomment a couple
+of the Makefile in order to get the correct libraries.
+
+-Also not new, but very important.  YOU MUST APPLY CUTS ON HSDELTA, SSDELTA,
+Em AND Pm THAT ARE AT LEAST AS TIGHT AS YOU SPECIFY IN THE INPUT FILE (through
+SPedge.*.delta.min/max and cuts.Em.max, cuts.Pm.max.  Events may be generated
+outside of these cuts, but not all appropriate events.  THE NORMALIZATION WILL
+BE INCORRECT FOR EVENTS OUTSIDE OF THE RANGE YOU GAVE.
+
+-HMS-100 is now the standard.  Both spectrometers use sequential MEs to
+go forwards, have decay options, and have raster reconstruction coeffs.
+
+-I'm doing my SIMC work on the Alphas here.  When I release a verion of
+SIMC, I've been checking that it compiles and runs on the CEBAF HPs.
+If the changes I've incorporated from Steve Wood's version work, I'll
+also be able to check it on the CEBAF Suns.  NOTE THAT ON THE SUNS, IF YOU
+PASS A NUMBER TO A SUBROUTINE IN SIMC, YOU MUST GIVE IT AS DOUBLE PRECISION,
+OR THE WORLD WILL END.  i.e. use:
+"call misc_subroutine(x,y,10.d0)" and NOT "call misc_subroutine(x,y,10.)"
+
+-If you put a spectrometer offset (xptar/yptar) in the input file, it
+will actually apply it to the spectrometer (it used to do so only for
+the out/plane angle, and only for one of the spectrometers).
+
+-Fixed up the code so that it always (or at least almost always) treats
+xptar and yptar as SLOPES, and calculates the FULL PHYSICS scattering angles
+(rather than the in-plane and out-of-plane components).
+
+-The old version had a 'lab' coordinate system that was not the standard
+Hall C system.  We use x=down, y=left when looking along z=downstream, 
+while some code had y=up, x=left (or something like that).  It should now
+all be in the standard Hall C system.
+
+-The complete_ev routine was divided into two routines.  complete_ev
+now takes the generated quantities for an event, and calculates all of the
+remaining physics quantities (all in SIMC coordinate systems).
+complete_recon_ev takes the reconstructed values (delta/xptar/yptar/ytar/p/E)
+and calculates everything from that.  If you want to add experiment specific
+calculations (e.g. theta_pq/phi_pq/epsilon for pion production), this is
+the place to do it.
+
+-Flags for enabling/disabling energy loss corrections, raster reconstruction
+MEs, etc...   This should allow you to apply the same corrections in SIMC
+and in your replay.  For any detailed comparisons, you need to make sure
+that you are applying the same corrections in your real reconstruction and
+in you SIMC 'reconstruction'.
+
+-Many of the options (mostly (e,e'p) alternative ways of doing things that
+were there for tests) have been removed.  As a rule, I removed options of
+this kind if:
+
+1) DD/Doug informed me that it was 'basically never used or useful'
+AND
+2) The code (as it stood in the version I started with) did not work.
+
+For the most part, these unused options no longer did what they claimed
+due to changes in the code.  I have older versions of the code where I
+can usually figure out what they were supposed to do, so if we need to
+have one of these options restored, I can probably do it.
+
+-All of these are on top of the MANY changes made over the last year that
+improve and simplfy the control logic, and the readability of the code.

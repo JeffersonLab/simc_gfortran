@@ -1,0 +1,153 @@
+From Omar.Benhar@roma1.infn.it Mon May  7 19:17:44 2001
+Date: Fri, 20 Apr 2001 09:47:27 +0200 (MET DST)
+From: "Omar Benhar - INFN, Roma - ++39-06-49914298"
+    <Omar.Benhar@roma1.infn.it>
+To: John R. Arrington <johna@cedar.phy.anl.gov>
+Cc: Omar Benhar <benhar@roma1.infn.it>
+Subject: Spectral Functions
+
+
+Hallo John, 
+
+sorry for being somewhat late in getting back to you with the promised sftuff.
+Attached to this message are five files, containing the spectral functions
+of Carbon, Iron, Gold, Nuclear matter and 4He.
+
+As for 3He, we never did a calculation of the full spectral function. To 
+obtain inclusive cross sections and EMC ratios I have been using the 
+spectral function of the Hannover group. However, I also have a 3He spectral function 
+obtained using the approximation scheme developed for 4He. Just let me know
+which one you want.
+
+The relevant references are
+
+LDA spectral functions (Carbon, Iron and Gold)
+O. Benhar, A. Fabrocini, S. Fantoni and I. Sick, Nucl. Phys. A579(1994)493  
+
+Nuclear matter
+O. Benhar, A. Fabrocini and S. Fantoni, Nucl. Phys. A505(1989)267 
+
+4He
+O. Benhar and V.R. Pandharipande, Phys. Rev. C  47(1993)2218
+
+Below is a short explanantion of the way the files are arranged.
+
+That's all for now
+
+Best
+
+		Omar
+
+
+*************************************************************************************
+
+The files are organized as follows
+
+ *** Gold: file 'pke197_tot.data' ***
+
+- P(k,E) is given on a 40*80 grid. The binsizes are 20 MeV/c for K and 5 MeV
+  for E. The E-range starts at E_min = 0. The p-range starts at p_min = 0.
+
+- there are 40 bloks (one for each value of k), each of them containing 21 lines.
+
+- the first line of each block gives the value of k in MeV/c. Then follow 20
+  lines containing four pairs of (E,P(k,E)) values each.
+
+- the spectral function is normalized to Z=79.  
+
+ *** Iron: file 'pke56_tot.data' ***
+
+- P(k,E) is given on a 40*80 grid. The binsizes are 20 MeV/c for K and 5 MeV
+  for E. The E-range starts at E_min = 2.5 MeV. The p-range starts at p_min = 0.
+
+- there are 40 bloks (one for each value of k), each of them containing 21 lines.
+
+- the first line of each block gives the value of k in MeV/c. Then follow 20
+  lines containing four pairs of (E,P(k,E)) values each.
+
+- the spectral function is normalized to Z=26.    
+
+ *** Carbon: file 'pke12_tot.data' ***
+
+- P(k,E) is given on a 40*80 grid. The binsizes are 20 MeV/c for K and 5 MeV
+  for E. The E-range starts at E_min = 0. The p-range starts at p_min = 0.
+
+- there are 40 bloks (one for each value of k), each of them containing 21 lines.
+
+- the first line of each block gives the value of k in MeV/c. Then follow 20
+  lines containing four pairs of (E,P(k,E)) values each.
+
+- the spectral function is normalized to Z=6.         
+
+ *** Nuclear matter: file 'ompkeb4.dat' ***
+
+The spectral function P(k,E) (in units of fm^3*MeV^-1) is tabulated
+as a function of k (in units of fm) and E (in units of MeV).
+The k grid consists of 24 points, 13 at k less than the Fermi momentum k_F
+(for symmetric nuclear matter at equilibrium density k_F = 1.33 fm^-1)
+(steplength .1 fm) and 11 at k>k_F (steplength .266 fm). For any value
+of k the table gives the spectral function integrated over a missing energy
+bin, whose central value is also tabulated.    
+
+The file is organzed as follows:
+
+ - the first line contains the step lengths and the number of steps for the
+    k grid (.1 .266 13 11 24).
+
+ - then come 24 similar bloks, one for each value of k. The first line in each
+   block gives the value of k, the width of the bin in E and the number of
+   bins. The following lines contain the central energies of the bins and the
+   integrals of the spectral function over the energy bins.     
+
+For example, the first two entries in the fourth line of the file say that
+at k=.1 fm^-1 the spectral function integrated over the energy range 32-36 MeV
+is .618e-3 fm^3*MeV^-1.
+
+The overall normalization is such that:
+
+    (3/k_F^3) \int dE dk k^2*P(k,E) = 1         
+
+ *** 4 Helium: file 'spec4he.dat'
+
+ - the first line gives the number of momentum and energy bins (50 and 35, respectively)
+
+ - the central values of momentum bins are given in lines 2-51
+
+ - lines 52-86 give central values and size of the energy bins
+
+ - then follows 35 blocks of 13 lines each, giving the spectral function as a function 
+   of momentum for each energy. For example, line 87 gives the spectral function for the 
+   first energy bin nad the first four momentum bins.
+
+ - the normalization is 
+
+    4 \pi \int dE dk k^2*P(k,E) = 1
+
+********************************************************************************************
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Omar Benhar                      phone  ++39-06-49914298
+INFN, Sezione Roma 1             fax    ++39-06-4454749
+Piazzale Aldo Moro, 2            e-mail benhar@roma1.infn.it
+I-00185 Rome, Italy
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    [ Part 2, ""  Text/PLAIN (Name: "pke12_tot.data")  1,328 lines. ]
+    [ Unable to print this part. ]
+
+
+    [ Part 3, ""  Text/PLAIN (Name: "pke56_tot.data")  1,328 lines. ]
+    [ Unable to print this part. ]
+
+
+    [ Part 4, ""  Text/PLAIN (Name: "pke197_tot.data")  1,328 lines. ]
+    [ Unable to print this part. ]
+
+
+    [ Part 5, ""  Text/PLAIN (Name: "ompkeb4.dat")  1,465 lines. ]
+    [ Unable to print this part. ]
+
+
+    [ Part 6, ""  Text/PLAIN (Name: "spec4he.dat")  644 lines. ]
+    [ Unable to print this part. ]
+

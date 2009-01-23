@@ -1,0 +1,166 @@
+
+   Running DMK's Monte Carlo
+
+The input file is Last.inp.   You change the input file by changing this
+file.
+
+I recommend deleting the directory worksim and linking it to someplace on
+your work disk.  For example,
+
+"ln -s /tmp_mnt/net/farms0/work8/e91016/koltenuk/simc worksim"
+
+In the output file .hist, central.sigcc is the average lab 
+decay-corrected cross-section dsigma/domegae dEe dEk.   Multiply
+central.sigcc by normfac to get your yield.
+
+I do not use Em or Pm for anything real in the kaon MC.  
+However, the Em bin size 
+determines the minimum radiative photon energy.  
+
+When looking at the ntuples, radphotE is the energy of the radiated
+photon.  broadfac is a factor which is used to simulate misidentification
+in the wire chambers.  Sigcc is dsigma/domegak* in the CM frame.  
+Weight is the factor which you need to weight everything with.
+
+To get physics quantities everything needs to be weighted by 
+Weight*normfac/number of events you are looking at.
+
+Normfac you get from the *.hist file.  
+Number of events you are looking at is normally Ncontribute from the
+*.hist file, but if you modify the number of rows in paw then you use 
+that number.  So if you are only looking at rows 1-10000, you would 
+divide by 10000.
+
+For useful debugging output change the debug_flags in the .inp file.
+I recommend running simc with debugging output directed to an output
+file, and only running simc for a small number of event (100 tries).
+Otherwise the debugging file can fill your disk.  In general,
+you should run the program with the output going to /dev/null.
+sim1 > debug.out       or      sim1 > /dev/null
+Always check an input file by running by specifying the number of
+tries (ngen negative) and making sure you have a non-zero success rate.
+
+You can use either rad_flag=0 or rad_flag=3.  
+
+To switch to doing (e,e'p) stuff, set doing_peepi switch to 0.  
+This Monte Carlo was checked during the homework assignment and produces
+essentially identical results to the standard SIMC.  It will still do
+hydrogen elastic calculations.  To do (e,e') change the spect_mode.  To do
+phsp calculations change the phsp_mode.
+
+For pions, default is decay in the SOS.  To change the spectrometer
+you are decaying in, cp mc_hms.fdecay to mc_hms.f and mc_hms_hut.fdecay
+to mc_hms_hut.f and remake, and cp mc_sos.fnodecay to mc_sos.f and
+mc_sos_hut.fnodecay to mc_sos_hut.f and remake.  Remember that the
+HMS has forward matrix elements at the moment, sequential matrix
+elements are needed to do decay.
+
+For kaons, decay corrections are done as a weight of the physics
+cross section.
+
+When switching from hydrogen to deuterium to helium, make sure you 
+change target.A (1 or 2 or 3) and 
+target.mass_amu (1.007276 or 2.01355 or 3.01493).  The reaction you
+are looking at determines target.Arec ( 9999 for
+hydr_elast (or elastic on deuterium), 1.008665 for pion, 1.1977357 for 
+lambda, 1.280255 for sigma0, 1.285500 for sigma-).  Remember target
+densities/lengths also change--see sample input files for examples.
+If doing helium, change using_Coulomb to 1.
+
+If you make modifications to the fortran, make sure you make in the
+subdirectory (/sos or /hms) before you make in the main directory. 
+
+
+BASIC STRUCTURE OF SIMC:
+* indicates subroutine call
+
+*simulate:  
+          *dbase_read:
+               read .inp file, other input files
+               initialize random seeds, assign flags
+                    *target_init:
+                         energy loss in target
+                    *limits_init:
+                         sets boundaries for generation, radiation
+                    *results_init: (not used)
+          *radc_init:
+               initialize radiation flags
+                    *brem_init:
+                         initialize radiation flags
+          *calculate_central: (not important)
+                    *complete_ev:
+                    *radc_init_ev:
+                    *complete_main:
+     calculate luminosity
+     event loop
+          *generate:
+               calculate raster position (default sine wave)
+               calculate position at target
+               calculate eloss
+               pick flat distribution of angles, energies
+               find initial proton momentum if doing deut, helium
+                    *complete_ev:
+                         find 4-vectors for outgoing electron, hadron
+                         find missing momentum (and energy)
+                              *radc_init_ev:
+                                   calculate lambdas
+                                        *bremos:  
+                                             calculate hard rad weight
+                                        *basicrad_init_ev:
+                                             calculate c's, g's
+                    *generate_rad:
+                         pick an arm for radiation
+                              *basicrad:
+                                   calculate radiated photon energy
+                                   calculate basicrad weight
+                         calculate radiative weight
+                              *peaked_rad_weight:
+                                   calculate external weight
+                                        *bremos: 
+                                             calculate internal weight
+                         OR
+                         basicrad weight*extrad_phi    
+                         if necessary, call complete_ev
+                         main.gen_weight
+          *montecarlo:
+               check if initial 4-vectors fall within loose spec cuts
+                    *mc_sos: (if SOS is hadron arm)
+                         transport through SOS spectrometer
+                         checks collimator, apertures
+                         uses sequential matrix elements 
+                              *decay:
+                                   checks for decay (pions)
+                                   converts to new hadron (muon)
+                                     with new 4-vector
+                              *mc_sos_hut:
+                                   transport through SOS hut
+                                   checks detector limits
+                                   multiple scattering
+                                   decay
+                                   calculates focal plane quantities
+                              *mc_sos_recon:
+                                   reconstructs target quantities
+               check if target quantities fall within tight spec cuts
+                    *mc_hms: (if HMS is electron arm)
+                         same as for mc_sos, no decay checks
+               check if target quantities fall within tight spec cuts
+          *complete_ev: (recon mode)
+          *complete_main:
+                    *peepi:  
+                         calculate cross section
+               main.weight
+          *inc: 
+               increments .gen quantities
+          *results_update: (not used)
+          *limits_update:
+               updates ranges for final report
+          *results_ntu_write:
+               fills ntuple
+     end of event loop
+     calculate genvol
+     calculate normfac
+     write .gen file
+          *results_write: (not used)
+          *report:
+               writes .hist file
+          

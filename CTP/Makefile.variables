@@ -1,0 +1,58 @@
+# If you're not using GCC version 3 or 4 and Linux or Mac OS X, you'll proably
+# need to make some changes to the makefiles and possibly the source code.
+getversion = --version | head -1 | sed 's/.*) //' | sed 's/\..*//'
+gccversion = $(shell gcc $(getversion))
+g77flags = -Wimplicit
+
+export #export all variables
+unexport getversion gccversion g77flags message #except these ones
+
+CFLAGS = -Wall -W -O -ggdb #-pg #-pedantic
+#CFLAGS = -Wall -W
+CXXFLAGS := $(CFLAGS)
+#FFLAGS = -O -ffixed-line-length-132 -ggdb -Wall -W -fbounds-check #-pg #-pedantic
+FFLAGS = -O -ffixed-line-length-132 -ggdb -Wall -W  #-pg #-pedantic
+CC = gcc
+CXX = g++
+ifeq ($(gccversion),4)
+  ifeq ($(shell gfortran $(getversion)),4)
+    FC = gfortran
+    # cfortran.h wants gFortran to be defined
+    # We have two versions of cfortran.h: one from NetCDF and one from Debian
+    # Both versions support GCC 4, whereas the official version does not
+    # We use NetCDF's cfortran.h at the moment
+    # The other version is in CTP/cfortran.h.debian
+    CFLAGS += -DgFortran
+    CXXFLAGS += -DgFortran
+  else
+    # this happens if you're using a JLab RHEL3 system and have typed "use gcc/4.1.1"
+    # JLab RHEL3 systems currently have GCC 4 but no gfortran.
+    define message
+
+  +--------------------------------------------------------------------------+
+  | Warning: Using GNU C compiler version 4 but gfortran not found. Falling  |
+  | back to g77 + GCC 3 for Fortran but still using GCC 4 for C and C++.     |
+  +--------------------------------------------------------------------------+
+    endef
+    $(warning $(message))
+    FC = g77
+    FFLAGS += $(g77flags)
+  endif
+else
+  FC = g77
+  FFLAGS += $(g77flags)
+endif
+
+SHELL = /bin/sh
+CP = cp -f
+RM = rm -f
+
+# This program has only been tested under Linux and Mac OS X lately
+# For either Mac or Linux, this variable should be set to Linux
+MYOS = Linux
+#
+# There are a couple places in the Makefiles where libraries are chosen for linking.  
+# It is helpful to know in these situations what the real OS is - i.e. Linux vs. MacOSX(Darwin)
+# 
+MYREALOS := $(subst -,,$(shell uname))
+

@@ -8,7 +8,8 @@
 !		Seemingly Countless Others (Virtually Everywhere).
 !
 	implicit none
-	include 'simulate_init.inc'
+!	include 'simulate_init.inc'
+	include 'simulate.inc'
 	include 'histograms_init.inc'
 	include 'radc.inc'
 	include 'hbook.inc'
@@ -43,6 +44,12 @@ c
 
 ! INITIALIZE
 !-----------
+
+! ... initialize all the *min/max variables here since we can 
+! ... no longer do it in the * include file
+	call min_max_init(contrib)
+
+	
 
 ! ... initialize histogram area for HBOOK
 

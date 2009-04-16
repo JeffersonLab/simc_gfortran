@@ -898,3 +898,276 @@ c	open(unit=1,file=theory_file,status='old',readonly,shared,iostat=iok)
 
 	return
 	end
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine min_max_init(contrib)
+
+C Gaskell- April 15, 2009
+C gfortran does not allow default initalization of a "derived type" that is
+C included in a common block.
+C For example, all the blah%min and blah%max variables were formerly initialized by 
+C default to -1d10 and 1d10 in simulate_init.inc. That is no longer allowed.
+C Here I'm attempting to initialize each variable by hand to those values. In principle,
+C this should not be necessary as they should be redefined elsewhere later - but there
+C are a lot of different cases and something may have slipped through the cracks. That
+C may have happened here as well.
+C   
+
+      include 'simulate.inc'
+      real*8 xmin,xmax
+      type(contribtype)::	contrib
+
+      xmin=-1.0d10
+      xmax=1.0d10
+
+C Initialize "gen"
+
+      gen%e%delta%min=xmin
+      gen%e%delta%max=xmax
+
+      gen%e%yptar%min=xmin
+      gen%e%yptar%max=xmax
+
+      gen%e%xptar%min=xmin
+      gen%e%xptar%max=xmax
+
+      gen%e%E%min=xmin
+      gen%e%E%max=xmax
+
+      gen%p%delta%min=xmin
+      gen%p%delta%max=xmax
+
+      gen%p%yptar%min=xmin
+      gen%p%yptar%max=xmax
+
+      gen%p%xptar%min=xmin
+      gen%p%xptar%max=xmax
+
+      gen%p%E%min=xmin
+      gen%p%E%max=xmax
+
+      gen%sumEgen%min=xmin
+      gen%sumEgen%max=xmax
+
+      gen%Trec%min=xmin
+      gen%Trec%max=xmax
+
+C Initialize "cuts"
+
+      cuts%Em%min=xmin
+      cuts%Em%max=xmax
+
+      cuts%Pm%min=xmin
+      cuts%Pm%max=xmax
+
+C Initialize "Edge"
+
+      edge%e%E%min=xmin
+      edge%e%E%max=xmax
+
+      edge%e%yptar%min=xmin
+      edge%e%yptar%max=xmax
+
+      edge%e%xptar%min=xmin
+      edge%e%xptar%max=xmax
+
+      edge%p%E%min=xmin
+      edge%p%E%max=xmax
+
+      edge%p%yptar%min=xmin
+      edge%p%yptar%max=xmax
+
+      edge%p%xptar%min=xmin
+      edge%p%xptar%max=xmax
+
+      edge%Em%min=xmin
+      edge%Em%max=xmax
+
+      edge%Pm%min=xmin
+      edge%Pm%max=xmax
+
+      edge%Mrec%min=xmin
+      edge%Mrec%max=xmax
+
+      edge%Trec%min=xmin
+      edge%Trec%max=xmax
+
+      edge%Trec_struck%min=xmin
+      edge%Trec_struck%max=xmax
+
+C Initialize "VERTEXedge"
+
+      VERTEXedge%e%E%min=xmin
+      VERTEXedge%e%E%max=xmax
+
+      VERTEXedge%e%yptar%min=xmin
+      VERTEXedge%e%yptar%max=xmax
+
+      VERTEXedge%e%xptar%min=xmin
+      VERTEXedge%e%xptar%max=xmax
+
+      VERTEXedge%p%E%min=xmin
+      VERTEXedge%p%E%max=xmax
+
+      VERTEXedge%p%yptar%min=xmin
+      VERTEXedge%p%yptar%max=xmax
+
+      VERTEXedge%p%xptar%min=xmin
+      VERTEXedge%p%xptar%max=xmax
+
+      VERTEXedge%Em%min=xmin
+      VERTEXedge%Em%max=xmax
+
+      VERTEXedge%Pm%min=xmin
+      VERTEXedge%Pm%max=xmax
+
+      VERTEXedge%Mrec%min=xmin
+      VERTEXedge%Mrec%max=xmax
+
+      VERTEXedge%Trec%min=xmin
+      VERTEXedge%Trec%max=xmax
+
+      VERTEXedge%Trec_struck%min=xmin
+      VERTEXedge%Trec_struck%max=xmax
+      
+C Initialize "SPedge"
+
+      SPedge%e%delta%min=xmin
+      SPedge%e%delta%max=xmax
+
+      SPedge%e%yptar%min=xmin
+      SPedge%e%yptar%max=xmax
+
+      SPedge%e%xptar%min=xmin
+      SPedge%e%xptar%max=xmax
+
+      SPedge%e%z%min=xmin
+      SPedge%e%z%max=xmax
+
+      SPedge%p%delta%min=xmin
+      SPedge%p%delta%max=xmax
+
+      SPedge%p%yptar%min=xmin
+      SPedge%p%yptar%max=xmax
+
+      SPedge%p%xptar%min=xmin
+      SPedge%p%xptar%max=xmax
+
+      SPedge%p%z%min=xmin
+      SPedge%p%z%max=xmax
+
+
+C initialize with "lo" a large number and "hi" a small number
+
+C Initialize "contrib%gen"
+      contrib%gen%e%delta%lo=xmax
+      contrib%gen%e%delta%hi=xmin
+
+      contrib%gen%e%xptar%lo=xmax
+      contrib%gen%e%xptar%hi=xmin
+
+      contrib%gen%e%yptar%lo=xmax
+      contrib%gen%e%yptar%hi=xmin
+
+      contrib%gen%e%z%lo=xmax
+      contrib%gen%e%z%hi=xmin
+
+      contrib%gen%p%delta%lo=xmax
+      contrib%gen%p%delta%hi=xmin
+
+      contrib%gen%p%xptar%lo=xmax
+      contrib%gen%p%xptar%hi=xmin
+
+      contrib%gen%p%yptar%lo=xmax
+      contrib%gen%p%yptar%hi=xmin
+
+      contrib%gen%p%z%lo=xmax
+      contrib%gen%p%z%hi=xmin
+
+      contrib%gen%Trec%lo=xmax
+      contrib%gen%Trec%hi=xmin
+
+      contrib%gen%sumEgen%lo=xmax
+      contrib%gen%sumEgen%hi=xmin
+
+C Initialize "contrib%tru"
+      contrib%tru%e%E%lo=xmax
+      contrib%tru%e%E%hi=xmin
+
+      contrib%tru%e%yptar%lo=xmax
+      contrib%tru%e%yptar%hi=xmin
+
+      contrib%tru%e%xptar%lo=xmax
+      contrib%tru%e%xptar%hi=xmin
+
+      contrib%tru%p%E%lo=xmax
+      contrib%tru%p%E%hi=xmin
+
+      contrib%tru%p%yptar%lo=xmax
+      contrib%tru%p%yptar%hi=xmin
+
+      contrib%tru%p%xptar%lo=xmax
+      contrib%tru%p%xptar%hi=xmin
+
+      contrib%tru%Em%lo=xmax
+      contrib%tru%Em%hi=xmin
+
+      contrib%tru%Pm%lo=xmax
+      contrib%tru%Pm%hi=xmin
+
+      contrib%tru%Trec%lo=xmax
+      contrib%tru%Trec%hi=xmin
+
+C Initialize "contrib%SP"
+      contrib%SP%e%delta%lo=xmax
+      contrib%SP%e%delta%hi=xmin
+
+      contrib%SP%e%yptar%lo=xmax
+      contrib%SP%e%yptar%hi=xmin
+
+      contrib%SP%e%xptar%lo=xmax
+      contrib%SP%e%xptar%hi=xmin
+
+      contrib%SP%e%z%lo=xmax
+      contrib%SP%e%z%hi=xmin
+
+      contrib%SP%p%delta%lo=xmax
+      contrib%SP%p%delta%hi=xmin
+
+      contrib%SP%p%yptar%lo=xmax
+      contrib%SP%p%yptar%hi=xmin
+
+      contrib%SP%p%xptar%lo=xmax
+      contrib%SP%p%xptar%hi=xmin
+
+      contrib%SP%p%z%lo=xmax
+      contrib%SP%p%z%hi=xmin
+
+C Initialize "contrib%vertex"
+
+      contrib%vertex%Trec%lo=xmax
+      contrib%vertex%Trec%hi=xmin
+
+      contrib%vertex%Em%lo=xmax
+      contrib%vertex%Em%hi=xmin
+
+      contrib%vertex%Pm%lo=xmax
+      contrib%vertex%Pm%hi=xmin
+
+C Initialize "contrib%rad"
+      contrib%rad%Egamma(1)%lo=xmax
+      contrib%rad%Egamma(1)%hi=xmin
+
+      contrib%rad%Egamma(2)%lo=xmax
+      contrib%rad%Egamma(2)%hi=xmin
+
+      contrib%rad%Egamma(3)%lo=xmax
+      contrib%rad%Egamma(3)%hi=xmin
+
+      contrib%rad%Egamma_total%lo=xmax
+      contrib%rad%Egamma_total%hi=xmin
+
+
+      return 
+
+      end

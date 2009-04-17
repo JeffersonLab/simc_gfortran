@@ -65,6 +65,26 @@ ifeq ($(MYOS),Linux)
   F77 := gfortran
 endif
 
+# Mac OSX, Leopard (checked on version 10.5.6)
+# Tested using patched gfortran compiler from www-jlc.kek.jp/~fujiik/macosx/10.5.X/HEPonX
+# I had trouble compiling geant stuff using the deafult gfortran that shipped with
+# my version of Leopard - YMMV (your mileage may vary)
+# Only change needed was to add  the -fno-range-check flag: there was some problem
+# with the default integer size, specifically in mt19937.f.
+# Note that the CTP libraries still end up in the O.Linux directory...
+ifeq ($(MYOS),Darwin)
+  LIBROOT = CTP/O.Linux/Linux/lib
+  CERN_ROOT = /apps/cernlib/i386_fc8/2005
+  FFLAGSA=-O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8 -fno-range-check
+  INCLUDES=-I.
+  FFLAGS= $(INCLUDES) $(FFLAGSA)
+  FFLAG1=$(FFLAGS) -c
+  OTHERLIBS = -L$(LIBROOT) -lctp \
+        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib
+  FC  := gfortran
+  F77 := gfortran
+endif
+
 %.o: %.f
 	$(F77) $(FFLAGS) -c $< -o $@
 

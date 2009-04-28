@@ -75,7 +75,7 @@ endif
 ifeq ($(MYOS),Darwin)
   LIBROOT = CTP/O.Linux/Linux/lib
   CERN_ROOT = /apps/cernlib/i386_fc8/2005
-  FFLAGSA=-O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8 -fno-range-check
+  FFLAGSA=-O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
   INCLUDES=-I.
   FFLAGS= $(INCLUDES) $(FFLAGSA)
   FFLAG1=$(FFLAGS) -c

@@ -103,7 +103,12 @@ ccc      end
       parameter(N1    =  N+1)
       parameter(M     =  397)
       parameter(MATA  = -1727483681)	!constant vector a
-      parameter(UMASK = -2147483648)	!most significant w-r bits
+C This next line may look weird, but it is very important. For standard fortran
+C standard integers are allowed to range from -214748368 to 214748367 (2**31-1).
+C However the statement x=-2147483648 is interpreted as the operation of
+C making the number 2147483648 negative - this is not allowed.
+C To get around this, we just take -2147483647 and subtract 1.
+      parameter(UMASK = -2147483647-1)	!most significant w-r bits
       parameter(LMASK =  2147483647)	!least significant r bits
 * Tempering parameters
       parameter(TMASKB= -1658038656)

@@ -60,8 +60,8 @@ C Generate center/mass decay angles and momenta.
 	rth = acos(rth1)
 
 
-	norm = (1.0+epsilon*R_rho)*grnd()
-	dist = sin(rth)**2+epsilon*R_rho*cos(rth)**2
+	norm = (1.0+2.0*epsilon*R_rho)*grnd()
+	dist = sin(rth)**2+2.0*epsilon*R_rho*cos(rth)**2
 	if(dist.lt.norm) goto 100
 c       write(6,*) 'now decaying the rho',ctaurho,mh2
 	ntup%rhotheta=rth

@@ -68,6 +68,10 @@ c       write(6,*) 'now decaying the rho',ctaurho,mh2
 c	er = 384.65
 c	pr = 358.4353
 	er = ntup%rhomass/2.0
+	if(er.lt.Mpi) then
+	   success=.false.
+	   return
+	endif
 	pr = sqrt(er**2-Mpi2)
 	pxr = pr*sin(rth)*cos(rph)
 	pyr = pr*sin(rth)*sin(rph)
@@ -149,6 +153,9 @@ C DJG This should never happen!!!
 
 	orig%p%E = sqrt(orig%p%P**2 + Mh2)
 
+C Calculate "physics" angles
+	call physics_angles(spec%p%theta,spec%p%phi,
+     &     orig%p%xptar,orig%p%yptar,orig%p%theta,orig%p%phi)
 
 	return
 	end

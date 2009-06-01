@@ -60,6 +60,11 @@ C Lab coordinates!!!
 	bz = -(q*quz+pferz*pfer)/(nu+efer)
 
 	betacm = sqrt(bx**2+by**2+bz**2)
+	if(betacm.gt.1.0) then
+c	   write(6,*) 'generate rho: beta_cm greater than 1!'
+	   success=.false.
+	   return
+	endif
 	gammacm = 1./sqrt(1.0-betacm**2)
 C Start calculating rho stuff
 
@@ -111,8 +116,6 @@ C Boost to Lab frame%
 	vertex%up%x = pxf/pf
 	vertex%up%y = pyf/pf
 	vertex%up%z = pzf/pf
-
-
 
 C DJG These aren't really used for anything, so let me just assign
 C DJG them to theta and phi in the lab

@@ -149,7 +149,7 @@ C DJG This should never happen!!!
 	Mh = Mpi
 	Mh2 = Mpi2
 
-	Mh2_final = Mh
+	Mh2_final = Mh2
 
 	orig%p%E = sqrt(orig%p%P**2 + Mh2)
 

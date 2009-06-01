@@ -94,9 +94,12 @@
 	  ntu(6) = main%FP%p%dx				!mr
 	  ntu(7) = main%FP%p%y
 	  ntu(8) = main%FP%p%dy				!mr
-	  ntu(9) = vertex%p%delta
-	  ntu(10) = vertex%p%yptar			!mr
-	  ntu(11) = vertex%p%xptar			!mr
+c	  ntu(9) = vertex%p%delta
+c	  ntu(10) = vertex%p%yptar			!mr
+c	  ntu(11) = vertex%p%xptar			!mr
+	  ntu(9) = orig%p%delta
+	  ntu(10) = orig%p%yptar			!mr
+	  ntu(11) = orig%p%xptar			!mr
 	  ntu(12) = main%target%z*spec%p%sin_th
 	  ntu(13) = recon%e%delta
 	  ntu(14) = recon%e%yptar			!mr

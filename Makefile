@@ -54,7 +54,12 @@ CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
 # -fno-automatic - all program storage treated as static
 ifeq ($(MYOS),Linux)
   LIBROOT = CTP/O.Linux/Linux/lib
+# JLab
   CERN_ROOT = /apps/cernlib/i386_fc8/2005
+# 32 bit, standard Fedora distributuion
+#  CERN_ROOT = /usr/lib/cernlib/2006
+# 64 bit, standard Fedora distributuion
+#  CERN_ROOT =  /usr/lib64/cernlib/2006 
   FFLAGSA=-O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
   INCLUDES=-I.
   FFLAGS= $(INCLUDES) $(FFLAGSA)

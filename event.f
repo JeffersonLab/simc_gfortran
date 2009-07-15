@@ -177,7 +177,9 @@ C DJG Note that this means that +fry points down. I will make frx point left.
      >		main%target%Eloss(1), main%target%teff(1),Me,1)
 	if (.not.using_Eloss) main%target%Eloss(1) = 0.0
 	if (using_Coulomb) then
-	  main%target%Coulomb=targ%Coulomb_constant*(3.-(grnd())**(2./3.))
+c	  main%target%Coulomb=targ%Coulomb_constant*(3.-(grnd())**(2./3.))
+C modified 5/15/06 for poinct
+	  main%target%Coulomb=targ%Coulomb_constant
 	else
 	  main%target%Coulomb=0.0
 	endif
@@ -1039,6 +1041,12 @@ CDG	endif
 ! ... unit vector components of outgoing e,p
 ! ... z is DOWNSTREAM, x is DOWN and y is LEFT looking downstream.
 
+C Ebeam_vertex_ave has been shifted to account for Coulomb effects
+C In general, the Hall C analyzer does not correct for this
+C If you do NOT apply an energy shift in the ENGINE to account
+C for Coulomb corrections, make sure the line below is NOT commented out.
+	recon%Ein = Ebeam_vertex_ave - targ%Coulomb%ave
+
 	if (debug(4)) write(6,*)'comp_rec_ev: at 1'
 	recon%ue%x = sin(recon%e%theta)*cos(recon%e%phi)
 	recon%ue%y = sin(recon%e%theta)*sin(recon%e%phi)
@@ -1426,6 +1434,11 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	else
 	  main%sigcc = 1.0
 	  main%sigcc_recon = 1.0
+	endif
+
+C If using Coulomb cirrections, include focusing factor
+	if(using_Coulomb) then
+	   main%sigcc = main%sigcc*(1.0+targ%Coulomb%ave/Ebeam)**2
 	endif
 
 	if (debug(3)) then

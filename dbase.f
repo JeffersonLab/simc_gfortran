@@ -826,6 +826,8 @@ C DJG:
 	if (.not.using_P_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the P arm Monte Carlo'
 	if (.not.using_Eloss) write(6,*) 'NOTE: Will NOT be calculating energy loss in the target'
 	if (.not.using_Coulomb) write(6,*) 'NOTE: Will NOT be calculating Coulomb correction (default for Hydrogen target)'
+	if (using_Coulomb) write(6,*) 'NOTE: WILL be calculating Coulomb corrections. 
+     >             Implmemented for beam and scattered electron only!'
 	if (.not.correct_Eloss) write(6,*) 'NOTE: Will NOT correct reconstructed data for energy loss'
 	if (.not.correct_raster) write(6,*) 'NOTE: Will NOT use raster terms in reconstruction'
 

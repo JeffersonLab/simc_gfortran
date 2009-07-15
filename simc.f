@@ -1716,7 +1716,9 @@ C DJG For spectrometers to the left of the beamline, need to pass ctheta,-stheta
      >                              eloss_E_arm, r, Me, 4)
 	  recon%e%E = recon%e%E + eloss_E_arm
 	endif
-	recon%e%E = recon%e%E + targ%Coulomb%ave
+c	recon%e%E = recon%e%E + targ%Coulomb%ave
+c Generally, we do not correct for coulomb effects in the reconstruction
+	recon%e%E = recon%e%E 
 	recon%e%P = recon%e%E
 C DJG Should not correct delta for energy loss - delta is a SPECTROMETER
 C variable!!

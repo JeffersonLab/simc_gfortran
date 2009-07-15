@@ -64,10 +64,18 @@
 ! ... Coulomb potential energy (NB All of the following are positive)
 
 	if (using_Coulomb) then
-	  targ%Coulomb%ave=6./5.*(targ%Z-1.)*alpha*hbarc/(1.18*targ%A**(1./3.))
-	  targ%Coulomb_constant = 5./12. * targ%Coulomb%ave
-	  targ%Coulomb%min = targ%Coulomb_constant * 2.0
-	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
+c	  targ%Coulomb%ave=6./5.*(targ%Z-1.)*alpha*hbarc/(1.18*targ%A**(1./3.))
+c	  targ%Coulomb_constant = 5./12. * targ%Coulomb%ave
+c	  targ%Coulomb%min = targ%Coulomb_constant * 2.0
+c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
+*Next four lines were modified 5/15/06 for pionct (see Aste et al. Eur. Phys. J. A 26, 167 (2005)
+*V(r) = -3/2 alpha Z/(2R) + alpha Z/(2R) (r/R)**2 where
+* R = 1.1*A**1/3 + 0.86A**-1/3 fm
+* Aste sez use V(0) * 0.75
+	  targ%Coulomb%ave=0.75*1.5*(targ%Z-1.)*alpha*hbarc/(1.1*targ%A**(1./3.)+0.86*targ%A**(-1./3.))
+	  targ%Coulomb_constant = targ%Coulomb%ave
+	  targ%Coulomb%min = targ%Coulomb_constant 
+	  targ%Coulomb%max = targ%Coulomb_constant 
 	else
 	  targ%Coulomb%ave = 0.0
 	  targ%Coulomb_constant = 0.0

@@ -1065,13 +1065,16 @@ C for Coulomb corrections, make sure the line below is NOT commented out.
 	recon%uq%x = - recon%e%P*recon%ue%x / recon%q
 	recon%uq%y = - recon%e%P*recon%ue%y / recon%q
 	recon%uq%z =(recon%Ein - recon%e%P*recon%ue%z)/ recon%q
-	if (doing_pion .or. doing_kaon .or. doing_delta .or. doing_rho .or. doing_semi) then
-	   W2 = targ%mtar_struck**2 + 2.*targ%mtar_struck*recon%nu - recon%Q2
-	else
-	   W2 = targ%M**2 + 2.*targ%M*recon%nu - recon%Q2
-	endif
 
+c	if (doing_pion .or. doing_kaon .or. doing_delta .or. doing_rho .or. doing_semi) then
+c	   W2 = targ%mtar_struck**2 + 2.*targ%mtar_struck*recon%nu - recon%Q2
+c	else
+c	   W2 = targ%M**2 + 2.*targ%M*recon%nu - recon%Q2
+c	endif
+
+c Everyone else in the world calculates W using the proton mass.
 	W2 = mp**2 + 2.*mp*recon%nu - recon%Q2
+
 	recon%W = sqrt(abs(W2)) * W2/abs(W2) 
 	recon%xbj = recon%Q2/2./Mp/recon%nu
 	if (debug(4)) write(6,*)'comp_rec_ev: at 5'

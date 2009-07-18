@@ -46,7 +46,9 @@ C-_____________________________________________________________________
      >		'Momentum passed to musc.f should be in MeV, but p=',p
 
 	beta = p / sqrt(m2+p*p)
-	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len))
+c	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len))
+c Better form for beta .ne. 1
+	theta_sigma = Es/p/beta * sqrt(rad_len) * (1+epsilon*log10(rad_len/beta**2))
 
 ! Compute new trajectory angles (units are rad)
 

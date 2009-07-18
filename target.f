@@ -508,7 +508,9 @@ C the perfect range, but it's easier than reproducing the generated limits here
 ! Compute rms value for planar scattering angle distribution, cf. PDB
 ! Note teff is thickness of material, in radiation lengths.
 
-	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
+c	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
+C Better form for beta .ne. 1
+	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff/beta**2))
 
 ! Compute scattering angles in perpendicular planes.
 ! Generate two Gaussian numbers BELOW nsig_max.
@@ -522,7 +524,9 @@ C the perfect range, but it's easier than reproducing the generated limits here
 
 	entry extreme_target_musc(p, beta, teff, dangle, r)
 
-	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
+c	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
+C Better form for beta .ne. 1
+	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff/beta**2))
 	dangle = theta_sigma * nsig_max
 	r = nsig_max
 	return

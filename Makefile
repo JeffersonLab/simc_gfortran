@@ -55,7 +55,7 @@ CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
 ifeq ($(MYOS),Linux)
   LIBROOT = CTP/O.Linux/Linux/lib
 # JLab
-  CERN_ROOT = /apps/cernlib/i386_fc8/2005
+#  CERN_ROOT = /apps/cernlib/i386_fc8/2005
 # 32 bit, standard Fedora distributuion
 #  CERN_ROOT = /usr/lib/cernlib/2006
 # 64 bit, standard Fedora distributuion

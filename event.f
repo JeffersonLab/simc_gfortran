@@ -403,19 +403,6 @@ C DJG spectrometer
 	   call rho_decay(orig,spec%p%P,main%epsilon,success)
 	endif
 
-C Call energy loss here - just before sending on to the spectrometers.
-
-	call trip_thru_target (2, main%target%z-targ%zoffset, orig%e%E,
-     >		orig%e%theta, main%target%Eloss(2), main%target%teff(2),Me,1)
-
-	call trip_thru_target (3, main%target%z-targ%zoffset, orig%p%E,
-     >		orig%p%theta, main%target%Eloss(3), main%target%teff(3),Mh,1)
-
-	if (.not.using_Eloss) then
-	  main%target%Eloss(2) = 0.0
-	  main%target%Eloss(3) = 0.0
-	endif
-
 	
 100	if (debug(2)) write(6,*)'gen: final success =',success
 	if (debug(2)) write(6,*)'gen: ending'
@@ -978,19 +965,17 @@ C DJG stinkin' Jacobian!
 ! The effective target thickness that the scattered particles see, and the
 ! resulting energy losses
 
-C DJG 6/1/2009 Move this to the end of generate and apply to "orig". In some cases,
-C the energies here do not correspond to those going into the spectrometer. 
 
-CDG	call trip_thru_target (2, main%target%z-targ%zoffset, vertex%e%E,
-CDG     >		vertex%e%theta, main%target%Eloss(2), main%target%teff(2),Me,1)
-CDG
-CDG	call trip_thru_target (3, main%target%z-targ%zoffset, vertex%p%E,
-CDG     >		vertex%p%theta, main%target%Eloss(3), main%target%teff(3),Mh,1)
-CDG
-CDG	if (.not.using_Eloss) then
-CDG	  main%target%Eloss(2) = 0.0
-CDG	  main%target%Eloss(3) = 0.0
-CDG	endif
+	call trip_thru_target (2, main%target%z-targ%zoffset, vertex%e%E,
+     >		vertex%e%theta, main%target%Eloss(2), main%target%teff(2),Me,1)
+
+	call trip_thru_target (3, main%target%z-targ%zoffset, vertex%p%E,
+     >		vertex%p%theta, main%target%Eloss(3), main%target%teff(3),Mh,1)
+
+	if (.not.using_Eloss) then
+	  main%target%Eloss(2) = 0.0
+	  main%target%Eloss(3) = 0.0
+	endif
 	if (debug(4)) write(6,*)'comp_ev: at 12'
 
 ! Initialize parameters necessary for radiative corrections

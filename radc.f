@@ -794,7 +794,7 @@ c     >			vertex%Pmx, vertex%Pmy, vertex%Pmz
 	  lambda_dave	= alpi*(2.*log(2.*e2/Me) -1. + plus_term)
 	else if (itail.eq.3) then
 	  if (doing_proton) then
-	    lambda_dave	= alpi*(log((e3+p3)/(e3-p3)) - 2.)
+	    lambda_dave	= alpi*((e3/p3)*log((e3+p3)/(e3-p3)) - 2.)
 ! ... at low energies, this may fritz, prevent human from causing itself
 ! ... too much damage
 

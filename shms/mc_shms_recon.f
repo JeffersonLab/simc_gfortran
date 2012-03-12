@@ -1,4 +1,5 @@
-	subroutine mc_shms_recon (delta_p,delta_t,delta_phi,y_tgt,fry,spectr)
+	subroutine mc_shms_recon (delta_p,delta_t,delta_phi,y_tgt,
+     >                            fry,spectr)
 C+______________________________________________________________________________
 !
 ! MC_HMS_RECON : Reconstruct target quantities from tracks.
@@ -22,8 +23,6 @@ C-______________________________________________________________________________
 
 C Spectrometer definitions - for double arm monte carlo compatability
 	integer*4 spectr
-C for SHMS, this is passed by SIMC (SSA tune = 5, LSA tune = 6)
-C	parameter (spectr = 5)			!this is the SHMS for SSA tune routine
 
 C Argument definitions.
 
@@ -64,15 +63,29 @@ C setting some temporary files
 C First time through, read in coefficients from data file.
 
 	if (firsttime) then
-	   if (.not.locforunt(chan)) stop 'MC_SHMS_RECON: No I/O channels!'
+	   if (.not.locforunt(chan)) 
+     >         stop 'MC_SHMS_RECON: No I/O channels!'
 	   if (spectr.eq.5) then	!ssa tune
-c	     open (unit=chan,status='old',readonly,file='shms/SHMS_lq_qd_spl_recon.dat')
-	     open (unit=chan,status='old',file='shms/SHMS_lq_qd_spl_recon.dat')
+! COSY calculated (not so great!!!)
+c	     open (unit=chan,status='old',file='shms/shms_hsa_2009_recon_cosy_daveme2.dat')
+c	     open (unit=chan,status='old',file='shms/shms_recon_cosy_2011_dipole26cm_dm1.2_nov9.dat')
+c	     open (unit=chan,status='old',file='shms/shms_recon_refit_5th_order.dat')
+	     open (unit=chan,status='old',file='shms/shms_recon_fit_90deg_1cm_5th_order.dat')
+c	     open (unit=chan,status='old',file='shms/shms_hsa_2009_recon_cosy.dat')
+! CMOP REFIT
+c	     open (unit=chan,status='old',file=
+c     >'shms/cmop_refit_shms_lq_qdi_hsa_split_recon_newfit_4thorder.dat')
+! TH new optics
+!	     open (unit=chan,status='old',
+!     > file='shms/shms2008_rec_th.dat')
+!     > file='shms/shms2008_rec_th_pmag7.dat')
 	   else if (spectr.eq.6) then	!lsa tune
-	      write(6,*) 'mc_shms_recon: You are trying to use the LSA: no banana!'
+	      write(6,*) 'mc_shms_recon: 
+     >You are trying to use the LSA: no banana!'
 c	     open (unit=chan,status='old',readonly,file='shms/shms_recon_cosy_LSA.dat')
 	   else
-	     write(6,*) 'MC_SHMS_RECON: I just cant handle spectr=',spectr
+	     write(6,*) 'MC_SHMS_RECON: I just cant 
+     >handle spectr=',spectr
 	     stop
 	   endif
 
@@ -94,7 +107,7 @@ c	     open (unit=chan,status='old',readonly,file='shms/shms_recon_cosy_LSA.dat'
 	      read (line,1200) (coeff(spectr,i,n_terms(spectr)),i=1,4),
      >			       (expon(spectr,j,n_terms(spectr)),j=1,5)
 	      read (chan,1001) line
-	      max_order = max(max_order, expon(spectr,1,n_terms(spectr)) +
+	      max_order = max(max_order,expon(spectr,1,n_terms(spectr))+
      >				expon(spectr,2,n_terms(spectr)) +
      >				expon(spectr,3,n_terms(spectr)) +
      >				expon(spectr,4,n_terms(spectr)) +

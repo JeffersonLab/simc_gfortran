@@ -1,41 +1,56 @@
 C----------------------------------------------------------------------
-C HMS_MATERIALS
-C CTP parameter file containing the materials of all the HMS detectors.
+C SHMS_MATERIALS PRELIMINARY
+C CTP parameter file containing the materials of the SHMS detectors 
+C currently based on HMS materials and initial SHMS material selections.
 C For all materials AFTER the bend only have to do multiple scattering.
 C     radlen = 1 radiation length (in cm)
 C     thick  = thickness in cm
 C In case a "+" is added to the comment, the thickness is a guess only.
 C
-C	6/15/00		changed the wire chamber resolution to 250 um.
+C SHMS wire chambers assume resolution 170 um per plane
+C
 C----------------------------------------------------------------------
 C spectrometer exit window, 15 mil Kevlar, 5 mil Mylar (use 20 mil,X0=53.3)
-!	real*8 hfoil_exit_radlen,hfoil_exit_thick
-!	parameter (hfoil_exit_radlen = 53.3)
-!	parameter (hfoil_exit_thick  = 0.020*2.54)
+c	real*8 hfoil_exit_radlen,hfoil_exit_thick
+c	parameter (hfoil_exit_radlen = 53.3)
+c	parameter (hfoil_exit_thick  = 0.020*2.54) ! 0.1%
+C spectrometer exit window, 0.02in thick Al
+	real*8 hfoil_exit_radlen,hfoil_exit_thick
+	parameter (hfoil_exit_radlen = 8.89)
+	parameter (hfoil_exit_thick  = 0.020*2.54)
 
 C spectrometer air gaps
 	real*8 hair_radlen
 	parameter (hair_radlen = 30420.)
+C helium bag 
+	real*8 helbag_hel_radlen
+	parameter (helbag_hel_radlen = 754560.) !0.03%
+	real*8 helbag_mylar_radlen,helbag_mylar_thick
+	parameter (helbag_mylar_radlen = 28.53)
+	parameter (helbag_mylar_thick = .010*2.54)  ! 0.1%
+	real*8 helbag_al_radlen,helbag_al_thick
+	parameter (helbag_al_radlen = 8.89)
+	parameter (helbag_al_thick = 3e-4)   !0.03%
 
-C chamber entrance foil, 1 mil of Mylar
+C chamber entrance foil, 1 mil of Mylar ( ignore 1000A of aluminum)
 	real*8 hdc_entr_radlen,hdc_entr_thick
 	parameter (hdc_entr_radlen = 28.7)
 	parameter (hdc_entr_thick  = 0.001*2.54)
 
-C chamber gas, 50/50 ethane/argon
+C chamber gas, 50/50 ethane/argon 1/8inch between cathode and sense plane
 	real*8 hdc_radlen,hdc_thick
 	parameter (hdc_radlen = 16700.0)
-	parameter (hdc_thick  = 0.61775)
+	parameter (hdc_thick  = 0.125*2.54)
 
 C effective wire plane, 25 micron W+Be/Cu gives <t>=pi*(.0025/2)**2
 	real*8 hdc_wire_radlen,hdc_wire_thick
 	parameter (hdc_wire_radlen = 0.35)	!Assuming all Tungsten
 	parameter (hdc_wire_thick  = 0.0000354)
 
-C effective cathode plane, Be/Cu
+C effective cathode plane, 1 mil Kapton with 1200A of copper ( ignore copper)
 	real*8 hdc_cath_radlen,hdc_cath_thick
-	parameter (hdc_cath_radlen = 28.7)	!'Ave' of Be/Cu
-	parameter (hdc_cath_thick  = 0.0005*2.54)
+	parameter (hdc_cath_radlen = 28.6)	!
+	parameter (hdc_cath_thick  = 0.001*2.54)
 
 C chamber exit foil, 1 mil of Mylar
 	real*8 hdc_exit_radlen,hdc_exit_thick
@@ -46,10 +61,35 @@ C hodoscopes
 	real*8 hscin_radlen
 	parameter (hscin_radlen =  42.4)
 
-C Cherenkov entrance foil, 15 mil Kevlar, 5 mil Mylar (use 20 mil,X0=53.3)
+C Ar/neo Cherenkov entrance foil, 2 mil of Al from D Day spreadsheet Jan 27 2012
 	real*8 hcer_entr_radlen,hcer_entr_thick
-	parameter (hcer_entr_radlen = 53.3)
-	parameter (hcer_entr_thick  = 0.020*2.54)
+	parameter (hcer_entr_radlen = 8.90)
+	parameter (hcer_entr_thick  = 0.002*2.54)
+C Ar/neo Cherenkov, for now 100% argon
+	real*8 hcer_1_radlen
+	parameter (hcer_1_radlen = 11700.0)
+C Ar/neo Cherenkov mirror, glass is 0.3cm, back is 
+	real*8 hcer_mirglass_radlen,hcer_mirglass_thick
+	parameter (hcer_mirglass_radlen = 12.29)
+	parameter (hcer_mirglass_thick  = 0.3)! Frac rad len = 2.4%
+	real*8 hcer_mirback1_radlen,hcer_mirback1_thick ! carbon
+	parameter (hcer_mirback1_radlen = 42.7)
+	parameter (hcer_mirback1_thick  = 0.016*2.54) ! 
+	real*8 hcer_mirback2_radlen,hcer_mirback2_thick ! Rohacell
+	parameter (hcer_mirback2_radlen = 540.7)
+	parameter (hcer_mirback2_thick  = 1.27) ! 
+	real*8 hcer_mirback3_radlen,hcer_mirback3_thick! carbon
+	parameter (hcer_mirback3_radlen = 42.7)
+	parameter (hcer_mirback3_thick  = 0.016*2.54) ! 
+	real*8 hcer_mirback4_radlen,hcer_mirback4_thick! Rohacell
+	parameter (hcer_mirback4_radlen = 540.7)
+	parameter (hcer_mirback4_thick  = 2.54) ! 
+C Ar/neo Cherenkov exit foil,
+	real*8 hcer_exit_radlen,hcer_exit_thick
+	parameter (hcer_exit_radlen = 8.90)
+	parameter (hcer_exit_thick  = 0.002*2.54)
+
+
 
 C Cherenkov entrance foil, 40 mil of Al
 	real*8 hcer_2_entr_radlen,hcer_2_entr_thick
@@ -61,9 +101,6 @@ C	to determine radlen ~ num * 73240
 C	real*8 hcer_1_radlen
 C	parameter (hcer_1_radlen = 36620.0)
 
-C Cherenkov, 0.3 atm of CO2 for e/pi
-	real*8 hcer_1_radlen
-	parameter (hcer_1_radlen = 21972.0)
 
 C Cherenkov, 0.5 atm of Freon for better e/pi
 C	real*8 hcer_1_radlen
@@ -77,15 +114,10 @@ C Cherenkov, 2 atm of CO2 for pi/p
 C	real*8 hcer_2_radlen
 C	parameter (hcer_2_radlen = 14680.0)
 
-C Cherenkov mirror, 75 mu plus 2 cm of Rotacell +
 	real*8 hcer_mir_radlen,hcer_mir_thick
-	parameter (hcer_mir_radlen = 400.0)
-	parameter (hcer_mir_thick  = 2.0)
+	parameter (hcer_mir_radlen = 400.)
+	parameter (hcer_mir_thick  = 2.00)
 
-C Cherenkov exit foil, 15 mil Kevlar, 5 mil Mylar (use 20 mil,X0=53.3)
-	real*8 hcer_exit_radlen,hcer_exit_thick
-	parameter (hcer_exit_radlen = 53.3)
-	parameter (hcer_exit_thick  = 0.020*2.54)
 
 C Cherenkov exit foil, 40 mil of Al
 	real*8 hcer_2_exit_radlen,hcer_2_exit_thick
@@ -97,11 +129,13 @@ C shower counter
 	parameter (hcal_radlen = 2.50)
 
 C Wire chamber resolutions (sigma)
-c SHMS chambers assume sigma=170um per plane
+c SHMS chambers assume sigma=200um per plane
 c   planes will be two sets of 2u,2v,2x but need to mock it by 2 sets of 4x,2y
 c      planes 2 and 5 in group of 6 are y planes
-	real*8 hdc_sigma(1:12)/	0.024,0.014,0.024,0.017,0.014,0.017,
-     >				0.024,0.014,0.024,0.017,0.014,0.017/
+c	real*8 hdc_sigma(1:12)/	0.024,0.014,0.024,0.017,0.014,0.017,
+c     >				0.024,0.014,0.024,0.017,0.014,0.017/
+	real*8 hdc_sigma(1:12)/	0.020,0.020,0.020,0.020,0.020,0.020,
+     >				0.020,0.020,0.020,0.020,0.020,0.020/
 
 C Wire plane positions, construct hdc_zpos array using these parameters
 
@@ -115,25 +149,24 @@ c SHMS chambers
 	real*8 hdc_2_zpos,hdc_2_left,hdc_2_right,hdc_2_top,hdc_2_bot
 	real*8 hdc_2x_offset,hdc_2y_offset
 
+c SHMS Cerenkov
+	real*8 hcer_left, hcer_right
+	real*8 hcer_top, hcer_bottom
 
 c
-c for LSA tune the focal plane is at +100cm compared to SSA tune
-	real*8 lsa_shift
-	parameter (lsa_shift=0.0)
-c
-	parameter (hdc_1_zpos = -40.0+lsa_shift)
-	parameter (hdc_2_zpos =  40.0+lsa_shift)
-	parameter (hdc_1_left  =  50.0)
-	parameter (hdc_1_right = -50.0)
+	parameter (hdc_1_zpos = -40.0)
+	parameter (hdc_2_zpos =  40.0)
+	parameter (hdc_1_left  =  40.0)
+	parameter (hdc_1_right = -40.0)
 	parameter (hdc_1y_offset = 0.0)
 	parameter (hdc_1_top   = -40.)
-	parameter (hdc_1_bot   =  45.)
+	parameter (hdc_1_bot   =  40.)
 	parameter (hdc_1x_offset = 0.0)
-	parameter (hdc_2_left  =  50.0)
-	parameter (hdc_2_right = -50.0)
+	parameter (hdc_2_left  =  40.0)
+	parameter (hdc_2_right = -40.0)
 	parameter (hdc_2y_offset = 0.0)
 	parameter (hdc_2_top   = -40.)
-	parameter (hdc_2_bot   =  45.)
+	parameter (hdc_2_bot   =  40.)
 	parameter (hdc_2x_offset =  0.)
 
 C Scintillator positions and thicknesses
@@ -149,25 +182,25 @@ C Scintillator positions and thicknesses
 	real*8 hscin_2x_left,hscin_2x_right,hscin_2x_offset
 	real*8 hscin_2y_top,hscin_2y_bot,hscin_2y_offset
 
-	parameter (hscin_1x_zpos = 50.0+lsa_shift)
-	parameter (hscin_1y_zpos = 60.0+lsa_shift)
-	parameter (hscin_2x_zpos = 260.0+lsa_shift)
-	parameter (hscin_2y_zpos = 265.0+lsa_shift)
+	parameter (hscin_1x_zpos = 51.9)
+	parameter (hscin_1y_zpos = 60.9)
+	parameter (hscin_2x_zpos = 271.9)
+	parameter (hscin_2y_zpos = 280.9)
 	parameter (hscin_1x_thick = 1.000*1.067)
 	parameter (hscin_1y_thick = 1.000*1.067)
 	parameter (hscin_2x_thick = 1.000*1.067)
 	parameter (hscin_2y_thick = 1.000*1.067)
-	parameter (hscin_1x_left  =  55.)
-	parameter (hscin_1x_right = -55.)
+	parameter (hscin_1x_left  =  45.)
+	parameter (hscin_1x_right = -45.)
 	parameter (hscin_1x_offset = 0.0)
-	parameter (hscin_1y_top   = -45.)
-	parameter (hscin_1y_bot   =  45.)
+	parameter (hscin_1y_top   = -40.)
+	parameter (hscin_1y_bot   =  50.)
 	parameter (hscin_1y_offset = 0.0)
-	parameter (hscin_2x_left  =   70.)
-	parameter (hscin_2x_right =  -70.)
+	parameter (hscin_2x_left  =   55.)
+	parameter (hscin_2x_right =  -55.)
 	parameter (hscin_2x_offset =  0.)
-	parameter (hscin_2y_top   = -55.)
-	parameter (hscin_2y_bot   =  55.)
+	parameter (hscin_2y_top   = -52.5)
+	parameter (hscin_2y_bot   =  62.5)
 	parameter (hscin_2y_offset = 0)
 
 
@@ -175,22 +208,27 @@ C Cherenkov position
 
 	real*8 hcer_1_zentrance,hcer_1_zmirror,hcer_1_zexit
 	real*8 hcer_2_zentrance,hcer_2_zmirror,hcer_2_zexit
-	parameter (hcer_1_zentrance = -360.000+lsa_shift)
-	parameter (hcer_1_zmirror   = -100.000+lsa_shift)
-	parameter (hcer_1_zexit     = -80.000+lsa_shift)
-	parameter (hcer_2_zentrance = 80.000+lsa_shift)
-	parameter (hcer_2_zmirror   = 160.000+lsa_shift)
-	parameter (hcer_2_zexit     = 180.000+lsa_shift)
+	parameter (hcer_1_zentrance = -291.700)
+	parameter (hcer_1_zmirror   = -84.900)
+	parameter (hcer_1_zexit     = -61.700)
+	parameter (hcer_2_zentrance = 72.600)
+	parameter (hcer_2_zmirror   = 179.400)
+	parameter (hcer_2_zexit     = 202.600)
+	parameter (hcer_left     =  45.00)
+	parameter (hcer_right    = -45.00)
+	parameter (hcer_top      = -50.00)
+	parameter (hcer_bottom   =  60.00)
+
 
 C Calorimeter position
 
 	real*8 hcal_1pr_zpos,hcal_2ta_zpos,hcal_3ta_zpos,hcal_4ta_zpos
 	real*8 hcal_left,hcal_right,hcal_top,hcal_bottom
-	parameter (hcal_1pr_zpos = 270.0+lsa_shift)
-	parameter (hcal_2ta_zpos = 288+lsa_shift)
-	parameter (hcal_3ta_zpos = 306+lsa_shift)
-	parameter (hcal_4ta_zpos = 320+lsa_shift)
-	parameter (hcal_left     =  75.00)
-	parameter (hcal_right    = -75.00)
-	parameter (hcal_top      = -60.00)
-	parameter (hcal_bottom   =  55.00)
+	parameter (hcal_1pr_zpos = 292.6)
+	parameter (hcal_2ta_zpos = 306.4)
+	parameter (hcal_3ta_zpos = 323.7)
+	parameter (hcal_4ta_zpos = 341.0)
+	parameter (hcal_left     =  63.00)
+	parameter (hcal_right    = -63.00)
+	parameter (hcal_top      = -70.00)
+	parameter (hcal_bottom   =  70.00)

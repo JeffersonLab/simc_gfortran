@@ -1,17 +1,19 @@
-	subroutine mc_shms_hut (m2,p,x_fp,dx_fp,y_fp,dy_fp,ms_flag,wcs_flag,
-     >		decay_flag,dflag,resmult,ok_hut,zinit,pathlen,cerflag)
+	subroutine mc_shms_hut (m2,p,x_fp,dx_fp,y_fp,dy_fp,ms_flag,
+     > wcs_flag,
+     > decay_flag,dflag,resmult,spec,ok_hut,zinit,pathlen,
+     > spectr)
 C----------------------------------------------------------------------
 C
-C Monte-Carlo of HMS detector hut.
+C Monte-Carlo of SHMS detector hut.
 C	Note that we only pass on real*4 variables to the subroutine.
 C	This will make life easier for portability.
 C----------------------------------------------------------------------
 
 	implicit 	none
 
-	include 'struct_shms.inc'
+	include '../shms/struct_shms.inc'
 	include '../spectrometers.inc'
-	include 'hut.inc'
+	include '../shms/hut.inc'
 
 C Math constants
 
@@ -22,6 +24,13 @@ C Math constants
 	parameter (r_d = 180./pi)
 	parameter (root = 0.707106781)		!square root of 1/2
 
+	logical*4 cer_flag
+	logical*4 vac_flag
+        parameter (cer_flag = .true.) ! TRUE means 1st Cerenkov (Ar/Ne) is in front of chambers
+        parameter (vac_flag = .false.) ! FALSE means helium bag replaces 1st Cerenkov (Ar/Ne) 
+
+c	common /hutflag/ cer_flag,vac_flag
+
 C all parameters, later to take from .parm files
 C The arguments
 
@@ -30,15 +39,17 @@ C The arguments
 	logical	ms_flag, wcs_flag	!particle, m_scat, wc_smear
 	logical	ok_hut			!true if particle makes it
 	logical decay_flag,dflag
-	real*8 xcal,ycal		!Position of track at calorimeter.
+	real*8	xcal,ycal		!Position of track at calorimeter.
 	real*8 pathlen
-	real*8 resmult			!DC resolution factor
+	real*8 resmult				!DC resolution factor
 	real*8 zinit
+        real*4 spec(58)
 
 c external function
 	real*8 gauss1
 C Local declarations.
 
+	integer*4	spectr	!spectrometer number (for tune-dependent stuff)
 	integer*4	i,iplane,jchamber,npl_off
 	integer*4	chan	/1/
 
@@ -55,13 +66,13 @@ c need real*4 for cernlib routine lfut
 c mkj
 	logical use_det_cut
 	parameter (use_det_cut=.true.)
-	logical cerflag
+!	parameter (use_det_cut=.false.)
 
 C ================================ Executable Code =============================
 
 C Initialize some variables
 
-*	write (6,*) x_fp, y_fp, dx_fp, dy_fp
+!	write (6,*) x_fp, y_fp, dx_fp, dy_fp, cerflag
 	hdc_del_plane = hdc_thick + hdc_wire_thick + hdc_cath_thick
 
 C Initialize ok_hut to zero
@@ -70,6 +81,7 @@ C Initialize ok_hut to zero
 c
 	resmult= 1.0
 
+
 C Initialize the xdc and ydc arrays to zero
 
 	do i=1,12
@@ -77,65 +89,100 @@ C Initialize the xdc and ydc arrays to zero
 	  ydc(i) = 0.
 	enddo
 
-C Sanity check (and avoid unused variable on zinit)
-	if (abs(zinit).gt.1e-10) then
-	  write(6,*) 'zinit not equal to zero in call to shms/mc_shms_hut.f'
-	  write(6,*) 'code will ingore initial value: zinit=',zinit,'!!!'
-	endif
-
 C------------------------------------------------------------------------------C
 C                           Top of loop through hut                            C
 C------------------------------------------------------------------------------C
 
-C Go to the Cerenkov. (Drift back from focal plane). Cherenkov has 0.5 atm of Freon, 
-c and is located 4.0 meters behind the focal point.
-c The Cherenkov is 3m long, and has an Aluminum entrance window.
-c
-c only have cerenkov when p > 7500 MeV
-c
+
+        if (cer_flag) then
 	drift = hcer_1_zentrance
-c	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
-c set decay flag false to avoid double counting
 	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	   radw = hfoil_exit_thick/hfoil_exit_radlen
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	 radw = hcer_entr_thick/hcer_entr_radlen
+	 if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	 drift = hcer_1_zmirror - hcer_1_zentrance-hcer_mirglass_thick/2
+	 radw = drift/hcer_1_radlen
+	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	if(ms_flag ) call musc_ext(m2,p,radw,drift,
+     > dydzs,dxdzs,ys,xs)
 
-	radw = hcer_entr_thick/hcer_entr_radlen
-	if(ms_flag .and. cerflag ) call musc(m2,p,radw,dydzs,dxdzs)
 
+	radw = hcer_mirglass_thick/hcer_mirglass_radlen
+	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+c
+	drift = hcer_mirback1_thick/2+hcer_mirglass_thick/2
+	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	radw = hcer_mirback1_thick/hcer_mirback1_radlen
+	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+c
+	drift = hcer_mirback2_thick/2+hcer_mirback1_thick/2
+	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	radw = hcer_mirback2_thick/hcer_mirback2_radlen
+	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+c
+	drift = hcer_mirback3_thick/2+hcer_mirback2_thick/2
+	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	radw = hcer_mirback3_thick/hcer_mirback3_radlen
+	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+c
+	drift = hcer_mirback4_thick/2+hcer_mirback3_thick/2
+	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	radw = hcer_mirback4_thick/hcer_mirback4_radlen
+	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
-	drift = hcer_1_zmirror - hcer_1_zentrance
+	drift = hcer_1_zexit - hcer_1_zmirror -hcer_mirglass_thick/2
+     > -hcer_mirback1_thick-hcer_mirback2_thick-hcer_mirback3_thick-hcer_mirback4_thick/2
 	radw = drift/hcer_1_radlen
-c	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	if(ms_flag .and. cerflag) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
-
-
-	radw = hcer_mir_thick/hcer_mir_radlen
-	if(ms_flag .and. cerflag) call musc(m2,p,radw,dydzs,dxdzs)
-
-	drift = hcer_1_zexit - hcer_1_zmirror
-	radw = drift/hcer_1_radlen
-c	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	if(ms_flag .and. cerflag) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
-
+	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
+	if(ms_flag) call musc_ext(m2,p,radw,drift,
+     > dydzs,dxdzs,ys,xs)
 	radw = hcer_exit_thick/hcer_exit_radlen
-	if(ms_flag .and. cerflag) call musc(m2,p,radw,dydzs,dxdzs)
-	if(ms_flag .and. .not. cerflag) then
-	  radw = hcer_entr_thick/hcer_entr_radlen
-          call musc(m2,p,radw,dydzs,dxdzs)
+	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+        
+       else
+c  if vaccum pipe drift to pipe exit which is at same zpos as the cerenkov exit window. 
+          if (vac_flag) then
+   	   drift =  hcer_1_zexit 
+ 	   call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	   radw = hfoil_exit_thick/hfoil_exit_radlen
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+          else ! helium bag
+   	   drift = hcer_1_zentrance 
+ 	   call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	   radw = hfoil_exit_thick/hfoil_exit_radlen
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	   radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
+           ms_flag = .true.
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	   radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	   drift = hcer_1_zexit - hcer_1_zentrance
+	   radw = drift/helbag_hel_radlen
+           call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	   if(ms_flag) call musc_ext(m2,p,radw,drift,
+     > dydzs,dxdzs,ys,xs)
+	   radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	   radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+           ms_flag = .false.
+          endif
         endif
 
-
+        
 
 C Go to first drift chamber set
 C For simplicity, perform air MS (probably negligeable) at before drift
 C instead of 1/2 way through.
 
 *	write (6,*) 'made it to the first drift chamber'
-	drift = (hdc_1_zpos - 0.5*hdc_nr_plan*hdc_del_plane) - hcer_1_zexit
+	drift = (hdc_1_zpos - 0.5*hdc_nr_plan*hdc_del_plane) 
+     > - hcer_1_zexit
 	radw = drift/hair_radlen
 	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
 	if (ms_flag) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
+c	if (1 .eq. 1) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
 
 	jchamber = 1
 	radw = hdc_entr_thick/hdc_entr_radlen
@@ -158,8 +205,10 @@ C instead of 1/2 way through.
 	    tmpran1 = 0.
 	    tmpran2 = 0.
 	  endif
-	  xdc(npl_off+iplane) = xs + hdc_sigma(npl_off+iplane)*tmpran1*resmult
-	  ydc(npl_off+iplane) = ys + hdc_sigma(npl_off+iplane)*tmpran2*resmult
+	  xdc(npl_off+iplane) = xs + hdc_sigma(npl_off+iplane)
+     > *tmpran1*resmult
+	  ydc(npl_off+iplane) = ys + hdc_sigma(npl_off+iplane)
+     > *tmpran2*resmult
 	  if (iplane.eq.2 .or. iplane.eq.5) then
 	    xdc(npl_off+iplane) = 0.   !y plane, no x information
 	  else
@@ -181,8 +230,13 @@ c	     write(*,*) ' iplane = ',iplane
      >      ys.lt.(hdc_1_right-hdc_1y_offset) ) then
 	  shmsSTOP_dc1 = shmsSTOP_dc1 + 1
 c	  write(6,*) 'Lost in DC! delta,xp,yp',dpps,dxdzs,dydzs
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id = 18
+	     goto 500
+	  endif
 	endif
+        spec(39)=xs
+        spec(40)=ys
 	radw = hdc_cath_thick/hdc_cath_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
@@ -218,8 +272,10 @@ C       We've already done decay up to the half-way point between the chambers.
 	    tmpran1 = 0.
 	    tmpran2 = 0.
 	  endif
-	  xdc(npl_off+iplane) = xs + hdc_sigma(npl_off+iplane)*tmpran1*resmult
-	  ydc(npl_off+iplane) = ys + hdc_sigma(npl_off+iplane)*tmpran2*resmult
+	  xdc(npl_off+iplane) = xs + hdc_sigma(npl_off+iplane)
+     > *tmpran1*resmult
+	  ydc(npl_off+iplane) = ys + hdc_sigma(npl_off+iplane)
+     > *tmpran2*resmult
 	  if (iplane.eq.2 .or. iplane.eq.5) then
 	    xdc(npl_off+iplane) = 0.   !y plane, no x information
 	  else
@@ -238,22 +294,32 @@ C       We've already done decay up to the half-way point between the chambers.
      >      ys.gt.(hdc_2_left-hdc_2y_offset) .or.
      >      ys.lt.(hdc_2_right-hdc_2y_offset) ) then
 	  shmsSTOP_dc2 = shmsSTOP_dc2 + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id = 19
+	     goto 500
+	  endif
 	endif
+        spec(41)=xs
+        spec(42)=ys
 	radw = hdc_cath_thick/hdc_cath_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
 C at last cathode foil of second drift chamber set, drift to the 1st hodoscope
 
-	drift = hscin_1x_zpos - hdc_2_zpos - 0.5*hdc_nr_plan*hdc_del_plane
+	drift = hscin_1x_zpos - hdc_2_zpos - 0.5*hdc_nr_plan
+     > *hdc_del_plane
 	radw = drift/hair_radlen
 	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
 	if(ms_flag) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
 	if (ys.gt.(hscin_1x_left+hscin_1y_offset) .or.
      >      ys.lt.(hscin_1x_right+hscin_1y_offset)) then
 	  shmsSTOP_s1 = shmsSTOP_s1 + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id=20
+	     goto 500
+	  endif
 	endif
+        spec(44)=ys
 	radw = hscin_1x_thick/hscin_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 	drift = hscin_1y_zpos - hscin_1x_zpos
@@ -263,8 +329,12 @@ C at last cathode foil of second drift chamber set, drift to the 1st hodoscope
 	if (xs.gt.(hscin_1y_bot+hscin_1x_offset) .or.
      >      xs.lt.(hscin_1y_top+hscin_1x_offset)) then
 	  shmsSTOP_s1 = shmsSTOP_s1 + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id=21
+	     goto 500
+	  endif
 	endif
+        spec(43)=xs
  	radw = hscin_1y_thick/hscin_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
@@ -305,8 +375,12 @@ C drift to 2nd hodoscope
 	if (ys.gt.(hscin_2x_left+hscin_2y_offset) .or.
      >      ys.lt.(hscin_2x_right+hscin_2y_offset)) then
 	  shmsSTOP_s3 = shmsSTOP_s3 + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id = 22
+	     goto 500
+	  endif
 	endif
+        spec(46)=ys
 	radw = hscin_2x_thick/hscin_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 	drift = hscin_2y_zpos - hscin_2x_zpos
@@ -316,8 +390,12 @@ C drift to 2nd hodoscope
 	if (xs.gt.(hscin_2y_bot+hscin_2x_offset) .or.
      >      xs.lt.(hscin_2y_top+hscin_2x_offset)) then
 	  shmsSTOP_s2 = shmsSTOP_s2 + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id=23
+	     goto 500
+	  endif
 	endif
+        spec(45)=xs
 	radw = hscin_2y_thick/hscin_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
@@ -334,8 +412,15 @@ C in you analysis.  That cut is applied AFTER fitting the track (see below).
 	if (ys.gt.hcal_left .or. ys.lt.hcal_right .or.
      >	   xs.gt.hcal_bottom .or. xs.lt.hcal_top) then
 	  shmsSTOP_cal = shmsSTOP_cal + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id=24
+	     goto 500
+	  endif
 	endif
+        spec(47)=xs
+        spec(48)=ys
+
+
 
 
 C and fit track to give new focal plane values, use LFIT from GENLIB
@@ -358,7 +443,6 @@ C and fit track to give new focal plane values, use LFIT from GENLIB
 	dx_fp = dx
 	dy_fp = dy
 
-
 C If you use a calorimeter cut in your analysis, the engine applied a
 C a fiducial cut at the calorimeter.  This is based on the position of the
 C TRACK at the calorimeter, not the real position of the event.  Go to the
@@ -371,8 +455,13 @@ C The standard fiducial cut is 5 cm from the edges of the block.
 	if (ycal.gt.(hcal_left-5.0) .or. ycal.lt.(hcal_right+5.0) .or.
      >	   xcal.gt.(hcal_bottom-5.0) .or. xcal.lt.(hcal_top+5.0)) then
 	  shmsSTOP_cal = shmsSTOP_cal + 1
-	  if (use_det_cut) goto 500
+	  if (use_det_cut) then
+	     stop_id=25
+	     goto 500
+	  endif
 	endif
+        spec(49)=xs
+        spec(50)=ys
 
 	ok_hut = .true.
 

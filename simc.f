@@ -499,13 +499,17 @@ c	call time (timestring2(11:23))
 	if (electron_arm.eq.5 .or. hadron_arm.eq.5 .or.
      >	    electron_arm.eq.6 .or. hadron_arm.eq.6) then
 	  write(7,*) 'SHMS Trials:          ',shmsSTOP_trials
+	  write(7,*) 'HB phys entrance/mag entr/mag exit/phys exit  ',shmsSTOP_hb_in,shmsSTOP_hb_men,shmsSTOP_hb_mex,shmsSTOP_hb_out
 	  write(7,*) 'Slit hor/vert/corners ',shmsSTOP_slit_hor,shmsSTOP_slit_vert,shmsSTOP_slit_oct
-	  write(7,*) 'Q1 entrance/mid/exit  ',shmsSTOP_Q1_in,shmsSTOP_Q1_mid,shmsSTOP_Q1_out
-	  write(7,*) 'Q2 entrance/mid/exit  ',shmsSTOP_Q2_in,shmsSTOP_Q2_mid,shmsSTOP_Q2_out
-	  write(7,*) 'Q3 entrance/mid       ',shmsSTOP_Q1_in,shmsSTOP_Q3_mid
-	  write(7,*) 'D1 entrance/mid 1-2   ',shmsSTOP_D1_in,shmsSTOP_D1_mid1,shmsSTOP_D1_mid2
+	  write(7,*) 'Q1 phys entrance/mag entr/mid/mag exit/phys exit  '
+     >,shmsSTOP_q1_in,shmsSTOP_q1_men,shmsSTOP_q1_mid,shmsSTOP_q1_mex,shmsSTOP_q1_out
+	  write(7,*) 'Q2 phys entrance/mag entr/mid/mag exit/phys exit  '
+     >,shmsSTOP_q2_in,shmsSTOP_q2_men,shmsSTOP_q2_mid,shmsSTOP_q2_mex,shmsSTOP_q2_out
+	  write(7,*) 'Q3 phys entrance/mag entr/mid/mag exit/phys exit       '
+     >,shmsSTOP_q3_in,shmsSTOP_q3_men,shmsSTOP_q2_mid,shmsSTOP_q3_mex,shmsSTOP_q3_out
+	  write(7,*) 'D1 entrance/flare/mid 1-2   ',shmsSTOP_D1_in,shmsSTOP_D1_flr,shmsSTOP_D1_mid1,shmsSTOP_D1_mid2
 	  write(7,*) 'D1 mid 3-5            ',shmsSTOP_D1_mid3,shmsSTOP_D1_mid4,shmsSTOP_D1_mid5
-	  write(7,*) 'D1 mid 6/exit         ',shmsSTOP_D1_mid6,shmsSTOP_D1_out
+	  write(7,*) 'D1 mid 6-7/mag exit/phys exit         ',shmsSTOP_D1_mid6,shmsSTOP_D1_mid7,shmsSTOP_D1_mex,shmsSTOP_D1_out
 c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  write(7,*) 'Events reaching hut   ',shmsSTOP_hut
 	  write(7,*) 'DC1, DC2, Scin, Cal   ',shmsSTOP_dc1,shmsSTOP_dc2

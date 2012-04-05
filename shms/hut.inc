@@ -193,14 +193,14 @@ C Scintillator positions and thicknesses
 	parameter (hscin_1x_left  =  45.)
 	parameter (hscin_1x_right = -45.)
 	parameter (hscin_1x_offset = 0.0)
-	parameter (hscin_1y_top   = -40.)
-	parameter (hscin_1y_bot   =  50.)
+	parameter (hscin_1y_top   = -45.)
+	parameter (hscin_1y_bot   =  45.)
 	parameter (hscin_1y_offset = 0.0)
 	parameter (hscin_2x_left  =   55.)
 	parameter (hscin_2x_right =  -55.)
 	parameter (hscin_2x_offset =  0.)
-	parameter (hscin_2y_top   = -52.5)
-	parameter (hscin_2y_bot   =  62.5)
+	parameter (hscin_2y_top   = -57.5)
+	parameter (hscin_2y_bot   =  57.5)
 	parameter (hscin_2y_offset = 0)
 
 
@@ -216,8 +216,8 @@ C Cherenkov position
 	parameter (hcer_2_zexit     = 202.600)
 	parameter (hcer_left     =  45.00)
 	parameter (hcer_right    = -45.00)
-	parameter (hcer_top      = -50.00)
-	parameter (hcer_bottom   =  60.00)
+	parameter (hcer_top      = -55.00)
+	parameter (hcer_bottom   =  55.00)
 
 
 C Calorimeter position

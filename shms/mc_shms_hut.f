@@ -153,7 +153,6 @@ c  if vaccum pipe drift to pipe exit which is at same zpos as the cerenkov exit 
 	   radw = hfoil_exit_thick/hfoil_exit_radlen
 	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 	   radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
-           ms_flag = .true.
 	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 	   radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
 	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
@@ -166,7 +165,6 @@ c  if vaccum pipe drift to pipe exit which is at same zpos as the cerenkov exit 
 	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 	   radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
 	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-           ms_flag = .false.
           endif
         endif
 

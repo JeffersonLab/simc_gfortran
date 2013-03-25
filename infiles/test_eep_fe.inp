@@ -13,6 +13,9 @@ begin parm experiment
   doing_decay = 0		;  1=decay ON, 0=decay OFF.
   ctau = 780.4			;  decay length (cm)
   extra_dbase_file='extra_hydrogen' ;  additional input parameters.
+  use_benhar_sf = 0        ;  Use Benhar style spectral function
+  transparency = 0.36      ;  Proton transparency, when using benhar SF
+
 end parm experiment
 
 begin parm kinematics_main

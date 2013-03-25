@@ -534,8 +534,9 @@ C DJG:
 ! ... Read in (and normalize) spectral function for A>2 electroproduction.
 ! ... Normalizing to one may not be correct if there is strength beyond
 ! ... Em_max,Pm_max.
-
-	if(doing_hepi.or.doing_hekaon) then
+!      Also load spectral function for deuterium of heavy so we have the choice later
+!      to use it for (e,e'p)
+	if(doing_hepi.or.doing_hekaon .or. (doing_deuterium.or.doing_heavy)) then
 	  if (nint(targ%A).eq.3) then
 	    write(6,*) 'Using the mod version of 3He S.F. rather than Paris.'
 	    tmpfile='benharsf_3mod.dat'
@@ -855,6 +856,8 @@ C DJG:
 	ierr = regparmint('electron_arm',electron_arm,0)
 	ierr = regparmint('hadron_arm',hadron_arm,0)
 	ierr = regparmint('use_first_cer',use_first_cer,0)
+	ierr = regparmdouble('transparency',transparency,0)
+	ierr = regparmint('use_benhar_sf',use_benhar_sf,0)
 	ierr = regparmstring('extra_dbase_file',extra_dbase_file,0)
 
 *	EXPERIMENT

@@ -82,6 +82,19 @@
 
 
 !----------------------------------------------------------------------
+	subroutine sf_lookup_diff(Em,Pm,SFd)
+! Get value of fully differential spectral function at Em, Pm.
+	implicit none
+	real*8 Em, Pm
+	real*8 SFd
+
+	real*8 SF
+	call sf_lookup(Em, Pm, SF)
+	SFd = SF/4/3.1415926535/(Pm*Pm)/5.0/20.0
+	return
+	end
+
+!----------------------------------------------------------------------
 
 	subroutine sf_lookup(Em,Pm,SF)
 

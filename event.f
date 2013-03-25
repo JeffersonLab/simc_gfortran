@@ -1331,7 +1331,10 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 	if (doing_hyd_elast.or.doing_pion.or.doing_kaon.or.doing_delta.or.doing_phsp.or.doing_rho.or.doing_semi) then !no SF.
 	  main%SF_weight=1.0
-	else if (doing_deuterium .or. doing_heavy) then
+	else if (use_benhar_sf) then ! Doing Spectral Functions
+	   call sf_lookup_diff(vertex%Em, vertex%Pm, weight)
+	   main%SF_weight = targ%Z*transparency*weight
+ 	else if (doing_deuterium .or. doing_heavy) then
 	  main%SF_weight = 0.0
 	  do i=1,nrhoPm
 	    weight = 0.0

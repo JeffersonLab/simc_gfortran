@@ -3,6 +3,7 @@
 *~
 # Objects and executable
 *.o
+*.d
 simc
 CTP/O.Linux
 

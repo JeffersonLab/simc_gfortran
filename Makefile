@@ -47,6 +47,8 @@ OBJC    = $(T)Ctq5Pdf.o
 OBJD    = $(C)mc_calo.o $(C)mc_calo_recon.o
 my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD)
 
+my_deps = $(my_objs:.o=.d)
+
 MYOS := $(subst -,,$(shell uname))
 CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
 
@@ -108,12 +110,32 @@ $(R)/%.o: $(R)/%.f
 $(SH)/%.o: $(SH)/%.f
 	$(F77) $(FFLAGS) -c $< -o $@
 
-none: simc
+DEPEND_RULE = ( cat $< |  sed -n -e \
+	"s|^[ 	]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][ 	]*['\"]|$@: $(@D)/|p" | \
+	sed -e "s|['\"].*$$||" | \
+	sed -e 's|.d:|.o:|') > $@
 
-all: simc
+%.d: %.f
+	$(DEPEND_RULE)
+
+none: simc $(my_deps)
+
+all: simc  $(my_deps)
+
+include $(my_deps)
 
 simc: simc.o $(my_objs) Makefile CTP/O.Linux/Linux/lib/libctp.a
 	$(F77) $(OSF_SHARED) -o $@ $(FFLAGS) $(my_objs) simc.o $(OTHERLIBS)
+
+# Looks like by default simulate_init.inc and sturcutres_init.inc are
+# not used, but we make rule just in case.
+simulate_init.inc: simulate.inc
+	( cat $< | sed -e "s/structures.inc/structures_init.inc/") > $@
+
+structures_init.inc: structures.inc
+	(cat $< |\
+	sed -e "s/^[ 	]*real\*8[ 	]*min[ 	]*,[ 	]*max[ 	]*$$/		real*8::	min=-1.d10, max=1d10/" \
+	-e "s/^[ 	]*real\*8[ 	]*lo[ 	]*,[ 	]*hi[ 	]*$$/		real*8::	lo=1.d10, hi=-1d10/") > $@
 
 CTP/O.Linux/Linux/lib/libctp.a: 
 	make -C CTP
@@ -139,8 +161,8 @@ CTP/O.Linux/Linux/lib/libctp.a:
 
 
 clean:
-	$(RM) *.o $(H)*.o $(S)*.o $(L)*.o $(R)*.o $(SH)*.o $(A)*.o $(T)*.o $(C)*.o simc
+	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] simc
 
 real_clean:
-	$(RM) *.o $(H)*.o $(S)*.o $(L)*.o $(R)*.o $(SH)*.o $(A)*.o $(T)*.o $(C)*.o simc
+	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] simc
 	rm -r CTP/O.$(MYOS)

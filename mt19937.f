@@ -161,3 +161,73 @@ C To get around this, we just take -2147483647 and subtract 1.
 
       return
       end
+
+      subroutine saverndstate(fname)
+
+      implicit none
+
+      character*(*) fname
+
+      integer i
+
+      integer N
+      parameter(N     =  624)
+
+      integer mti
+      integer mt(0:N-1)		!the array for the state vector
+      common /block/mti,mt
+      save   /block/
+
+      open(unit=1,file=fname)
+
+      write(1,'(i11)') mti
+      do i=0,N-1
+        write(1,'(i11)') mt(i)
+      enddo
+
+      close(unit=1)
+      return
+      end
+
+      logical function restorerndstate(fname)
+
+      implicit none
+
+      character*(*) fname
+
+      integer i
+
+      integer N
+      parameter(N     =  624)
+
+      integer mti
+      integer mt(0:N-1)		!the array for the state vector
+      integer mti_saved
+      integer mt_saved(0:N-1)
+      common /block/mti,mt
+      save   /block/
+
+
+      open(unit=1,file=fname,err=125)
+
+      read(1,'(i11)',err=125,end=125) mti_saved
+      do i=0,N-1
+        read(1,'(i11)',err=125,end=125) mt_saved(i)
+      enddo
+      close(unit=1)
+
+c     Only overwrite state if read was successful
+      mti = mti_saved
+      do i=0,N-1
+         mt(i) = mt_saved(i)
+      enddo
+
+      restorerndstate = .true.
+      return
+
+ 125  continue
+      restorerndstate = .false.
+      return
+
+      end
+

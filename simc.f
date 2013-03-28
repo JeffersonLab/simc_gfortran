@@ -40,6 +40,7 @@
 
 	real*8 grnd
 	real*8 ang_targ_earm,ang_targ_parm
+	logical restorerndstate
 c 
 
 ! INITIALIZE
@@ -100,7 +101,22 @@ c
 
 ! ... initialize the random number generator and number of attempts
 
-	r = grnd()
+	if(random_state_file.ne.' ') then
+	   if(restorerndstate(random_state_file)) then
+	      write(6,'(1x,''Random state restored from '',a)')
+	1	   random_state_file(1:index(random_state_file,' ')-1)
+	   else
+	      if(random_seed.ne.0) then
+		 call sgrnd(random_seed)
+	      endif
+	      r = grnd()
+	   endif
+	else
+	   if(random_seed.ne.0) then
+	      call sgrnd(random_seed)
+	   endif
+	   r = grnd()
+	endif
 	ntried = 0
 
 ! GAW - insert calls to initialize target field for both arms
@@ -434,6 +450,13 @@ c	call time (timestring2(11:23))
 ! Produce output files
 
 900	if (ngen.eq.0) goto 1000
+
+!       Save the random number state, but only if good events were generated.
+	if(random_state_file.ne.' ') then
+	   call saverndstate(random_state_file)
+	   write(6,'(1x,''Random state saved to '',a)')
+	1	   random_state_file(1:index(random_state_file,' ')-1)
+	endif
 
 ! ... the diagnostic histograms
 
@@ -947,6 +970,9 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  write(iun,'(12x,''Theory file:  '',a)')
      >		theory_file(1:index(theory_file,' ')-1)
 	endif
+	if(random_seed.ne.0) write(iun,'(15x,''Random Seed = '',i10)') random_seed
+	if(random_state_file.ne.' ') write(iun,'( '' Random State Save File:  '',a)')
+	1    random_state_file(1:index(random_state_file,' ')-1)
 
 ! Resolution summary
 

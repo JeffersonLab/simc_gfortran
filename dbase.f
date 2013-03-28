@@ -53,6 +53,11 @@
 
 	call regallvars
 
+! ... Set some defaults
+	use_benhar_sf = .false.
+	random_state_file = ' '
+	random_seed = 0
+
 ! ... read the dbase file.
 
 	dbase_file=' '
@@ -859,6 +864,8 @@ C DJG:
 	ierr = regparmdouble('transparency',transparency,0)
 	ierr = regparmint('use_benhar_sf',use_benhar_sf,0)
 	ierr = regparmstring('extra_dbase_file',extra_dbase_file,0)
+	ierr = regparmstring('random_state_file',random_state_file,0)
+	ierr = regparmint('random_seed',random_seed,0)
 
 *	EXPERIMENT
 

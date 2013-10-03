@@ -104,7 +104,7 @@ c
 	if(random_state_file.ne.' ') then
 	   if(restorerndstate(random_state_file)) then
 	      write(6,'(1x,''Random state restored from '',a)')
-	1	   random_state_file(1:index(random_state_file,' ')-1)
+     >  	   random_state_file(1:index(random_state_file,' ')-1)
 	   else
 	      if(random_seed.ne.0) then
 		 call sgrnd(random_seed)
@@ -455,7 +455,7 @@ c	call time (timestring2(11:23))
 	if(random_state_file.ne.' ') then
 	   call saverndstate(random_state_file)
 	   write(6,'(1x,''Random state saved to '',a)')
-	1	   random_state_file(1:index(random_state_file,' ')-1)
+     >  	   random_state_file(1:index(random_state_file,' ')-1)
 	endif
 
 ! ... the diagnostic histograms
@@ -972,7 +972,7 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	endif
 	if(random_seed.ne.0) write(iun,'(15x,''Random Seed = '',i10)') random_seed
 	if(random_state_file.ne.' ') write(iun,'( '' Random State Save File:  '',a)')
-	1    random_state_file(1:index(random_state_file,' ')-1)
+     >         random_state_file(1:index(random_state_file,' ')-1)
 
 ! Resolution summary
 

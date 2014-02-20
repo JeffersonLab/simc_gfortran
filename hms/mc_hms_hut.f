@@ -41,16 +41,22 @@ C In case a "+" is added to the comment, the thickness is a guess only.
 C----------------------------------------------------------------------
 
 CDG C spectrometer exit window, 15 mil Kevlar, 5 mil Mylar (use 20 mil,X0=53.3)
-CDG	real*8 hfoil_exit_radlen,hfoil_exit_thick
-CDG	parameter (hfoil_exit_radlen = 53.3)
-CDG	parameter (hfoil_exit_thick  = 0.020*2.54)
+c	real*8 hfoil_exit_radlen,hfoil_exit_thick
+c	parameter (hfoil_exit_radlen = 53.3)
+c	parameter (hfoil_exit_thick  = 0.020*2.54)
 
 C DJG The exit window was changed to titanium sometime in around 2000. 
 C DJG Brindza says it's 0.02 inches thick.
 C spectrometer exit window, 0.02in=20mil Titanium (X0=3.56cm)
+c	real*8 hfoil_exit_radlen,hfoil_exit_thick
+c	parameter (hfoil_exit_radlen = 3.56)
+c	parameter (hfoil_exit_thick  = 0.020*2.54)
+c
+c from log entry entry 122424 Sept 21, 2006
+c   Ti HMS exit window replaces by preformed aluminum window 0.011 inches thick.
 	real*8 hfoil_exit_radlen,hfoil_exit_thick
-	parameter (hfoil_exit_radlen = 3.56)
-	parameter (hfoil_exit_thick  = 0.020*2.54)
+	parameter (hfoil_exit_radlen = 8.90)
+	parameter (hfoil_exit_thick  = 0.011*2.54)
 
 C spectrometer air gaps
 	real*8 hair_radlen

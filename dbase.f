@@ -160,6 +160,15 @@ C DJG:
 	    doing_hekaon = .false.
 	  endif
 
+	else if (doing_eepx) then
+	  Mh=Mp
+	  if (nint(targ%A).ge.2) 
+     >      write(6,*) 'WARNING: Eepx cross section model only set up for proton target!'
+	  doing_hydeepx = (nint(targ%A).eq.1)
+	  doing_deuteepx = (nint(targ%A).eq.2)
+	  doing_heeepx = (nint(targ%A).ge.3)
+	  doing_eep = .false.
+
 	else if (doing_delta) then
 	  Mh=Mp
 	  if (nint(targ%A).ge.2) 
@@ -172,7 +181,7 @@ C DJG:
 	else if (doing_semi) then
 	   if(doing_semipi) then
 	      Mh=Mpi
-	   elseif(doing_semika) then
+	   else if(doing_semika) then
 	      Mh=Mk
 	   endif
 	   doing_hydsemi = (nint(targ%A).eq.1)
@@ -182,6 +191,13 @@ C DJG:
 	      write(6,*) 'Do you mean to be running deuterium?'
 	      do_fermi = .false.
 	   endif
+	   doing_eep=.false.
+
+	else if (doing_Xphasespace) then
+	   Mh=Mp
+	   doing_hydXphase = (nint(targ%A).eq.1)
+	   doing_deutXphase = (nint(targ%A).eq.2)
+	   doing_heXphase = (nint(targ%A).ge.3)
 	   doing_eep=.false.
 
         else if (doing_rho) then
@@ -208,6 +224,7 @@ C DJG:
 	  doing_pion=.false.	!but doing_phsp is independent of others.
 	  doing_kaon=.false.
 	  doing_delta=.false.
+	  doing_eepx=.false.
 	  doing_rho=.false.
 	endif
 
@@ -266,12 +283,49 @@ C DJG:
 	  endif
 	endif
 
-
 ! ... set target/recoil masses.
 	if (doing_eep) then		!Strike proton, no 'recoil' particle
 	  targ%Mtar_struck = Mp
 	  targ%Mrec_struck = 0.0
 	  sign_hadron=1.0
+
+	else if (doing_delta) then		!Strike (and detect) proton, pion 'recoil'
+	  targ%Mtar_struck = Mp
+	  targ%Mrec_struck = Mpi
+	  sign_hadron=1.0
+	else if(doing_semi) then         ! For now, just assuming proton mass
+	   targ%Mtar_struck = Mp
+	   targ%Mrec_struck = Mp    !must have at LEAST a recoiling proton
+	                            !Probably more...
+	   if(doing_deutsemi) then
+	      targ%Mtar_struck = (Mp+Mn)/2.0
+	      targ%Mrec_struck = (Mp+Mn)/2.0
+	   endif
+	   if(doing_hplus) then
+	      sign_hadron=1.0
+	   endif
+	else if (doing_eepx) then		!Strike (and detect) proton, pion 'recoil'
+	  targ%Mtar_struck = Mp
+
+! gh NOT CLEAR TO ME THAT THE FOLLOWING IS APPROPRIATE FOR WIDE MESONS
+	  sign_hadron=1.0
+	  if(Meepx.gt.130.0.and.Meepx.lt.140.0) then
+	     targ%Mrec_struck = Mpi0
+	     which_eepx = 1
+	  else if(Meepx.gt.500.0.and.Meepx.lt.600.0) then
+	     targ%Mrec_struck = Meta
+	     which_eepx = 2
+	  else if(Meepx.gt.765.0.and.Meepx.lt.778.0) then
+	     targ%Mrec_struck = Mrho
+	     which_eepx = 3
+	  else if(Meepx.gt.778.0.and.Meepx.lt.790.0) then
+	     targ%Mrec_struck = Momega
+	     which_eepx = 4
+	  else
+	     targ%Mrec_struck = Meepx
+	     which_eepx = 5
+	  endif
+
 	else if (doing_delta) then		!Strike (and detect) proton, pion 'recoil'
 	  targ%Mtar_struck = Mp
 	  targ%Mrec_struck = Mpi
@@ -288,6 +342,14 @@ C DJG:
 	      sign_hadron=1.0
 	   else
 	      sign_hadron=-1.0
+	   endif
+	else if(doing_Xphasespace) then         ! For now, just assuming proton mass
+	   targ%Mtar_struck = Mp
+	   targ%Mrec_struck = Mpi0              ! Recoiling particle will always be 
+				                ! at LEAST pi0
+	   if(doing_deutXphase) then  ! placeholder for now
+	      targ%Mtar_struck = (Mp+Mn)/2.0
+	      targ%Mrec_struck = (Mp+Mn)/2.0
 	   endif
 
 	else if(doing_rho) then
@@ -481,7 +543,7 @@ C DJG:
 	using_E_arm_montecarlo = spect_mode.ne.1 .and. spect_mode.ne.-1
 	using_P_arm_montecarlo = spect_mode.ne.1 .and. spect_mode.ne.-2
 
-	if (doing_pion .or. doing_kaon .or. doing_delta .or.
+	if (doing_pion .or. doing_kaon .or. doing_delta .or. doing_eepx .or.
      >		(cuts%Em%min.eq.cuts%Em%max) ) then
 	  cuts%Em%min = -1.d6
 	  cuts%Em%max =  1.d6
@@ -655,7 +717,7 @@ C DJG:
 		 else
 		    write(6,*) ' ****--------  H(e,e''pi-)X  --------****'
 		 endif
-	      elseif (doing_deutsemi) then
+	      else if (doing_deutsemi) then
 		 if(doing_hplus) then
 		    write(6,*) ' ****--------  D(e,e''pi+)X  --------****'
 		 else
@@ -670,7 +732,7 @@ C DJG:
 		 else
 		    write(6,*) ' ****--------  H(e,e''K-)X  --------****'
 		 endif
-	      elseif(doing_deutsemi) then
+	      else if(doing_deutsemi) then
 		 if(doing_hplus) then
 		    write(6,*) ' ****--------  D(e,e''K+)X  --------****'
 		 else
@@ -681,6 +743,58 @@ C DJG:
 	      stop 'I don''t have ANY idea what (e,e''m)X we''re doing!!!'
 	   endif 
                    
+	else if (doing_Xphasespace) then 
+	   if(doing_hydXphase) then
+	      write(6,*) ' ****--------  H(e,e''p)X  --------****'
+	   else if (doing_deutXphase) then
+	      write(6,*) ' ****--------  D(e,e''p)X  --------****'
+	   else if (doing_heXphase) then
+	      write(6,*) ' ****--------  He(e,e''p)X  --------****'
+	   else 	      
+	      stop 'I don''t have ANY idea what (e,e''p)X we''re doing!!!'
+	   endif
+                   
+	else if (doing_eepx) then
+	  if (doing_hydeepx) then
+	     if(which_eepx.eq.1) then
+		write(6,*) ' ****--------  H(e,e''p)pi0  --------****'
+	     else if(which_eepx.eq.2) then
+		write(6,*) ' ****--------  H(e,e''p)eta  --------****'
+	     else if(which_eepx.eq.3) then
+		write(6,*) ' ****--------  H(e,e''p)rho  --------****'
+	     else if(which_eepx.eq.4) then
+		write(6,*) ' ****--------  H(e,e''p)omega  --------****'
+	     else
+		write(6,*) ' ****--------  H(e,e''p)Mx  --------****'
+		write(6,*) 'where Mx in MeV is', Meepx
+	     endif
+	  else if (doing_deuteepx) then
+	     if(which_eepx.eq.1) then
+		write(6,*) ' ****--------  D(e,e''p)pi0  --------****'
+	     else if(which_eepx.eq.2) then
+		write(6,*) ' ****--------  D(e,e''p)eta  --------****'
+	     else if(which_eepx.eq.3) then
+		write(6,*) ' ****--------  D(e,e''p)rho  --------****'
+	     else if(which_eepx.eq.4) then
+		write(6,*) ' ****--------  D(e,e''p)omega  --------****'
+	     else
+		write(6,*) ' ****--------  D(e,e''p)Mx  --------****'
+		write(6,*) 'where Mx in MeV is', Meepx
+	     endif
+	  else if (doing_heeepx) then
+	     if(which_eepx.eq.1) then
+		write(6,*) ' ****--------  A(e,e''p)pi0  --------****'
+	     else if(which_eepx.eq.2) then
+		write(6,*) ' ****--------  A(e,e''p)eta  --------****'
+	     else if(which_eepx.eq.3) then
+		write(6,*) ' ****--------  A(e,e''p)rho  --------****'
+	     else if(which_eepx.eq.4) then
+		write(6,*) ' ****--------  A(e,e''p)omega  --------****'
+	     else
+		write(6,*) ' ****--------  A(e,e''p)Mx  --------****'
+		write(6,*) 'where Mx in MeV is', Meepx
+	     endif
+	  endif
 	else if (doing_delta) then
 	  if (doing_hyddelta) then
 	    write(6,*) ' ****--------  H(e,e''p)pi  --------****'
@@ -826,7 +940,7 @@ C DJG:
 	if (doing_phsp) write(6,*) '**WARNING: phsp option is not really implemented - buyer beware!!'
 	if (doing_kaon .and. .not. doing_decay) write(6,*) 'NOTE: not doing decay, so a decay weight will be applied to WEIGHT'
 	if (doing_semika .and. .not. doing_decay) write(6,*) 'NOTE: not doing decay, so a decay weight will be applied to WEIGHT'
-	if(doing_deutsemi.and.do_fermi) write(6,*) 'NOTE: Fermi motion enabled for semi-incusive production from deuterium'
+	if (doing_deutsemi.and.do_fermi) write(6,*) 'NOTE: Fermi motion enabled for semi-incusive production from deuterium'
 	if (.not.using_rad) write(6,*) 'NOTE: Will NOT be applying radiative corrections'
 	if (.not.using_E_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the E arm Monte Carlo'
 	if (.not.using_P_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the P arm Monte Carlo'
@@ -876,12 +990,15 @@ C DJG:
 	ierr = regparmint('which_kaon',which_kaon,0)
 	ierr = regparmint('doing_pion',doing_pion,0)
 	ierr = regparmint('which_pion',which_pion,0)
+	ierr = regparmint('doing_eepx',doing_eepx,0)
 	ierr = regparmint('doing_delta',doing_delta,0)
 	ierr = regparmint('doing_semi', doing_semi,0)
 	ierr = regparmint('doing_hplus', doing_hplus,1)
 	ierr = regparmint('doing_rho',doing_rho,0)
+	ierr = regparmint('doing_Xphasespace',doing_Xphasespace,0)
 	ierr = regparmint('doing_decay',doing_decay,0)
 	ierr = regparmdouble('ctau',ctau,0)
+	ierr = regparmdouble('Meepx',Meepx,0)
 
 *	DEBUG
 

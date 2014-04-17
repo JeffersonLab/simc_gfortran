@@ -126,46 +126,60 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	ntu(32) = recon%theta_pq			!theta_pq - radians
 	ntu(33) = recon%phi_pq				!phi_pq - radians
 
-	if (doing_pion .or. doing_kaon .or. doing_delta) then
-	  ntu(34) = ntup%mm/1000.			!missmass (nucleon)
-	  ntu(35) = ntup%mmA/1000.			!missmass (nucleus)
-	  ntu(36) = recon%p%P/1000.			!ppi - GeV/c
-	  ntu(37) = ntup%t/1.d6				!t - GeV^2
-	  ntu(38) = recon%PmPar/1000.
-	  ntu(39) = recon%PmPer/1000.
-	  ntu(40) = recon%PmOop/1000.
-	  ntu(41) = -main%target%rastery		!fry - cm
-	  ntu(42) = ntup%radphot/1000.			!radphot - GeV
+	if (doing_pion .or. doing_kaon .or. doing_eep .or. doing_eepx 
+     >           .or. doing_delta .or. doing_Xphasespace) then
+	  ntu(34) = ntup%thetacm                        !thetacm
+	  ntu(35) = ntup%mm/1000.			!missmass (nucleon)
+	  ntu(36) = ntup%mmA/1000.			!missmass (nucleus)
+	  ntu(37) = recon%p%P/1000.			!ppi - GeV/c
+	  ntu(38) = ntup%t/1.d6				!t - GeV^2
+	  ntu(39) = recon%PmPar/1000.
+	  ntu(40) = recon%PmPer/1000.
+	  ntu(41) = recon%PmOop/1000.
+	  ntu(42) = -main%target%rastery		!fry - cm
+	  ntu(43) = ntup%radphot/1000.			!radphot - GeV
 	  dummy = pferx*vertex%uq%x + pfery*vertex%uq%y + pferz*vertex%uq%z
 	  if (dummy.eq.0) dummy=1.d-20
-	  ntu(43) = pfer/1000.*abs(dummy)/dummy		!p_fermi - GeV/c
-	  ntu(44) = main%sigcc				!d5sig
-	  ntu(45) = ntup%sigcm				!pion sig_cm
-	  ntu(46) = main%weight
-	  ntu(47) = decdist				!decay distance (cm)
-	  ntu(48) = sqrt(Mh2_final)
-	  ntu(49) = pfer/1000.*dummy			!p_fermi along q.
-	  ntu(50) = vertex%Q2/1.d6
-	  ntu(51) = main%w/1.d3
-	  ntu(52) = main%t/1.d6
-	  ntu(53) = main%phi_pq
+	  ntu(44) = pfer/1000.*abs(dummy)/dummy		!p_fermi - GeV/c
+	  ntu(45) = main%sigcc				!d5sig
+	  ntu(46) = ntup%sigcm				!pion sig_cm
+	  ntu(47) = main%weight
+	  ntu(48) = decdist				!decay distance (cm)
+	  ntu(49) = sqrt(Mh2_final)
+	  ntu(50) = pfer/1000.*dummy			!p_fermi along q.
+	  ntu(51) = vertex%Q2/1.d6
+	  ntu(52) = main%w/1.d3
+	  ntu(53) = main%t/1.d6
+	  ntu(54) = main%theta_pq
+	  ntu(55) = main%phi_pq
+	  ntu(56) = main%thetacm	!PION and eepx only - check vs. main%theta_pq
+	  ntu(57) = ntup%Pmsigned
+
 	  if(using_tgt_field) then
-	     ntu(54) = recon%theta_tarq
-	     ntu(55) = recon%phi_targ
-	     ntu(56) = recon%beta
-	     ntu(57) = recon%phi_s
-	     ntu(58) = recon%phi_c
-	     ntu(59) = main%beta
-	     ntu(60) = vertex%phi_s
-	     ntu(61) = vertex%phi_c	     
+	     ntu(58) = recon%theta_tarq
+	     ntu(59) = recon%phi_targ
+	     ntu(60) = recon%beta
+	     ntu(61) = recon%phi_s
+	     ntu(62) = recon%phi_c
+	     ntu(63) = main%beta
+	     ntu(64) = vertex%phi_s
+	     ntu(65) = vertex%phi_c	     
 	     if (doing_kaon) then
-		ntu(62) = ntup%sigcm1 !sigcm - saghai model
-		ntu(63) = ntup%sigcm2 !sigcm - factorized.
+		ntu(66) = ntup%sigcm1 !sigcm - saghai model
+		ntu(67) = ntup%sigcm2 !sigcm - factorized.
+	     elseif (doing _eepx.or.doing_Xphasespace) then
+		ntu(66) = ntup%theta_mq
+		ntu(67) = ntup%phi_mq
+		ntu(68) = ntup%u/1.d6
 	     endif
 	  else
 	     if (doing_kaon) then
-		ntu(54) = ntup%sigcm1 !sigcm - saghai model
-		ntu(55) = ntup%sigcm2 !sigcm - factorized.
+		ntu(58) = ntup%sigcm1 !sigcm - saghai model
+		ntu(59) = ntup%sigcm2 !sigcm - factorized.
+	     elseif (doing _eepx.or.doing_Xphasespace) then
+		ntu(58) = ntup%theta_mq
+		ntu(59) = ntup%phi_mq
+		ntu(60) = ntup%u/1.d6
 	     endif
 	  endif
 	else if (doing_semi.or.doing_rho) then

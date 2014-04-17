@@ -46,6 +46,7 @@
 	real*8	wtcontribute, dE_edge_test, Egamma_gen_max
 	real*8  pt_b_param,sigc_kin_min,sigc_kin_max,sigc_kin_ind
 	real*8  targ_Bangle, targ_Bphi, targ_pol, drift_to_cal,sign_hadron
+	real*8  Meepx
 	integer*4 sigc_flag,sigc_nbin
 
 	type(gen_limits)::	gen
@@ -66,9 +67,9 @@
 	logical using_E_arm_montecarlo, using_P_arm_montecarlo
 	logical doing_phsp, using_rad, hard_cuts
 	logical doing_hyd_elast, doing_deuterium, doing_heavy
-	logical doing_eep, doing_pion, doing_delta, doing_kaon, doing_rho
-	logical doing_semi, doing_semipi, doing_semika, doing_hplus
-	integer*4 which_kaon, which_pion
+	logical doing_eep, doing_pion, doing_eepx, doing_delta, doing_kaon, doing_rho
+	logical doing_semi, doing_semipi, doing_semika, doing_hplus, doing_Xphasespace
+	integer*4 which_kaon, which_pion, which_eepx
 	logical using_cit_generation, using_Coulomb, using_Eloss
 	logical correct_Eloss, correct_raster,do_fermi
 	logical using_tgt_field
@@ -83,16 +84,16 @@
      >    genvol, genvol_inclusive, luminosity, targetfac,
      >    normfac, wtcontribute, dE_edge_test, Egamma_gen_max,pt_b_param,
      >    sigc_kin_min,sigc_kin_max,sigc_kin_ind,targ_Bangle, targ_Bphi, targ_pol, 
-     >    drift_to_cal,sign_hadron,sigc_flag,sigc_nbin,
+     >    drift_to_cal,sign_hadron,Meepx,sigc_flag,sigc_nbin,
      >    gen, spec, cuts, edge, VERTEXedge, SPedge,
      >    slop, EXPER, mc_smear, debug, nevent, ntried, ngen,
      >    deForest_flag, Nntu, ncontribute, npasscuts, ncontribute_no_rad_proton, 
      >    spect_mode, phsp_mode, base,
      >    extra_dbase_file,tgt_field_file,using_E_arm_montecarlo,using_P_arm_montecarlo,
      >    doing_phsp, using_rad, hard_cuts, doing_hyd_elast, doing_deuterium, doing_heavy,
-     >    doing_eep, doing_pion, doing_delta, doing_kaon, doing_rho, doing_semi,
-     >    doing_semipi, doing_semika, doing_hplus, which_kaon,
-     >    which_pion, using_cit_generation, using_Coulomb, using_Eloss,
+     >    doing_eep, doing_pion, doing_eepx, doing_delta, doing_kaon, doing_rho, doing_semi,
+     >    doing_semipi, doing_semika, doing_hplus, doing_Xphasespace, which_kaon,
+     >    which_pion, which_eepx, using_cit_generation, using_Coulomb, using_Eloss,
      >    correct_Eloss, correct_raster, do_fermi,using_tgt_field,
      >    electron_arm, hadron_arm, use_first_cer,
      >    transparency, use_benhar_sf, random_state_file, random_seed
@@ -131,16 +132,20 @@ C	real*8 decdist(30)
 	logical doing_decay
 	logical doing_hydpi, doing_deutpi, doing_hepi
 	logical doing_hydkaon, doing_deutkaon, doing_hekaon
+	logical doing_hydeepx, doing_deuteepx, doing_heeepx
 	logical doing_hyddelta, doing_deutdelta, doing_hedelta
 	logical doing_hydrho, doing_Deutrho, doing_herho
 	logical doing_hydsemi, doing_deutsemi
+	logical doing_hydXphase, doing_deutXphase, doing_heXphase
 
 	common /decd/ ctau,doing_decay,
      >    doing_hydpi,doing_deutpi,doing_hepi,
      >    doing_hydkaon,doing_deutkaon,doing_hekaon,
+     >    doing_hydeepx,doing_deuteepx,doing_heeepx,
      >    doing_hyddelta,doing_deutdelta,doing_hedelta,
      >    doing_hydrho, doing_deutrho, doing_herho,
-     >    doing_hydsemi, doing_deutsemi
+     >    doing_hydsemi, doing_deutsemi,
+     >    doing_hydXphase, doing_deutXphase, doing_heXphase
 
 C Trying to get rid of the decdist array of random variables.
 C Structure for variables that we want to available to the ntuple.
@@ -149,10 +154,11 @@ C Structure for variables that we want to available to the ntuple.
 		real*8 radphot, radarm
 		real*8 resfac
 		real*8 sigcm
-		real*8 krel,mm,mmA,t,dilu
+		real*8 krel,mm,mmA,t,u,dilu
 		real*8 sigcm1, sigcm2, sigcm3, sigcm4
 		real*8 xfermi, yfermi
-		real*8 rhomass, rhotheta
+		real*8 rhomass, rhotheta,PMsigned
+		real*8 thetacm,theta_mq,phi_mq
 	end type
 
 	type (ntupvars):: ntup

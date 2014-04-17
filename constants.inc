@@ -10,7 +10,8 @@
 
 ! ... some physical constants
 	real*8 Me, Me2, Mp, Mp2, Mn, Mn2, Mpi, Mpi2, Mpi0, Mpi02
-	real*8 Mk, Mk2, Mrho, Mrho2,Md, Md2
+        real*8 Meta, Meta2, Mk, Mk2, Mrho, Mrho2, MrhoW
+        real*8 Momega, Momega2, MomegaW, Md, Md2
 	real*8 Mlambda, Msigma0, Msigma_minus
 	real*8 amu, hbarc, pi, twopi, alpha, alpi, degrad, euler
 	parameter (Me=0.51099906)
@@ -23,10 +24,17 @@
 	parameter (Mpi2=Mpi**2)
 	parameter (Mpi0=134.9766)
 	parameter (Mpi02=Mpi0**2)
+	parameter (Meta=547.75)
+	parameter (Meta2=Meta**2)
         parameter (Mk=493.677)
         parameter (Mk2=Mk**2)
-        parameter (Mrho=769.3)
+c        parameter (Mrho=769.3)
+        parameter (Mrho=775.5)     !2006 PDG value
         parameter (Mrho2=Mrho**2)
+        parameter (MrhoW=149.4)    !2006 PDG value
+        parameter (Momega=782.65)  !2006 PDG value
+        parameter (Momega2=Momega**2)
+        parameter (MomegaW=8.49)   !2006 PDG value
         parameter (Md=1875.613)
         parameter (Md2=Md**2)
 	parameter (Mlambda=1115.68)

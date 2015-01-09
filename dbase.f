@@ -321,9 +321,12 @@ C DJG:
 	  else if(Meepx.gt.778.0.and.Meepx.lt.790.0) then
 	     targ%Mrec_struck = Momega
 	     which_eepx = 4
+	  else if(Meepx.gt.1015.0.and.Meepx.lt.1025.0) then
+	     targ%Mrec_struck = Mphi
+	     which_eepx = 5
 	  else
 	     targ%Mrec_struck = Meepx
-	     which_eepx = 5
+	     which_eepx = 6
 	  endif
 
 	else if (doing_delta) then		!Strike (and detect) proton, pion 'recoil'
@@ -764,6 +767,8 @@ C DJG:
 		write(6,*) ' ****--------  H(e,e''p)rho  --------****'
 	     else if(which_eepx.eq.4) then
 		write(6,*) ' ****--------  H(e,e''p)omega  --------****'
+	     else if(which_eepx.eq.5) then
+		write(6,*) ' ****--------  H(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  H(e,e''p)Mx  --------****'
 		write(6,*) 'where Mx in MeV is', Meepx
@@ -777,6 +782,8 @@ C DJG:
 		write(6,*) ' ****--------  D(e,e''p)rho  --------****'
 	     else if(which_eepx.eq.4) then
 		write(6,*) ' ****--------  D(e,e''p)omega  --------****'
+	     else if(which_eepx.eq.5) then
+		write(6,*) ' ****--------  D(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  D(e,e''p)Mx  --------****'
 		write(6,*) 'where Mx in MeV is', Meepx
@@ -790,6 +797,8 @@ C DJG:
 		write(6,*) ' ****--------  A(e,e''p)rho  --------****'
 	     else if(which_eepx.eq.4) then
 		write(6,*) ' ****--------  A(e,e''p)omega  --------****'
+	     else if(which_eepx.eq.5) then
+		write(6,*) ' ****--------  A(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  A(e,e''p)Mx  --------****'
 		write(6,*) 'where Mx in MeV is', Meepx

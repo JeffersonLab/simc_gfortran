@@ -12,6 +12,7 @@
 	real*8 Me, Me2, Mp, Mp2, Mn, Mn2, Mpi, Mpi2, Mpi0, Mpi02
         real*8 Meta, Meta2, Mk, Mk2, Mrho, Mrho2, MrhoW
         real*8 Momega, Momega2, MomegaW, Md, Md2
+        real*8 Mphi, Mphi2, MphiW
 	real*8 Mlambda, Msigma0, Msigma_minus
 	real*8 amu, hbarc, pi, twopi, alpha, alpi, degrad, euler
 	parameter (Me=0.51099906)
@@ -20,6 +21,9 @@
 	parameter (Mp2=Mp**2)
 	parameter (Mn=939.56563)
 	parameter (Mn2=Mn**2)
+        parameter (Mphi=1019.460)  !2006 PDG value
+        parameter (Mphi2=Mphi**2)
+        parameter (MphiW=4.26)    !2006 PDG value
 	parameter (Mpi=139.57018)
 	parameter (Mpi2=Mpi**2)
 	parameter (Mpi0=134.9766)

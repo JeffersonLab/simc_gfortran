@@ -753,6 +753,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 		write(iun,*) '           ****--------  H(e,e''p)rho0  --------****'
 	     else if(which_eepx.eq.4) then
 		write(iun,*) '           ****--------  H(e,e''p)omega  --------****'
+	     else if(which_eepx.eq.5) then
+		write(iun,*) '           ****--------  H(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  H(e,e''p)Mx  --------****'
 		write(iun,*) '               Mx in MeV is', Meepx
@@ -766,6 +768,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 		write(iun,*) '           ****--------  D(e,e''p)rho0  --------****'
 	     else if(which_eepx.eq.4) then
 		write(iun,*) '           ****--------  D(e,e''p)omega  --------****'
+	     else if(which_eepx.eq.5) then
+		write(iun,*) '           ****--------  D(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  D(e,e''p)Mx  --------****'
 		write(iun,*) '               Mx in MeV is', Meepx
@@ -779,6 +783,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 		write(iun,*) '           ****--------  A(e,e''p)rho0  --------****'
 	     else if(which_eepx.eq.4) then
 		write(iun,*) '           ****--------  A(e,e''p)omega  --------****'
+	     else if(which_eepx.eq.5) then
+		write(iun,*) '           ****--------  A(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  A(e,e''p)Mx  --------****'
 		write(iun,*) '           where Mx in MeV is', Meepx

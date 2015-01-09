@@ -32,7 +32,8 @@ C     from Pawel's noted by xucc
 
       real*8 mass               ! omega mass
       real*8 invm,Wsq           ! invariant mass of hadronic system
-      real*8 tt                 ! Mandelstam variables
+      real*8 tt,uu              ! Mandelstam variables
+      real*8 tprime
       real*8 e_photCM,e_rhoCM,t_min
 
       real*8 gamma_T            ! flux of transversely polarized virt. photons
@@ -122,6 +123,12 @@ c      main%t =tt
      *        sqrt((e_rhoCM**2-mass**2)*(e_photCM**2+qsq)))
       endif
       main%tmin=-t_min
+      tprime = abs(tt)-abs(t_min)
+      if (tprime.lt.0.) then
+         write(6,*)' unphysical -t<-t_min ',tt,t_min
+      endif
+
+      uu = -qsq +m_psq +2.*(qvec*Pp*tcos -nu*Ep )
 
 ******************************************************************************
 *  we keep the tradition that ntup.sigcm is d2sigma/dt/dphi_cm [ub/MeV^2/rad]
@@ -132,7 +139,7 @@ c      main%t =tt
      *     tt/1.d6,t_min/1.d6)
 
 * PYTHIA model with modifications from the HERMES MC
-      sig2 = sig_hermes(qsq,tt,t_min,nu,epsilon)
+      sig2 = sig_hermes(qsq,tt,t_min,nu,invm/1.d3,epsilon)
       
       ntup%sigcm=sig2
 
@@ -150,21 +157,21 @@ C DJG  Breit-Wigner in the event generation - not needed here anymore.
       Breit_wigner=Breit_wigner/(gamma_rho*pi/2.)
 
 * Soding model (skewness) correction
-* gh - This will screw up the normalization, but this generator is only
-* intended for background subtraction anyways, and so does not matter
 *
-* Note that the value of the exponent falls steeply with t (see Fig 71
+* The value of the exponent falls steeply with t (see Fig 71
 * of Bauer's review article, Rev.Mod.Phys. 50(1978)261) and is often
 * determined by fit to data.  In the CLAS experiment, the fit exponent was
-* 0+/-0.09.
+* 0+/-0.09 [C. Hajidakis Thesis, p. 113]
 *
 * The value used by Ambrosewicz (low -t) was 5.2
 *      Soding=(m_rho/mass)**5.2
 *
-* Use value determined from fit to E01-004 (high -t) data
+* Initial value determined from fit to E01-004 (high -t) data
 * Value is 4.95 for Q2=1.60 data (-t=3.95) and 6.65 for Q2=2.45 data (-t=4.67)
-*       Soding=(mass/m_rho)**5.5
-      Soding=(mass/m_rho)**(-4.394+2.366*abs(tt/1.e6))
+*      Soding=(mass/m_rho)**(-4.394+2.366*abs(tt/1.e6))
+
+* GH: leave it fixed at the CLAS value for now
+       Soding=(m_rho/mass)**0.0
 
 *******************************************************************************
 * Convert from d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad] 
@@ -249,7 +256,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      real*8 function sig_hermes(Q2,t,tmin,nu,epsi)
+      real*8 function sig_hermes(Q2,t,tmin,nu,w_gev,epsi)
 
 * This routine calculates p(e,e'rho)p cross sections using D. Gaskell's
 * attempt to code in the form used in PYTHIA with modifications
@@ -259,49 +266,69 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       include 'constants.inc'
 
       real*8 t,tmin,tprime
-      real*8 nu,epsi,Q2
+      real*8 nu,epsi,Q2,w_gev,wfactor,m_p
       real*8 sig0,sigt,sig219,R,cdeltatau,brho
 
+      m_p = 0.93827231
       tprime = abs(t-tmin)/1.d6
       cdeltatau = hbarc/(sqrt(nu**2+Q2+mrho2)-nu) !in fm!
 
 * Put in some W dependence from photoproduction data
+
 * DJG:  This is my rough fit to some old photoproduction data.	
+c      sig0 = 41.263/(nu/1000.0)**0.4765     ! microbarns
 
-      sig0 = 41.263/(nu/1000.0)**0.4765     ! microbarns
+* GH:   Photoproduction fit in Fig 22 of Cassel et al, PRD 24(1981) 2787
+       sig0 = 29.4/(nu/1000.)+9.5            ! microbarns
 
-* DJG:  R is usually fit to the form c_0 (Q2/M2_rho)^c1
-* DJG:  The c_0 and c_1 are taken from HERMES data.
+* GH: Since I have nothing better to go on, for now I assume W scales as
+* 1/(W^2-mp^2)^2.
+c       wfactor=(2.47**2-m_p**2)**2/(w_gev**2-m_p**2)**2
 
-      R = 0.33*(Q2/mrho2)**(0.61)
+* DJG:  R=L/T is usually fit to the form c_0 (Q2/M2_rho)^c1
+* GH:   c_0 and c_1 taken from HERMES data, Rakness thesis, Fig 5.9
+
+      R = 0.39*(Q2/mrho2)**(0.68)
+      if (R.gt.1) R=1
 
 * DJG:  The Q2 dependence is usually given by (M2_rho/(Q2+M2_rho))^2
 * DJG:  HERMES found that 2.575 works better than 2 in the exponent.
 
       sigt = sig0*(1.0+epsi*R)*(mrho2/(Q2+mrho2))**(2.575)
 
-* DJG:  Need to parameterize t-dependence with b parameter as a function of c-tau
-*
-*      if (cdeltatau.le.0.390323) then
-*         brho = 1.07477	      
-*      else if(cdeltatau.lt.1.968.and.cdeltatau.gt.0.390323) then
-*         brho = 4.4679 + 8.6106*dlog10(cdeltatau)
-*      else
-*         brho = 7.0
-*      endif
+* DJG: Need to parameterize t-dependence with b parameter as a function
+*      of c-tau
+
+c      if (cdeltatau.le.0.390323) then
+c         brho = 1.07477	      
+c      else if(cdeltatau.lt.1.968.and.cdeltatau.gt.0.390323) then
+c         brho = 4.4679 + 8.6106*dlog10(cdeltatau)
+c      else
+c         brho = 7.0
+c      endif
       
-* This is the parameterization shown in Cynthia Hajidakis' thesis (Orsay)
-* JLab CLAS E99-105.
+* GH:  brho parameterization from Cynthia Hajidakis' thesis Fig 4.9,  p146.
+*      JLab CLAS E99-105 (Orsay)
 
       if (cdeltatau.lt.2.057) then
          brho = -0.0941+3.449*cdeltatau
       else
-         brho = 7.0
+         brho = 7.0  ! see Fig 14 of Cassel et al, PRD 24(1981) 2787
       endif
+      if (brho.lt.1.07477) brho = 1.07477
+      
+c GH: the conventional formula with exponential factor is for forward
+c     diffractive, it might not be appropriate for u-channel production
 
       sig219 = sigt*brho*exp(-brho*tprime)/2.0/pi !ub/GeV**2/rad
       
       sig_hermes=sig219/1.d+06         !dsig/dtdphicm in microbarns/MeV**2/rad
+
+c GH: check for weird behavior on upper side of rho peak
+      if (tprime.gt.8. and. sig_hermes.gt.1.d-14) then
+         write(6,*)' tprime=',tprime,' sig=',sig_hermes
+         sig_hermes=1.d-14
+      endif
       
       return
       end

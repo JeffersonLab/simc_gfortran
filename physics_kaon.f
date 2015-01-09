@@ -30,7 +30,7 @@
 	real*8 etarcm,ptarcm,ptarcmx,ptarcmy,ptarcmz	!p_fermi in C.M.
 	real*8 thetacm,phicm,phiqn,jacobian,jac_old
 
-	real*8 sig_factorized
+	real*8 sig_factorized,sig_factorized2007
 
 * Calculate velocity of PHOTON-NUCLEON C.M. system in the lab frame. Use beta
 * and gamma of the cm system (bstar and gstar) to transform particles into
@@ -88,7 +88,8 @@
 
 * Factorization model (CURRENTLY SET UP FOR HYDROGEN ONLY!!!)
 
-	ntup%sigcm2 = sig_factorized(vertex%q2,main%wcm,main%t,pkcm,targ%Mrec_struck)
+	ntup%sigcm2 = sig_factorized2007(vertex%q2,main%wcm,main%t,
+     1                   pkcm,targ%Mrec_struck,main%epsilon)
 
 * Choose the cross section model to use by default.
 !	sigma_eek = ntup.sigcm1		!Saghai
@@ -231,6 +232,81 @@ C momentum.  Get particle momentum from main%SP%p%delta
 	endif
 
 	sig_factorized = fact_q*fact_t*fact_w
+
+	return
+	end
+
+
+
+	real*8 function sig_factorized2007(q2,w,t,pk,mrec,epsilon)
+
+* Purpose:
+* p(e,e'K+)Lambda and p(e,e'K+)Sigma cross sections 
+* via factorized model described in Tanja Horn's December 2007 report
+* model is based on Q^2, W dependence of Bebek and Brauel data, using
+* Koltenuk fits which are updated to improve epsilon, etc. dependence
+
+* Cross section (at theta_cm=0, i.e. t=tmin) is F(Q^2)*G(W)
+* The t-dependance at fixed Q^2,W is h(t)=D*exp(-b*t),
+* so the cross section is F(Q^2)*G(W)*(h(t)/h(tmin))=F(Q^2)*G(W)*h(t-tmin)
+*
+* The model requires W, Q^2, t, pkcm and epsilon
+
+	real*8 q2,w,t,pk,mrec			!all in Mev,MeV**2
+        real*8 epsilon
+	real*8 nu,q,nucm,qcm,tmin,pktest
+	real*8 w2val,q2val,tval,pkval,tminval	!Vars. used in model (GeV)
+	real*8 fact_w,fact_q,fact_t
+
+	include 'constants.inc'
+
+! Initialize some stuff.  Start with intermediate variables, all in MeV.
+
+	nu = ( w**2 + q2 - mp**2 )/2./Mp
+	q = sqrt(q2+nu**2)
+	qcm = q*(Mp/W)
+	nucm = sqrt(qcm**2-q2)
+	tmin = -1.*(Mk2 - q2 - 2*nucm*sqrt(pk**2+mk2) + 2*qcm*pk )
+
+! Check center of mass pk, since we can get it from w2
+	pktest = sqrt ( (w**2+mk2-mrec**2)**2/4./w**2 - mk2 )
+	if (abs((pktest-pk)/pk).gt.0.001) then
+	  write(6,*) 'Kaon C.M. momentum passed to sig_factorized does not agree with'
+	  write(6,*) 'the value calculated from W'
+	  write(6,*) 'Passed,calculated=',pk,pktest
+	endif
+
+! Parameters used by the model, all converted to GeV.
+	q2val = q2/1.d6
+	w2val = w**2/1.d6
+	pkval = pk/1000.
+	tval = t/1.d6
+	tminval = tmin/1.d6
+
+	if (mrec.lt.1150.) then	! Lambda production
+	  fact_q = 4.50/(q2val+2.67)**2
+
+	  if (w2val.ne.0) then			!=0 for central event!!!
+	   fact_w = 4.1959*pkval/(sqrt(w2val)*(w2val-0.93827**2))
+           if (w2val.lt.4.) then ! resonance region correction
+	   fact_w = 0.959*fact_w + (0.18*1.72**2*0.10**2) /
+     >		( (w2val-1.72**2)**2 + 1.72**2*0.10**2 )
+	   endif
+	  endif
+
+	  fact_t = 1.10*exp(-2.1*(tval-tminval))
+
+	else                     ! Sigma production
+	  fact_q = 0.1587/(q2val+0.785)**2
+
+	  if (w2val.ne.0) then			!=0 for central event!!!
+	   fact_w = 1.3176*pkval/(sqrt(w2val)*(w2val-0.93827**2))
+	  endif
+
+	  fact_t = 1.0*exp(-1.0*(tval-tminval))
+	endif
+
+	sig_factorized2007 = fact_q*fact_t*fact_w*(2.+epsilon)/3.
 
 	return
 	end

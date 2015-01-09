@@ -613,7 +613,7 @@ c	  endif
 	  if(doing_eepx) then
 	    if (debug(4)) write(6,*)'comp_ev: at 6.5a',which_eepx
 	      if (which_eepx.eq.3) then      !rho
-* the rho is very broad and so gets a formula with more restricted width
+* the rho is very broad and gets a formula with more restricted width
 * even so, masses will be generated down to about 375 MeV
 c ranlux substituted for grnd - gh
                  call ranlux (rannum4,1)
@@ -631,6 +631,13 @@ c ranlux substituted for grnd - gh
 	         targ%Mrec_struck = Momega + 
      >	         0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
 c     >	         0.5*MomegaW*tan((2.*grnd()-1.)*pi/2.)
+	      else if (which_eepx.eq.5) then ! phi
+c ranlux substituted for grnd - gh
+                 call ranlux (rannum4,1)
+	         rannum=dfloat(rannum4)
+	         targ%Mrec_struck = Mphi + 
+     >	         0.5*MphiW*tan((2.*rannum-1.)*pi/2.)
+c     >	         0.5*MphiW*tan((2.*grnd()-1.)*pi/2.)
 	      endif
 	   if (debug(4)) write(6,*)'comp_ev: at 6.5b',targ%Mrec_struck
 	      if(targ%Mrec_struck.le.0.0) return
@@ -1466,7 +1473,7 @@ c three-momentum transfer (Q)
 
 	integer		i, iPm1
 	real*8		a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
-	real*8          peep_omega, peep_rho, peepph
+	real*8          peep_omega, peep_rho, peep_phi, peepph
 	real*8		survivalprob, semi_dilution
 	real*8		weight, width, sigep, deForest, tgtweight
 	real*8          Em_weight           ! gh
@@ -1587,7 +1594,10 @@ c three-momentum transfer (Q)
 	   else if(which_eepx.eq.4) then !omega
 	      main%sigcc = peep_omega(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.5) then
+	   else if(which_eepx.eq.5) then !phi
+	      main%sigcc = peep_phi(vertex,main) 
+	      main%sigcc_recon = 1.0
+	   else if(which_eepx.eq.6) then
 	      main%sigcc = 1.0
 	      main%sigcc_recon = 1.0
 	   endif

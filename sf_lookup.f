@@ -184,7 +184,7 @@
 	logsf=(sf1 + (Em-Em1)*(sf2-sf1)/(Em2-Em1))
 	SF=logsf
 
-	if (SF.lt.1.d-20) SF=0
+	if (SF.lt.1.e-20) SF=0
 
 	return
 	end

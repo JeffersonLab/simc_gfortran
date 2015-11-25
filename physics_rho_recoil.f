@@ -135,11 +135,11 @@ c      main%t =tt
 ******************************************************************************
 *
 * Diffractive rho production model used by P. Ambrosewicz
-      sig1 = sig_diffract(mass/1.d3,invm/1.d3,qsq/1.d6,
-     *     tt/1.d6,t_min/1.d6)
+      sig1 = sig_diffract(mass/1.e3,invm/1.e3,qsq/1.e6,
+     *     tt/1.e6,t_min/1.e6)
 
 * PYTHIA model with modifications from the HERMES MC
-      sig2 = sig_hermes(qsq,tt,t_min,nu,invm/1.d3,epsilon)
+      sig2 = sig_hermes(qsq,tt,t_min,nu,invm/1.e3,epsilon)
       
       ntup%sigcm=sig2
 
@@ -248,7 +248,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * 2pi factor is for dphi_cm and 1.e6 converts GeV^2 to MeV^2
 
       sig_diffract = (sig_grho/(1+qsq/mass**2)**2)
-     *     *exp(b_slope*(tt-t_min))/(2.*pi)/1.d6
+     *     *exp(b_slope*(tt-t_min))/(2.*pi)/1.e6
 
       return
       end
@@ -270,7 +270,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       real*8 sig0,sigt,sig219,R,cdeltatau,brho
 
       m_p = 0.93827231
-      tprime = abs(t-tmin)/1.d6
+      tprime = abs(t-tmin)/1.e6
       cdeltatau = hbarc/(sqrt(nu**2+Q2+mrho2)-nu) !in fm!
 
 * Put in some W dependence from photoproduction data
@@ -325,9 +325,9 @@ c     diffractive, it might not be appropriate for u-channel production
       sig_hermes=sig219/1.d+06         !dsig/dtdphicm in microbarns/MeV**2/rad
 
 c GH: check for weird behavior on upper side of rho peak
-      if (tprime.gt.8. and. sig_hermes.gt.1.d-14) then
+      if (tprime.gt.8. and. sig_hermes.gt.1.e-14) then
          write(6,*)' tprime=',tprime,' sig=',sig_hermes
-         sig_hermes=1.d-14
+         sig_hermes=1.e-14
       endif
       
       return

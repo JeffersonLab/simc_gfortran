@@ -82,7 +82,7 @@
 ! in full BASICRAD prescription
 
 	weight = c(itail)/g(itail) * (power_hi-power_lo)
-
+	
 	if(itail.eq.4)itail=0
 	return
 	end
@@ -483,7 +483,7 @@ c	enddo
 ! ... adjust the e'/hadron momenta (if they radiated significantly)
 
 	orig%e%E = vertex%e%E - Egamma_used(2)
-	if(orig%e%E.le.0d0) then
+	if(orig%e%E.le.0e0) then
 	   if (debug(4)) write(6,*)'gen_rad: Negative electron energy -failed'
 	  return
 	endif
@@ -538,7 +538,7 @@ c	enddo
 	type(event):: vertex
 
 	real*8 zero
-	parameter (zero=0.0d0)	!double precision zero for subroutine calls
+	parameter (zero=0.0e0)	!double precision zero for subroutine calls
 
 	basicrad_val_reciprocal=basicrad_val_reciprocal+0. !avoid unused variable error
 ! Compute a more precise value for the radiative probability at the
@@ -749,7 +749,7 @@ c     >			vertex%Pmx, vertex%Pmy, vertex%Pmz
 	y = 1.0
 	s = 0.0
 	i = 0
-	do while (i.le.100 .and. abs(y).gt.abs(s)*1.d-4)
+	do while (i.le.100 .and. abs(y).gt.abs(s)*1.e-4)
 	  i = i+1
 	  y = x*y
 	  s = s+y/float(i**2)

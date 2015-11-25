@@ -134,13 +134,13 @@ c     main%t = tt
 *
 * One Pion Exchange model used in DESY analysis of Joos et al.
 * W<2 GeV, Q^2<1.4 GeV^2
-      sig1 = sig_joos(mass/1.d3,tt/1.d6,uu/1.d6,
-     *  vertex%q2/1.d6,invm/1.d3,main%epsilon)
+      sig1 = sig_joos(mass/1.e3,tt/1.e6,uu/1.e6,
+     *  vertex%q2/1.e6,invm/1.e3,main%epsilon)
 
 * Parameterization based on saturated Regge model of J.M.Laget.
 * 2<W<3 GeV, 2<Q^2<3 GeV^2
-      sig2 = sig_gmh(thetacm,phicm,tt/1.d6,tprime/1.d6,vertex%q2/1.d6,
-     *     invm/1.d3,epsilon)
+      sig2 = sig_gmh(thetacm,phicm,tt/1.e6,tprime/1.e6,vertex%q2/1.e6,
+     *     invm/1.e3,epsilon)
 
       ntup%sigcm=sig2
 

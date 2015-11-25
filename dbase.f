@@ -548,8 +548,8 @@ C DJG:
 
 	if (doing_pion .or. doing_kaon .or. doing_delta .or. doing_eepx .or.
      >		(cuts%Em%min.eq.cuts%Em%max) ) then
-	  cuts%Em%min = -1.d6
-	  cuts%Em%max =  1.d6
+	  cuts%Em%min = -1.e6
+	  cuts%Em%max =  1.e6
 	endif
 
 	if (abs(deForest_flag).gt.1) stop 'Idiot! check setting of deForest_flag'
@@ -624,9 +624,9 @@ C DJG:
 	    tmpfile='benharsf_12.dat'
 	  endif
 ! Choos proton or neutron spectral function based on targ.Mtar_struck
-	  if (abs(targ%Mtar_struck-Mp).le.1.d-6) then
+	  if (abs(targ%Mtar_struck-Mp).le.1.e-6) then
 	    call sf_lookup_init(tmpfile,.true.)			!proton S.F.
-	  else if (abs(targ%Mtar_struck-Mn).le.1.d-6) then
+	  else if (abs(targ%Mtar_struck-Mn).le.1.e-6) then
 	    call sf_lookup_init(tmpfile,.false.)		!neutron S.F.
 	  else
 	    write(6,*) 'targ%Mtar_struck = ',targ%Mtar_struck

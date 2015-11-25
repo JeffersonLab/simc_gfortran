@@ -118,7 +118,7 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	endif
 	ntu(25) = recon%q/1000.				!q - GeV/c	
 	ntu(26) = recon%nu/1000.			!nu - GeV
-	ntu(27) = recon%Q2/1.d6				!Q^2 - (GeV/c)^2
+	ntu(27) = recon%Q2/1.e6				!Q^2 - (GeV/c)^2
 	ntu(28) = recon%W/1000.				!W - GeV/c
 	ntu(29) = recon%epsilon				!epsilon
 	ntu(30) = recon%Em/1000.			!GeV
@@ -132,14 +132,14 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	  ntu(35) = ntup%mm/1000.			!missmass (nucleon)
 	  ntu(36) = ntup%mmA/1000.			!missmass (nucleus)
 	  ntu(37) = recon%p%P/1000.			!ppi - GeV/c
-	  ntu(38) = ntup%t/1.d6				!t - GeV^2
+	  ntu(38) = ntup%t/1.e6				!t - GeV^2
 	  ntu(39) = recon%PmPar/1000.
 	  ntu(40) = recon%PmPer/1000.
 	  ntu(41) = recon%PmOop/1000.
 	  ntu(42) = -main%target%rastery		!fry - cm
 	  ntu(43) = ntup%radphot/1000.			!radphot - GeV
 	  dummy = pferx*vertex%uq%x + pfery*vertex%uq%y + pferz*vertex%uq%z
-	  if (dummy.eq.0) dummy=1.d-20
+	  if (dummy.eq.0) dummy=1.e-20
 	  ntu(44) = pfer/1000.*abs(dummy)/dummy		!p_fermi - GeV/c
 	  ntu(45) = main%sigcc				!d5sig
 	  ntu(46) = ntup%sigcm				!pion sig_cm
@@ -147,9 +147,9 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	  ntu(48) = decdist				!decay distance (cm)
 	  ntu(49) = sqrt(Mh2_final)
 	  ntu(50) = pfer/1000.*dummy			!p_fermi along q.
-	  ntu(51) = vertex%Q2/1.d6
-	  ntu(52) = main%w/1.d3
-	  ntu(53) = main%t/1.d6
+	  ntu(51) = vertex%Q2/1.e6
+	  ntu(52) = main%w/1.e3
+	  ntu(53) = main%t/1.e6
 	  ntu(54) = main%theta_pq
 	  ntu(55) = main%phi_pq
 	  ntu(56) = main%thetacm	!PION and eepx only - check vs. main%theta_pq
@@ -170,7 +170,7 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	     elseif (doing _eepx.or.doing_Xphasespace) then
 		ntu(66) = ntup%theta_mq
 		ntu(67) = ntup%phi_mq
-		ntu(68) = ntup%u/1.d6
+		ntu(68) = ntup%u/1.e6
 	     endif
 	  else
 	     if (doing_kaon) then
@@ -179,13 +179,13 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	     elseif (doing _eepx.or.doing_Xphasespace) then
 		ntu(58) = ntup%theta_mq
 		ntu(59) = ntup%phi_mq
-		ntu(60) = ntup%u/1.d6
+		ntu(60) = ntup%u/1.e6
 	     endif
 	  endif
 	else if (doing_semi.or.doing_rho) then
 	  ntu(34) = ntup%mm/1000.			!missmass (nucleon)
 	  ntu(35) = recon%p%P/1000.			!ppi - GeV/c
-	  ntu(36) = ntup%t/1.d6				!t - GeV^2
+	  ntu(36) = ntup%t/1.e6				!t - GeV^2
 	  ntu(37) = -main%target%rastery		!fry - cm
 	  ntu(38) = ntup%radphot/1000.			!radphot - GeV
 	  ntu(39) = main%sigcc				!d5sig
@@ -195,8 +195,8 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	  ntu(43) = sqrt(Mh2_final)
 	  ntu(44) = recon%zhad
 	  ntu(45) = vertex%zhad
-	  ntu(46) = recon%pt2/1.d06
-	  ntu(47) = vertex%pt2/1.d06
+	  ntu(46) = recon%pt2/1.e06
+	  ntu(47) = vertex%pt2/1.e06
 	  ntu(48) = recon%xbj
 	  ntu(49) = vertex%xbj
 	  ntu(50) = acos(vertex%uq%z)

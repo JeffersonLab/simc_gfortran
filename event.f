@@ -127,7 +127,7 @@
 	type(event):: vertex, orig
 
 	real*8 nsig_max
-	parameter(nsig_max=3.0d0)      !max #/sigma for gaussian ran #s.
+	parameter(nsig_max=3.0e0)      !max #/sigma for gaussian ran #s.
 
 
 ! Randomize the position of the interaction inside the available region.
@@ -177,7 +177,7 @@ C DJG Note that this means that +fry points down. I will make frx point left.
 ! electron.  Remove targ.zoffset from the z position of the scattering
 ! in order to get the position relative to the center of the target.
 
-	call trip_thru_target (1, main%target%z-targ%zoffset, Ebeam, 0.0d0,
+	call trip_thru_target (1, main%target%z-targ%zoffset, Ebeam, 0.0e0,
      >		main%target%Eloss(1), main%target%teff(1),Me,1)
 	if (.not.using_Eloss) main%target%Eloss(1) = 0.0
 	if (using_Coulomb) then
@@ -263,11 +263,11 @@ C modified 5/15/06 for poinct
 ! Generate Electron Angles (all cases):
 c ranlux substituted for grnd - gh
         call ranlux (rannum4,1)
-	rannum=dfloat(rannum4)
+	rannum=dble(rannum4)
 	vertex%e%yptar=gen%e%yptar%min+rannum*(gen%e%yptar%max-gen%e%yptar%min)
 c	vertex%e%yptar=gen%e%yptar%min+grnd()*(gen%e%yptar%max-gen%e%yptar%min)
         call ranlux (rannum4,1)
-	rannum=dfloat(rannum4)
+	rannum=dble(rannum4)
 	vertex%e%xptar=gen%e%xptar%min+rannum*(gen%e%xptar%max-gen%e%xptar%min)
 c	vertex%e%xptar=gen%e%xptar%min+grnd()*(gen%e%xptar%max-gen%e%xptar%min)
 
@@ -277,12 +277,12 @@ c	vertex%e%xptar=gen%e%xptar%min+grnd()*(gen%e%xptar%max-gen%e%xptar%min)
      >         .or.doing_Xphasespace) then
 c ranlux substituted for grnd - gh
           call ranlux (rannum4,1)
-	  rannum=dfloat(rannum4)
+	  rannum=dble(rannum4)
 	  vertex%p%yptar=gen%p%yptar%min+rannum*
 c	  vertex%p%yptar=gen%p%yptar%min+grnd()*
      >  	(gen%p%yptar%max-gen%p%yptar%min)
           call ranlux (rannum4,1)
-	  rannum=dfloat(rannum4)
+	  rannum=dble(rannum4)
 	  vertex%p%xptar=gen%p%xptar%min+rannum*
 c	  vertex%p%xptar=gen%p%xptar%min+grnd()*
      >          (gen%p%xptar%max-gen%p%xptar%min)
@@ -296,7 +296,7 @@ c	  vertex%p%xptar=gen%p%xptar%min+grnd()*
 	  main%gen_weight=main%gen_weight*(Emax-Emin)/(gen%p%E%max-gen%p%E%min)
 c ranlux substituted for grnd - gh
           call ranlux (rannum4,1)
-	  rannum=dfloat(rannum4)
+	  rannum=dble(rannum4)
 	  vertex%p%E = Emin + rannum*(Emax-Emin)
 c	  vertex%p%E = Emin + grnd()*(Emax-Emin)
 	  vertex%p%P = sqrt(vertex%p%E**2 - Mh2)
@@ -321,7 +321,7 @@ c	  vertex%p%E = Emin + grnd()*(Emax-Emin)
 	  main%gen_weight=main%gen_weight*(Emax-Emin)/(gen%e%E%max-gen%e%E%min)
 c ranlux substituted for grnd - gh
           call ranlux (rannum4,1)
-	  rannum=dfloat(rannum4)
+	  rannum=dble(rannum4)
 	  vertex%e%E = Emin + rannum*(Emax-Emin)
 c	  vertex%e%E = Emin + grnd()*(Emax-Emin)
 	  vertex%e%P = vertex%e%E
@@ -337,7 +337,6 @@ c	  vertex%e%E = Emin + grnd()*(Emax-Emin)
      &		vertex%e%xptar,vertex%e%yptar,vertex%e%theta,vertex%e%phi)
 	call physics_angles(spec%p%theta,spec%p%phi,
      &		vertex%p%xptar,vertex%p%yptar,vertex%p%theta,vertex%p%phi)
-
 
 ! Generate Fermi Momentum and Em for A(e,e'pi) and A(e,e'K). 
 	pfer=0.0
@@ -617,7 +616,7 @@ c	  endif
 * even so, masses will be generated down to about 375 MeV
 c ranlux substituted for grnd - gh
                  call ranlux (rannum4,1)
-	         rannum=dfloat(rannum4)
+	         rannum=dble(rannum4)
 	         targ%Mrec_struck = Mrho +
      >           0.5*MrhoW*
      >           tan((2.*rannum-1.)*atan(2.*450./MrhoW))
@@ -627,14 +626,14 @@ c     >           tan((2.*grnd()-1.)*atan(2.*500./MrhoW))
 * all other mesons get the standard formula
 c ranlux substituted for grnd - gh
                  call ranlux (rannum4,1)
-	         rannum=dfloat(rannum4)
+	         rannum=dble(rannum4)
 	         targ%Mrec_struck = Momega + 
      >	         0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
 c     >	         0.5*MomegaW*tan((2.*grnd()-1.)*pi/2.)
 	      else if (which_eepx.eq.5) then ! phi
 c ranlux substituted for grnd - gh
                  call ranlux (rannum4,1)
-	         rannum=dfloat(rannum4)
+	         rannum=dble(rannum4)
 	         targ%Mrec_struck = Mphi + 
      >	         0.5*MphiW*tan((2.*rannum-1.)*pi/2.)
 c     >	         0.5*MphiW*tan((2.*grnd()-1.)*pi/2.)
@@ -795,7 +794,7 @@ c     >	         0.5*MphiW*tan((2.*grnd()-1.)*pi/2.)
 	  p_new_y = px*new_y_x + py*new_y_y + pz*new_y_z
 
 	  main%phi_pq = atan2(p_new_y,p_new_x)		!atan2(y,x)=atan(y/x)
-	  if (main%phi_pq.lt.0.d0) main%phi_pq=main%phi_pq+2.*pi
+	  if (main%phi_pq.lt.0.e0) main%phi_pq=main%phi_pq+2.*pi
 !	  if (p_new_y.lt.0.) then
 !	    main.phi_pq = 2*pi - main.phi_pq
 !	  endif
@@ -947,7 +946,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	oop_y =  vertex%uq%x	! oop_y = q_x *(z_hat x x_hat) = q_x * (y_hat)
 	vertex%PmPar = (vertex%Pmx*vertex%uq%x + vertex%Pmy*vertex%uq%y + vertex%Pmz*vertex%uq%z)
 	vertex%PmOop = (vertex%Pmx*oop_x + vertex%Pmy*oop_y) / sqrt(oop_x**2+oop_y**2)
-	vertex%PmPer = sqrt( max(0.d0, vertex%Pm**2 - vertex%PmPar**2 - vertex%PmOop**2 ) )
+	vertex%PmPer = sqrt( max(0.e0, vertex%Pm**2 - vertex%PmPar**2 - vertex%PmOop**2 ) )
 
 	if (debug(4)) write(6,*)'comp_ev: at 9',vertex%Pmx,vertex%Pmy,vertex%Pmz
 
@@ -990,12 +989,12 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	if (doing_deutpi .or. doing_deutkaon .or.doing_deuteepx .or. doing_deutdelta 
      >       .or. doing_deutrho) then
 	  if ((vertex%Emiss**2-vertex%Pmiss**2).lt.0) write(6,*) 'BAD MM!!!!! Emiss,Pmiss=',vertex%Emiss, vertex%Pmiss
-	  MM = sqrt(max(0.d0,vertex%Emiss**2-vertex%Pmiss**2))
-	  krel = sqrt( max(0.d0,MM**2-4.*targ%Mrec_struck**2) )
+	  MM = sqrt(max(0.e0,vertex%Emiss**2-vertex%Pmiss**2))
+	  krel = sqrt( max(0.e0,MM**2-4.*targ%Mrec_struck**2) )
 	else if (doing_hepi .or. doing_hekaon .or.doing_heeepx .or. doing_hedelta 
      >       .or. doing_herho) then
 	  if ((vertex%Emiss**2-vertex%Pmiss**2).lt.0) write(6,*) 'BAD MM!!!!! Emiss,Pmiss=',vertex%Emiss, vertex%Pmiss
-	  MM = sqrt(max(0.d0,vertex%Emiss**2-vertex%Pmiss**2))
+	  MM = sqrt(max(0.e0,vertex%Emiss**2-vertex%Pmiss**2))
 	  krelx = vertex%Pmx + 1.5*pferx*pfer
 	  krely = vertex%Pmy + 1.5*pfery*pfer
 	  krelz = vertex%Pmz + 1.5*pferz*pfer
@@ -1240,7 +1239,7 @@ Cgh	W2 = mp**2 + 2.*mp*recon%nu - recon%Q2
 	   p_new_x1 = px1*new_x_x + py1*new_x_y + pz1*new_x_z
 	   p_new_y1 = px1*new_y_x + py1*new_y_y + pz1*new_y_z
 	   ntup%phi_mq = atan2(p_new_y1,p_new_x1) !atan2(y,x)=atan(y/x)
-	   if (ntup%phi_mq.lt.0.d0) ntup%phi_mq=ntup%phi_mq+2.*pi
+	   if (ntup%phi_mq.lt.0.e0) ntup%phi_mq=ntup%phi_mq+2.*pi
 	endif
 
 	if(using_tgt_field) then !calculate polarized-target specific azimuthal angles
@@ -1374,7 +1373,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	oop_y =  recon%uq%x	! oop_y = q_x *(z_hat x x_hat) = q_x * (y_hat)
 	recon%PmPar = (recon%Pmx*recon%uq%x + recon%Pmy*recon%uq%y + recon%Pmz*recon%uq%z)
 	recon%PmOop = (recon%Pmx*oop_x + recon%Pmy*oop_y) / sqrt(oop_x**2+oop_y**2)
-	recon%PmPer = sqrt( max(0.d0, recon%Pm**2 - recon%PmPar**2 - recon%PmOop**2 ) )
+	recon%PmPer = sqrt( max(0.e0, recon%Pm**2 - recon%PmPar**2 - recon%PmOop**2 ) )
 
 	if (doing_pion .or. doing_kaon .or. doing_eepx .or. doing_delta 
      >      .or. doing_rho .or. doing_semi .or. doing_eep 
@@ -1401,7 +1400,7 @@ C DJG Note that, as usual in simc, t is actually -t. I'll fix this later.
 
 	     tcos = recon%up%x*recon%uq%x+recon%up%y*recon%uq%y+
      >          recon%up%z*recon%uq%z
-	     if (tcos-1..gt.0..and.tcos-1..lt.1.d-8) tcos=1.0	  
+	     if (tcos-1..gt.0..and.tcos-1..lt.1.e-8) tcos=1.0	  
 	     u    = -recon%Q2 +Mp**2 
      >           +2.*(recon%q*recon%p%P*tcos -recon%nu*recon%p%E )
 	     ntup%u = -u
@@ -1419,7 +1418,7 @@ c gh
 c compute "signed" PM depending on the relative orientation of the PM with the
 c three-momentum transfer (Q) 
 	  qdotpm=qx*recon%Pmx+qy*recon%Pmy+qz*recon%Pmz
-	  ntup%PMsigned = -recon%Pm*dsign(1.d0,qdotpm)
+	  ntup%PMsigned = -recon%Pm*sign(1.0,qdotpm)
 
 	endif
 

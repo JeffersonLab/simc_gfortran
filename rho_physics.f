@@ -96,11 +96,11 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 * f's and fer indicate fermi momenta, s, star or cm CM system
 
 	tcos = vertex%up%x*vertex%uq%x+vertex%up%y*vertex%uq%y+vertex%up%z*vertex%uq%z
-	if(tcos-1..gt.0..and.tcos-1..lt.1.d-8)tcos=1.0
+	if(tcos-1..gt.0..and.tcos-1..lt.1.e-8)tcos=1.0
 	tsin=sqrt(1.-tcos**2)
 
 	tfcos = pferx*vertex%uq%x+pfery*vertex%uq%y+pferz*vertex%uq%z
-	if(tfcos-1..gt.0..and.tfcos-1..lt.1.d-8)tfcos=1.0
+	if(tfcos-1..gt.0..and.tfcos-1..lt.1.e-8)tfcos=1.0
 	tfsin=sqrt(1.-tfcos**2)
 
 	epsi = 1./(1.+2*(1.+vertex%nu**2/vertex%Q2)*tan(vertex%e%theta/2.)**2)
@@ -108,11 +108,11 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 	s = (vertex%nu+efer)**2-(vertex%q+pfer*tfcos)**2-(pfer*tfsin)**2
 	nu = (s-(efer**2-pfer**2))/2./(efer-pfer*tfcos) !equiv pho energy(MeV)
 
-	s = s/1.d6				!CONVERT TO (GeV)**2
+	s = s/1.e6				!CONVERT TO (GeV)**2
 	main%w = sqrt(s)
 
 	t = vertex%Q2-Mrho2+2.*vertex%nu*vertex%p%E-2.*vertex%p%P*vertex%q*tcos
-	t = t/1.d6				!CONVERT TO (GeV/c)**2
+	t = t/1.e6				!CONVERT TO (GeV/c)**2
 	main%t = t
 
 
@@ -168,7 +168,7 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 
 * DJG: Boost virtual photon to CM.
 
-	zero =0.d0
+	zero =0.e0
 	call loren(gstar,bstarx,bstary,bstarz,vertex%nu,
      >		zero,zero,vertex%q,nustar,qstarx,qstary,qstarz,qstar)
 
@@ -229,7 +229,7 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 ! DJG need tprime and tmin here
 ! DJG Need an overall minus sign since we calculate -t above.
 
-	tmin = -( ((-Q2_g-mrho2/1.d6-(targ%mtar_struck/1000.)**2+
+	tmin = -( ((-Q2_g-mrho2/1.e6-(targ%mtar_struck/1000.)**2+
      >       (targ%mtar_struck/1000.)**2)/(2.*sqrt(s)))**2-
      >       ((qstar-ppicm)/1000.)**2 )
 
@@ -257,7 +257,7 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 
 	cdeltatau = hbarc/(sqrt(vertex%nu**2+vertex%Q2+mrho2)-vertex%nu) !in fm!
 	if(cdeltatau.lt.2.0) then
-	   brho = 4.4679 + 8.6106*dlog10(cdeltatau)
+	   brho = 4.4679 + 8.6106*log10(cdeltatau)
 	else
 	   brho = 7.0
 	endif

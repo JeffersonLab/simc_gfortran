@@ -771,7 +771,7 @@ c      call print_coord1('after first mc_hms_recon',y,delta,dx,dy,fry,0.)
 
       vel = abs(mom)/sqrt(mom**2+mass**2)*cc
       eng = sign(1.,mom)*sqrt(mom**2+mass**2)
-      mom_0 = mom/(1.d0+delta/100.d0)
+      mom_0 = mom/(1.e0+delta/100.e0)
 
       vT(1) = -fry    + 100.*dx
       vT(2) = y + 100.*dy
@@ -833,7 +833,7 @@ c        endif
            call mc_shms_recon(delta,dy,dx,y,xxd,arm)
         endif
 
-        mom = mom_0*(1.d0+delta/100.d0)
+        mom = mom_0*(1.e0+delta/100.e0)
         vel = abs(mom)/sqrt(mom**2+mass**2)*cc
         eng = sign(1.,mom)*sqrt(mom**2+mass**2)
         

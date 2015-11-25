@@ -63,8 +63,8 @@ C-______________________________________________________________________________
 
 ! z-position of important apertures.            
         real*8 z_entr,z_exit
-        parameter (z_entr = 126.3d0)		!nominally 1.263 m
-        parameter (z_exit = z_entr + 6.3d0)	!6.3 cm thick
+        parameter (z_entr = 126.3e0)		!nominally 1.263 m
+        parameter (z_exit = z_entr + 6.3e0)	!6.3 cm thick
 
 ! Math constants
 
@@ -209,7 +209,7 @@ C-______________________________________________________________________________
 
 ! Go to quad midplane.
 
-	  call transp(spectr,2,decay_flag,dflag,m2,p,35.0d0,pathlen)
+	  call transp(spectr,2,decay_flag,dflag,m2,p,35.0e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r2_quad) then
 	    sSTOP_quad_mid = sSTOP_quad_mid + 1
 	    goto 500
@@ -217,7 +217,7 @@ C-______________________________________________________________________________
 
 ! Go to quad OUT mag boundary.
 
-	  call transp(spectr,3,decay_flag,dflag,m2,p,35.0d0,pathlen)
+	  call transp(spectr,3,decay_flag,dflag,m2,p,35.0e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r2_quad) then
 	    sSTOP_quad_out = sSTOP_quad_out + 1
 	    goto 500
@@ -225,12 +225,12 @@ C-______________________________________________________________________________
 
 ! Go to BM01 IN magnetic boundary.
 ! Find intersection with rotated aperture plane.
-	  call transp(spectr,4,decay_flag,dflag,m2,p,80.0d0,pathlen)
+	  call transp(spectr,4,decay_flag,dflag,m2,p,80.0e0,pathlen)
 
-!	  call project(xs,ys,80.0d0,decay_flag,dflag,m2,p,pathlen)
+!	  call project(xs,ys,80.0e0,decay_flag,dflag,m2,p,pathlen)
 	  xt=xs
 	  yt=ys
-	  call rotate_haxis(-45.0d0,xt,yt)
+	  call rotate_haxis(-45.0e0,xt,yt)
 	  if ((yt.gt.w_bm01) .or. (-yt.gt.(w_bm01-0.05*2.54)) .or.
      >	       (-xt.gt.t_bm01_in)  .or. (-xt.lt.b_bm01_in)) then
 	    sSTOP_bm01_in = sSTOP_bm01_in + 1
@@ -240,10 +240,10 @@ C-______________________________________________________________________________
 ! Go to BM01 OUT magnetic boundary.
 ! Find intersection with rotated aperture plane.
 
-	  call transp(spectr,5,decay_flag,dflag,m2,p,169.52d0,pathlen)
+	  call transp(spectr,5,decay_flag,dflag,m2,p,169.52e0,pathlen)
 	  xt=xs
 	  yt=ys
-	  call rotate_haxis(45.0d0,xt,yt)
+	  call rotate_haxis(45.0e0,xt,yt)
 	  if ((abs(yt).gt.w_bm01) .or.
      >	       (-xt.gt.t_bm01_out)  .or. (-xt.lt.b_bm01_out)) then
 	    sSTOP_bm01_out = sSTOP_bm01_out + 1
@@ -253,10 +253,10 @@ C-______________________________________________________________________________
 ! Go to BM02 IN magnetic boundary.
 ! Find intersection with rotated aperture plane.
 
-	  call transp(spectr,6,decay_flag,dflag,m2,p,80.80d0,pathlen)
+	  call transp(spectr,6,decay_flag,dflag,m2,p,80.80e0,pathlen)
 	  xt=xs
 	  yt=ys
-	  call rotate_haxis(49.0d0,xt,yt)
+	  call rotate_haxis(49.0e0,xt,yt)
 	  if ((abs(yt).gt.w_bm02) .or.
      >	       (-xt.gt.t_bm02_in)  .or. (-xt.lt.b_bm02_in)) then
 	    sSTOP_bm02_in = sSTOP_bm02_in + 1
@@ -266,10 +266,10 @@ C-______________________________________________________________________________
 ! Go to BM02 OUT magnetic boundary.
 ! Find intersection with rotated aperture plane.
 
-	  call transp(spectr,7,decay_flag,dflag,m2,p,77.06d0,pathlen)
+	  call transp(spectr,7,decay_flag,dflag,m2,p,77.06e0,pathlen)
 	  xt=xs
 	  yt=ys
-	  call rotate_haxis(57.0d0,xt,yt)
+	  call rotate_haxis(57.0e0,xt,yt)
 	  if ((abs(yt).gt.w_bm02) .or.
      >	       (-xt.gt.t_bm02_out)  .or. (-xt.lt.b_bm02_out)) then
 	    sSTOP_bm02_out = sSTOP_bm02_out + 1
@@ -284,10 +284,10 @@ C-______________________________________________________________________________
 ! - new exit window is at -3.22 cm.  In addition, at -10.84 cm there
 ! is another constraining aperture.  All are hardwired in for now.
 !old	  call transp(spectr,n_classes,decay_flag,dflag,m2,p,pathlen)
-!old	  call project(xs,ys,-55.18d0,decay_flag,dflag,m2,p,pathlen)
-!old	  call project(xs,ys,43.817d0,decay_flag,dflag,m2,p,pathlen) !from dipole exit to old flange
+!old	  call project(xs,ys,-55.18e0,decay_flag,dflag,m2,p,pathlen)
+!old	  call project(xs,ys,43.817e0,decay_flag,dflag,m2,p,pathlen) !from dipole exit to old flange
 
-!less old call transp(spectr,n_classes,decay_flag,dflag,m2,p,98.997d0)
+!less old call transp(spectr,n_classes,decay_flag,dflag,m2,p,98.997e0)
 !	  xs=xs-55.18*dxdzs
 !	  ys=ys-55.18*dydzs
 !	  xt=xs
@@ -304,11 +304,11 @@ C-______________________________________________________________________________
 ! remaining (10.826267-7.62)=3.206267 cm is the distance to the focal
 ! plane at the end, which is passed to mc_sos_hut.
 
-	  call transp(spectr,8,decay_flag,dflag,m2,p,43.82d0,pathlen)	!old flange
+	  call transp(spectr,8,decay_flag,dflag,m2,p,43.82e0,pathlen)	!old flange
 	  xt=xs
 	  yt=ys
-!!!	  call rotate_haxis(57.0d0,xt,yt)
-	  call rotate_haxis(45.0d0,xt,yt)
+!!!	  call rotate_haxis(57.0e0,xt,yt)
+	  call rotate_haxis(45.0e0,xt,yt)
 	  if ((abs(yt).gt.w_exit) .or.
      >	       (-xt.gt.t_exit)  .or. (-xt.lt.b_exit)) then
 	    sSTOP_exit = sSTOP_exit + 1
@@ -319,11 +319,11 @@ C-______________________________________________________________________________
 ! Aperture is +/- 18.6944cm wide at top, +/- 10.998 cm wide at bottom,
 ! and +/- 37.694 cm tall.
 
-!	  call project(xs,ys,44.34d0,decay_flag,dflag,m2,p,pathlen)
+!	  call project(xs,ys,44.34e0,decay_flag,dflag,m2,p,pathlen)
 !	  xs=xs+44.34*dxdzs
 !	  ys=ys+44.34*dydzs
 
-	  call transp(spectr,9,decay_flag,dflag,m2,p,44.34d0,pathlen)	!new aperture.
+	  call transp(spectr,9,decay_flag,dflag,m2,p,44.34e0,pathlen)	!new aperture.
 
 	  tmpwidth= 10.998 + 0.10209*(xs+37.694)
 	  if ((abs(xs).gt.37.694) .or.
@@ -334,7 +334,7 @@ C-______________________________________________________________________________
 
 ! Go to window at -3.22 cm (from -10.84 to -3.22 is 7.62 cm)
 ! Aperture is +/- 12.7cm wide, +/-38.1 cm tall.
-!	  call project(xs,ys,7.62d0,decay_flag,dflag,m2,p,pathlen)
+!	  call project(xs,ys,7.62e0,decay_flag,dflag,m2,p,pathlen)
 
 	  xs=xs+7.62*dxdzs
 	  ys=ys+7.62*dydzs
@@ -366,7 +366,7 @@ C-______________________________________________________________________________
 ! and track through the detector hut
 
 	  call mc_sos_hut(m2,p,x_fp,dx_fp,y_fp,dy_fp,ms_flag,wcs_flag,
-     >		decay_flag,dflag,resmult,ok,-3.206267d0,pathlen)
+     >		decay_flag,dflag,resmult,ok,-3.206267e0,pathlen)
 	  if (.not.ok) goto 500
 
 ! replace xs,ys,... with 'tracked' quantities.

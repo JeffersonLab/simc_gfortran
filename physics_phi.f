@@ -129,16 +129,16 @@ c     main%t = tt
 ******************************************************************************
 *
 * Diffractive model used by P. Ambrosewicz
-      sig1 = sig_diffract(mass/1.d3,invm/1.d3,qsq/1.d6,
-     *     tt/1.d6,t_min/1.d6)
+      sig1 = sig_diffract(mass/1.e3,invm/1.e3,qsq/1.e6,
+     *     tt/1.e6,t_min/1.e6)
 
 * PYTHIA model with modifications from the HERMES MC
-      sig2 = sig_phigmh(qsq,tt,t_min,nu,invm/1.d3,epsilon)
+      sig2 = sig_phigmh(qsq,tt,t_min,nu,invm/1.e3,epsilon)
 
 * Parameterization based on saturated Regge model of J.M.Laget.
 * 2<W<3 GeV, 2<Q^2<3 GeV^2
-      sig3 = sig_gmh(thetacm,phicm,tt/1.d6,tprime/1.d6,vertex%q2/1.d6,
-     *     invm/1.d3,epsilon)
+      sig3 = sig_gmh(thetacm,phicm,tt/1.e6,tprime/1.e6,vertex%q2/1.e6,
+     *     invm/1.e3,epsilon)
 
       ntup%sigcm=sig3
 
@@ -213,7 +213,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       real*8 nu,epsi,Q2,w_gev
       real*8 sig0,sigt,sig219,R,cdeltatau,bphi
 
-      tprime = abs(t-tmin)/1.d6
+      tprime = abs(t-tmin)/1.e6
       cdeltatau = hbarc/(sqrt(nu**2+Q2+mphi2)-nu) !in fm!
 
 * W dependence from photoproduction data
@@ -234,7 +234,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * Need to parameterize t-dependence with b parameter as a function of c-tau
 * Use Fig 34 of Cassel et al, PRD 24(1981) 2787
 
-      bphi = 3.75 + 3.5*dlog10(cdeltatau)
+      bphi = 3.75 + 3.5*log10(cdeltatau)
 
 c GH: the conventional formula with exponential factor is for forward
 c     diffractive, it might not be appropriate for u-channel production

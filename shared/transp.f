@@ -62,7 +62,7 @@ C Parameters.
 !	integer*4	max_class
 !	parameter	(max_class = 18)	!max number of classes
 	real*8		coeff_min
-	parameter	(coeff_min = 1.0d-14)	!coeff's smaller than this = 0
+	parameter	(coeff_min = 1.0e-14)	!coeff's smaller than this = 0
 
 C Local declarations.
 
@@ -173,9 +173,9 @@ C initial particle's momentum.
 C Pack local copy of input coordinates.
 
 	ray(1) = xs			!cm.	( "X" )
-	ray(2) = dxdzs*1000.d0		!mrad.	( "THETA" )
+	ray(2) = dxdzs*1000.e0		!mrad.	( "THETA" )
 	ray(3) = ys			!cm.	( "Y" )
-	ray(4) = dydzs*1000.d0		!mrad.	( "PHI" )
+	ray(4) = dydzs*1000.e0		!mrad.	( "PHI" )
 	ray(5) = dpps			!Fractional "Delta P/P"
 
 C Reset COSY sums.
@@ -188,9 +188,9 @@ C Compute COSY sums.
 
 	k = class
 	do i = 1,n_terms(spectr,k)
-	  term = 1.0d0
+	  term = 1.0e0
 	  do j = 1,5
-	    temp = 1.0d0
+	    temp = 1.0e0
 	    if (expon(spectr,j,i,k).ne.0.) temp = ray(j)**expon(spectr,j,i,k)
 	    term = term*temp
 	  enddo
@@ -205,9 +205,9 @@ C Unpack output coordinates. Note that DPPS is unchanged by transformation.
 C Pathlength correction: real pathlength=nominal-sum(5), so delta_z=-sum(5)
 
 	xs    = sum(1)			!cm
-	dxdzs = sum(2)/1000.d0		!slope (mr)
+	dxdzs = sum(2)/1000.e0		!slope (mr)
 	ys    = sum(3)			!cm
-	dydzs = sum(4)/1000.d0		!slope (mr)
+	dydzs = sum(4)/1000.e0		!slope (mr)
 	delta_z = -sum(5)		!deltaZ (cm)
 
 C Check for decay in 2nd half of element, which is applied AFTER trasnporting.
@@ -377,26 +377,26 @@ cdg	endif
 
 	      if (order.eq.1) then
 	        if (e1.eq.1) then
-		  if (abs(c1-1.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c2-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c3-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c4-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c1-1.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c2-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c3-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c4-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
 		else if (e2.eq.1) then
-		  driftdist(spectr,kk)=1000.d0*c1     !drift distance in cm.
-		  if (abs(c2-1.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c3-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c4-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  driftdist(spectr,kk)=1000.e0*c1     !drift distance in cm.
+		  if (abs(c2-1.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c3-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c4-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
 		else if (e3.eq.1) then
-		  if (abs(c1-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c2-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c3-1.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c4-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c1-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c2-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c3-1.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c4-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
 		else if (e4.eq.1) then
-		  if (abs(c1-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(c2-0.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
-		  if (abs(driftdist(spectr,kk)-1000.d0*c3).gt.coeff_min) 
+		  if (abs(c1-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c2-0.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(driftdist(spectr,kk)-1000.e0*c3).gt.coeff_min) 
      >					     adrift(spectr,kk)=.false. 
-		  if (abs(c4-1.d0) .gt. coeff_min) adrift(spectr,kk)=.false.
+		  if (abs(c4-1.e0) .gt. coeff_min) adrift(spectr,kk)=.false.
 		endif
 	      else	!if order.ne.1
 		if (abs(csum).gt.coeff_min) adrift(spectr,kk)=.false.

@@ -63,7 +63,7 @@
 * 'f' and 'fer' indicate fermi momenta. 'star' or 'cm' indicate CM system
 
 	tfcos = pferx*vertex%uq%x+pfery*vertex%uq%y+pferz*vertex%uq%z
-	if(tfcos-1..gt.0..and.tfcos-1..lt.1.d-8)tfcos=1.0 
+	if(tfcos-1..gt.0..and.tfcos-1..lt.1.e-8)tfcos=1.0 
 	tfsin = sqrt(1.-tfcos**2)
 
 	s = (vertex%nu+efer)**2-(vertex%q+pfer*tfcos)**2-(pfer*tfsin)**2
@@ -79,17 +79,18 @@
 * above, but phi is not, SO WE ARE ALWAYS CALCULATING FOR PHI=0!!
 
 	if (targ%Mrec_struck.lt.1150.) then	!lambda production.
-	  call eekeek(s/1.d6,vertex%q2,main%thetacm,main%theta_pq,phi,main%epsilon,sigma_saghai)
+	  call eekeek(s/1.e6,vertex%q2,main%thetacm,main%theta_pq,phi,main%epsilon,sigma_saghai)
 	else
-	  call eekeeks(s/1.d6,vertex%q2,main%thetacm,main%theta_pq,phi,main%epsilon,sigma_saghai)
+	  call eekeeks(s/1.e6,vertex%q2,main%thetacm,main%theta_pq,phi,main%epsilon,sigma_saghai)
 	endif
 	ntup%sigcm1 = sigma_saghai
 
 
 * Factorization model (CURRENTLY SET UP FOR HYDROGEN ONLY!!!)
 
-	ntup%sigcm2 = sig_factorized(vertex%q2,main%wcm,main%t,pkcm,targ%Mrec_struck)
-
+	ntup%sigcm2 = sig_factorized(vertex%q2,main%wcm,main%t,
+     1  pkcm,targ%Mrec_struck,main%epsilon)
+	
 * Choose the cross section model to use by default.
 !	sigma_eek = ntup.sigcm1		!Saghai
 	sigma_eek = ntup%sigcm2		!Factorized model
@@ -205,11 +206,11 @@ C momentum.  Get particle momentum from main%SP%p%delta
 	endif
 
 ! Parameters used by the model, all converted to GeV.
-	q2val = q2/1.d6
-	w2val = w**2/1.d6
+	q2val = q2/1.e6
+	w2val = w**2/1.e6
 	pkval = pk/1000.
-	tval = t/1.d6
-	tminval = tmin/1.d6
+	tval = t/1.e6
+	tminval = tmin/1.e6
 
 	if (mrec.lt.1150.) then	!lambda production
 	  fact_q = 1./(q2val+2.67)**2
@@ -261,7 +262,7 @@ c real*4 for compatability with CERNLIB routine fint.
 
 	w=sqrt(ss)*1000.
 	skc2=(w**2-Mk2-targ%Mrec_struck**2)**2-4.*Mk2*targ%Mrec_struck**2
-	skc2=max(skc2,0.d0)
+	skc2=max(skc2,0.e0)
 	skc=sqrt(skc2)/2./w
 	q0=-(-q22-w**2+Mp2)/2./Mp
 	q0c=(-q22+q0*Mp)/w
@@ -312,8 +313,8 @@ C	ctt=pi/skc/qvc*1.d+06
 	zf(2,5)=dble(fint(pn,px,pna,pa,ziff5))
 	zf(2,6)=dble(fint(pn,px,pna,pa,ziff6))
 
-	ur=(1.D0,0.D0)
-	ui=(0.D0,1.D0)  
+	ur=(1.e0,0.e0)
+	ui=(0.e0,1.e0)  
 
 	z1a=zf(1,1)*ur+zf(2,1)*ui
 	z2a=zf(1,2)*ur+zf(2,2)*ui
@@ -373,7 +374,7 @@ c real*4 for compatability with CERNLIB routine fint.
 
 	w=sqrt(ss)*1000.
 	skc2=(w**2-Mk2-targ%Mrec_struck**2)**2-4.*Mk2*targ%Mrec_struck**2
-	skc2=max(skc2,0.d0)
+	skc2=max(skc2,0.e0)
 	skc=sqrt(skc2)/2./w
 	q0=-(-q22-w**2+Mp2)/2./Mp
 	q0c=(-q22+q0*Mp)/w
@@ -443,8 +444,8 @@ C	ctt=pi/skc/qvc*1.d+06
 	zf(2,5)=dble(fint(pn,px,pna,pa,zsiff5))
 	zf(2,6)=dble(fint(pn,px,pna,pa,zsiff6))
 
-	ur=(1.D0,0.D0)
-	ui=(0.D0,1.D0)  
+	ur=(1.e0,0.e0)
+	ui=(0.e0,1.e0)  
 
 	z1a=zf(1,1)*ur+zf(2,1)*ui
 	z2a=zf(1,2)*ur+zf(2,2)*ui
@@ -534,7 +535,7 @@ c real*4 for compatability with CERNLIB routine fint.
 	  write(6,*) 'hms&sos case.  Need to update for other spectrometers.'
 	  stop
 	endif
-	weight=max(weight,0.01D00)
-	weight=max(100.D00/weight,1.0D00)
+	weight=max(weight,0.01e00)
+	weight=max(100.e00/weight,1.0e00)
 	return
 	end

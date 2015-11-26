@@ -34,7 +34,7 @@ C-_____________________________________________________________________
 	real*8 m2, p
 
 	real*8 nsig_max
-	parameter(nsig_max=99.0d0)      !max #/sigma for gaussian ran #s.
+	parameter(nsig_max=99.0e0)      !max #/sigma for gaussian ran #s.
 
 	real*8 gauss1
 

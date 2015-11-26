@@ -132,7 +132,7 @@ C Convert hut quantities to right-handed coordinates, in meters and rad.
 	hut(3) =  ys/100.		!Meters
 	hut(4) =  dydzs			!Radians
 	hut(5) = fry/100.		!vert. position at target (cm-->m)
-	if (abs(hut(5)).le.1.d-30) hut(5)=1.d-30
+	if (abs(hut(5)).le.1.e-30) hut(5)=1.e-30
 
 
 C Compute COSY sums.

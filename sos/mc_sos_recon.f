@@ -118,7 +118,7 @@ C to be zero (underflow on R*4 from lfit), but it just happened to me).
 	hut(4) = dydzs			!slope ("radians")
 	hut(5) = fry/100.		!vert. position at target (cm-->m)
 	do i=1,5
-	  if (abs(hut(i)).le.1.d-30) hut(i)=1.d-30
+	  if (abs(hut(i)).le.1.e-30) hut(i)=1.e-30
 	enddo
 
 C Compute COSY sums.

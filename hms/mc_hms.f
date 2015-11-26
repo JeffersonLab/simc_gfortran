@@ -84,13 +84,13 @@ c	parameter (z_off=+1.50)		!1996 position
 
 ! z-position of important apertures.
 	real*8 z_entr,z_exit
-	parameter (z_entr = 126.2d0 + z_off)	!nominally 1.262 m
-	parameter (z_exit = z_entr + 6.3d0)	!6.3 cm thick
+	parameter (z_entr = 126.2e0 + z_off)	!nominally 1.262 m
+	parameter (z_exit = z_entr + 6.3e0)	!6.3 cm thick
 
 	real*8 z_dip1,z_dip2,z_dip3		!post dipole apertures
-	parameter (z_dip1 = 64.77d0)		! end of 26.65 inch pipe.
-	parameter (z_dip2 = z_dip1 + 297.18d0)	!~117 inch pipe.
-	parameter (z_dip3 = z_dip2 + 115.57d0)	! 45.5 inch pipe.
+	parameter (z_dip1 = 64.77e0)		! end of 26.65 inch pipe.
+	parameter (z_dip2 = z_dip1 + 297.18e0)	!~117 inch pipe.
+	parameter (z_dip3 = z_dip2 + 115.57e0)	! 45.5 inch pipe.
 
 ! Math constants
 
@@ -235,7 +235,7 @@ C------------------------------------------------------------------------------C
 
 ! Check aperture at 2/3 of Q1.
 
-	  call transp(spectr,2,decay_flag,dflag,m2,p,125.233d0,pathlen)
+	  call transp(spectr,2,decay_flag,dflag,m2,p,125.233e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r_Q1*r_Q1) then
 	    hSTOP_Q1_mid = hSTOP_Q1_mid + 1
 	    goto 500
@@ -243,7 +243,7 @@ C------------------------------------------------------------------------------C
 
 ! Go to Q1 OUT mag boundary.
 
-	  call transp(spectr,3,decay_flag,dflag,m2,p,62.617d0,pathlen)
+	  call transp(spectr,3,decay_flag,dflag,m2,p,62.617e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r_Q1*r_Q1) then
 	    hSTOP_Q1_out = hSTOP_Q1_out + 1
 	    goto 500
@@ -261,7 +261,7 @@ C------------------------------------------------------------------------------C
 
 ! Check aperture at 2/3 of Q2.
 
-	  call transp(spectr,5,decay_flag,dflag,m2,p,143.90d0,pathlen)
+	  call transp(spectr,5,decay_flag,dflag,m2,p,143.90e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r_Q2*r_Q2) then
 	    hSTOP_Q2_mid = hSTOP_Q2_mid + 1
 	    goto 500
@@ -269,7 +269,7 @@ C------------------------------------------------------------------------------C
 
 ! Go to Q2 OUT mag boundary.
 
-	  call transp(spectr,6,decay_flag,dflag,m2,p,71.95d0,pathlen)
+	  call transp(spectr,6,decay_flag,dflag,m2,p,71.95e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r_Q2*r_Q2) then
 	    hSTOP_Q2_out = hSTOP_Q2_out + 1
 	    goto 500
@@ -287,7 +287,7 @@ C------------------------------------------------------------------------------C
 
 ! Check aperture at 2/3 of Q3.
 
-	  call transp(spectr,8,decay_flag,dflag,m2,p,143.8d0,pathlen)
+	  call transp(spectr,8,decay_flag,dflag,m2,p,143.8e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r_Q3*r_Q3) then
 	    hSTOP_Q3_mid = hSTOP_Q3_mid + 1
 	    goto 500
@@ -295,7 +295,7 @@ C------------------------------------------------------------------------------C
 
 ! Go to Q3 OUT mag boundary.
 
-	  call transp(spectr,9,decay_flag,dflag,m2,p,71.9d0,pathlen)
+	  call transp(spectr,9,decay_flag,dflag,m2,p,71.9e0,pathlen)
 	  if ((xs*xs + ys*ys).gt.r_Q3*r_Q3) then
 	    hSTOP_Q3_out = hSTOP_Q3_out + 1
 	    goto 500
@@ -309,7 +309,7 @@ C------------------------------------------------------------------------------C
 	  call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project and decay
 	  xt=xs
 	  yt=ys
-	  call rotate_haxis(-6.0d0,xt,yt)
+	  call rotate_haxis(-6.0e0,xt,yt)
 	  if (hit_dipole(xt,yt)) then
 	    hSTOP_D1_in = hSTOP_D1_in + 1
 	    goto 500
@@ -318,10 +318,10 @@ C------------------------------------------------------------------------------C
 ! Go to D1 OUT magnetic boundary.
 ! Find intersection with rotated aperture plane.
 
-	  call transp(spectr,11,decay_flag,dflag,m2,p,526.053d0,pathlen)
+	  call transp(spectr,11,decay_flag,dflag,m2,p,526.053e0,pathlen)
 	  xt=xs
 	  yt=ys
-	  call rotate_haxis(6.0d0,xt,yt)
+	  call rotate_haxis(6.0e0,xt,yt)
 	  if (hit_dipole(xt,yt)) then
 	    hSTOP_D1_out = hSTOP_D1_out + 1
 	    goto 500

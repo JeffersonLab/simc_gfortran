@@ -62,7 +62,7 @@ c need real*4 for cernlib routine lfut
 	real*8  tmpran1,tmpran2
 	real*8   nsig_max
 	real*8 hdc_del_plane
-	parameter (nsig_max=99.0d0)
+	parameter (nsig_max=99.0e0)
 c mkj
 	logical use_det_cut
 	parameter (use_det_cut=.true.)

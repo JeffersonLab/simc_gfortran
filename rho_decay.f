@@ -38,7 +38,7 @@ C Local declarations.
 
 	logical success
 
-	parameter (ctaurho=1.31467d-13)
+	parameter (ctaurho=1.31467e-13)
 C ============================= Executable Code ================================
 
 C Calulate R = sigmaL/sigmaT

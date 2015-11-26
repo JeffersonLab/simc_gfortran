@@ -61,19 +61,19 @@
 
 ! direct initial electron
 
-	aprod= 1.d0
+	aprod= 1.e0
 	bei= aprod*(-1./(2.*pi))*log(ak/de)
 	dbei= aprod*(1./(2.*pi*de))
 
 ! direct final electron
 
-	aprod= 1.d0
+	aprod= 1.e0
 	bef= aprod*(-1./(2.*pi))*log(akp/de)
 	dbef= aprod*(1./(2.*pi*de))
 
 ! e-e interference
 
-	aprod= -1.d0
+	aprod= -1.e0
 	adot= ak*akp*(1.-cos(eang))
 	alpha= 2.*ame**2-2.*adot
 	ar1= 0.5+sqrt(adot**2-ame**4)/alpha
@@ -89,19 +89,19 @@
 
 ! initial p direct
 
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  bpi= aprod*(-1./(2.*pi))*log(am/de)
 	  dbpi= aprod*(1./(2.*pi*de))
 
 ! final p direct
 
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  bpf= aprod*(-1./(2.*pi))*log(ape/de)
 	  dbpf= aprod*(1/(2.*pi*de))
 
 ! p-p interference
 
-	  aprod= -1.d0
+	  aprod= -1.e0
 	  adot= am*ape
 	  alpha= 2.*am**2-2.*adot
 	  ar1= 0.5+sqrt(adot**2-am**4)/alpha
@@ -113,7 +113,7 @@
 
 ! ei-pi interference
 
-	  aprod= -1.d0
+	  aprod= -1.e0
 	  adot= ak*am
 	  alpha= am**2+ame**2-2.*adot
 	  ar1= (am**2-adot+sqrt(adot**2-(ame*am)**2))/alpha
@@ -125,7 +125,7 @@
 
 ! ef-pf interference
 
-	  aprod= -1.d0
+	  aprod= -1.e0
 	  adot= akp*ape-akp*ap*cos(eang+pang)
 	  alpha= am**2+ame**2-2.*adot
 	  ar1= (am**2-adot+sqrt(adot**2-(ame*am)**2))/alpha
@@ -137,7 +137,7 @@
 
 !     ei-pf interference
 
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  adot= ak*ape-ak*ap*cos(pang)
 	  alpha= am**2+ame**2-2.*adot
 	  ar1= (am**2-adot+sqrt(adot**2-(ame*am)**2))/alpha
@@ -149,7 +149,7 @@
 
 !     ef-pi interference
 
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  adot= akp*am
 	  alpha= am**2+ame**2-2.*adot
 	  ar1= (am**2-adot+sqrt(adot**2-(ame*am)**2))/alpha
@@ -189,7 +189,7 @@
 	  write(6,*)' bzz=   ',bzz
 	  write(6,*)' bhard= ',bhard
 	  write(6,*)' total= ',bsoft+bhard
-	  write(6,*)' exp=   ',1.-dexp(-1.*(bsoft))*(1.-bhard)
+	  write(6,*)' exp=   ',1.-exp(-1.*(bsoft))*(1.-bhard)
 	  write(6,*)' '
 	  write(6,*)' ultra-relativistic limit'
 	  call srad(ak,akp,eang,q2,ame,am,ap,de,produce_output)
@@ -204,7 +204,7 @@
 ! ......... the derivative has dimension 1/[energy] --> convert back to MeV
 	dbsoft = dbsoft/1000.
 	if (exponentiate) then
-	  brem = -dbsoft/dexp(bsoft)
+	  brem = -dbsoft/exp(bsoft)
 	else
 	  brem = 1.-dbsoft
 	endif
@@ -293,7 +293,7 @@
 
 	real*8 ax,bx
 
-	bx= dabs(ax)
+	bx= abs(ax)
 
 ! ... N.B. Have replaced the former calculation (commented out) with an
 ! ... approximate expression -- saves a WHALE of CPU!
@@ -409,10 +409,10 @@ c	p_i%e = k_f%e+p_f%e-k_i%e
 	p_i%e = mp
 
 ! ... check energy-momentum conservation
-!	e_check= dabs(k_f%e+p_f%e-k_i%e-p_i%e)
-!	x_check= dabs(k_f%x+p_f%x-k_i%x-p_i%x)
-!	y_check= dabs(k_f%y+p_f%y-k_i%y-p_i%y)
-!	z_check= dabs(k_f%z+p_f%z-k_i%z-p_i%z)
+!	e_check= abs(k_f%e+p_f%e-k_i%e-p_i%e)
+!	x_check= abs(k_f%x+p_f%x-k_i%x-p_i%x)
+!	y_check= abs(k_f%y+p_f%y-k_i%y-p_i%y)
+!	z_check= abs(k_f%z+p_f%z-k_i%z-p_i%z)
 !
 !	if((e_check.gt.0.0001).or.(x_check.gt.0.0001).or.
 !     +		(y_check.gt.0.0001).or.(z_check.gt.0.0001)) then
@@ -433,17 +433,17 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 ! ... electron terms
 
 ! ........ direct initial electron
-	aprod= 1.d0
+	aprod= 1.e0
 	bei= aprod*(-1./twopi)*log(k_i%e/de)
 	dbei= aprod*(-1./twopi)*(-1./de)
 
 ! ........ direct final electron
-	aprod= 1.d0
+	aprod= 1.e0
 	bef= aprod*(-1./twopi)*log(k_f%e/de)
 	dbef= aprod*(-1./twopi)*(-1./de)
 
 ! ........ e-e interference
-	aprod= -1.d0
+	aprod= -1.e0
 	adot= k_i%e*k_f%e-k_i%x*k_f%x-k_i%y*k_f%y-k_i%z*k_f%z
 	alpha= 2.*ame**2-2.*adot
 	ar1= 0.5+sqrt(4.*adot**2-4.*ame**4)/(2.*alpha)
@@ -457,17 +457,17 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 	if (radiate_proton) then
 
 ! ........ initial p direct
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  bpi= aprod*(-1./twopi)*log(p_i%e/de)
 	  dbpi= aprod*(-1./twopi)*(-1./de)
 
 ! ........ final p direct
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  bpf= aprod*(-1./twopi)*log(p_f%e/de)
 	  dbpf= aprod*(-1./twopi)*(-1./de)
 
 ! ........ p-p interference
-	  aprod= -1.d0
+	  aprod= -1.e0
 	  adot= p_i%e*p_f%e-p_i%x*p_f%x-p_i%y*p_f%y-p_i%z*p_f%z
 	  alpha= ami**2+amf**2-2.*adot
 	  ar1= (2.*amf**2-2.*adot+sqrt(4.*adot**2-4.*(ami*amf)**2))/(2.*alpha)
@@ -477,7 +477,7 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 	  if (produce_output) write(6,*) ar1,ar2
 
 ! ........ ei-pi interference
-	  aprod= -1.d0
+	  aprod= -1.e0
 	  adot= k_i%e*p_i%e-k_i%x*p_i%x-k_i%y*p_i%y-k_i%z*p_i%z
 	  alpha= ami**2+ame**2-2.*adot
 	  ar1= (2.*ami**2-2.*adot+sqrt(4.*adot**2-4.*(ame*ami)**2))/(2.*alpha)
@@ -487,7 +487,7 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 	  if (produce_output) write(6,*) ar1,ar2
 
 ! ........ ef-pf interference
-	  aprod= -1.d0
+	  aprod= -1.e0
 	  adot= k_f%e*p_f%e-k_f%x*p_f%x-k_f%y*p_f%y-k_f%z*p_f%z
 	  alpha= amf**2+ame**2-2.*adot
 	  ar1= (2.*amf**2-2.*adot+sqrt(4.*adot**2-4.*(ame*amf)**2))/(2.*alpha)
@@ -497,7 +497,7 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 	  if (produce_output) write(6,*) ar1,ar2
 
 ! ........ ei-pf interference
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  adot= k_i%e*p_f%e-k_i%x*p_f%x-k_i%y*p_f%y-k_i%z*p_f%z
 	  alpha= amf**2+ame**2-2.*adot
 	  ar1=(2.*amf**2-2.*adot+sqrt(4.*adot**2-4.*(ame*amf)**2))/(2.*alpha)
@@ -507,7 +507,7 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 	  if (produce_output) write(6,*) ar1,ar2
 
 ! ........ ef-pi interference
-	  aprod= 1.d0
+	  aprod= 1.e0
 	  adot= k_f%e*p_i%e-k_f%x*p_i%x-k_f%y*p_i%y-k_f%z*p_i%z
 	  alpha= ami**2+ame**2-2.*adot
 	  ar1=(2.*ami**2-2.*adot+sqrt(4.*adot**2-4.*(ame*ami)**2))/(2.*alpha)
@@ -548,11 +548,11 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 	  write(6,*)' bzz=     ',bzz
 	  write(6,*)' bhard=   ',bhard
 	  write(6,*)' total=   ',1-bsoft-bhard
-	  write(6,*)' exp=     ',dexp(-1.*(bsoft))*(1.-bhard)
+	  write(6,*)' exp=     ',exp(-1.*(bsoft))*(1.-bhard)
 	  write(6,*)' 1-bhard= ',1-bhard
-	  write(6,*)' exps=    ',dexp(-1.*(bsoft))
-	  write(6,*)' expse=   ',dexp(-1.*b)
-	  write(6,*)' expsp=   ',dexp(-1.*(bz+bzz))
+	  write(6,*)' exps=    ',exp(-1.*(bsoft))
+	  write(6,*)' expse=   ',exp(-1.*b)
+	  write(6,*)' expsp=   ',exp(-1.*(bz+bzz))
 	  write(6,*)' '
 	  write(6,*)'  Schwinger Result'
 	  bsch= 2.*e2/pi*((log(k_i%e/de)-13./12.)*(log(q2/ame**2)-1.)+17./36.)
@@ -564,7 +564,7 @@ c	ami= ((p_i%e)**2-(p_i%x)**2-(p_i%y)**2-(p_i%z)**2)**0.5
 ! ......... the derivative has dimension 1/[energy] --> convert back to MeV
 	dbsoft = dbsoft/1000.	!convert back to MeV
 	if (exponentiate) then
-	  bremos = -dbsoft/dexp(bsoft)
+	  bremos = -dbsoft/exp(bsoft)
 	else
 	  bremos = 1.-dbsoft
 	endif

@@ -87,7 +87,7 @@ c	external Ctq5Pdf
 	   first=.FALSE.
 	endif
 
-	s = (2.*vertex%Ein*mp + mp**2)/1.d6  !convert to GeV2
+	s = (2.*vertex%Ein*mp + mp**2)/1.e6  !convert to GeV2
 	xbj = vertex%Q2/2./mp/vertex%nu   
 	if(xbj.gt.1.0) then
 	   write(6,*) 'XBj is too large!', xbj
@@ -97,9 +97,9 @@ c	external Ctq5Pdf
 
 C DJG convert some stuff to GeV
 
-	Q2gev = vertex%q2/1.d6
+	Q2gev = vertex%q2/1.e6
 	Qgev = sqrt(Q2gev)
-	pt2gev = vertex%pt2/1.d6
+	pt2gev = vertex%pt2/1.e6
 
 C Get the PDFs
 	ipart=1
@@ -252,7 +252,7 @@ c	jacobian = 1./(vertex.nu/1000.)*2.*(vertex.p.P/1000.)**2
 c	1    *cos(vertex.theta_pq)
 
 
-c	sigma_eepiX = sigsemi*jacobian/1.d6
+c	sigma_eepiX = sigsemi*jacobian/1.e6
 
 c	main.davejac = jacobian
 c	ntup.sigcm = sighad

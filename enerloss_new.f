@@ -21,12 +21,12 @@
         beta = sqrt(1.-1./gamma**2)
 
 	if(zeff.eq.1) then	!Ionization potential in MeV
-	  I = 21.8d-06
+	  I = 21.8e-06
 	else
-	  I = (16.*zeff**0.9)*1.0d-06
+	  I = (16.*zeff**0.9)*1.0e-06
 	endif
 
-	hnup = 28.816d-06*sqrt(dens*zeff/aeff) !plasma frequency
+	hnup = 28.816e-06*sqrt(dens*zeff/aeff) !plasma frequency
 	log10bg = log(beta*gamma)/log(10.)
 	CO=log(hnup)-log(I)+0.5
 
@@ -45,9 +45,9 @@ C DJG Get density effect correction (I got this from JV).
 	if (thick.le.0.) then
 	  Eloss = 0.
 	else
-	  Eloss_mp = 0.1536d-03 * zeff/aeff * thick * ( 19.26 +
+	  Eloss_mp = 0.1536e-03 * zeff/aeff * thick * ( 19.26 +
      &          log(thick/dens) )
-	  Eloss_mp_new = 0.1536d-03 * zeff/aeff *thick/beta**2* (
+	  Eloss_mp_new = 0.1536e-03 * zeff/aeff *thick/beta**2* (
      &          log(me/I**2) + 1.063 + 2.*log(gamma*beta) + 
      &		log(0.1536*zeff/aeff*thick/beta**2)-beta**2-denscorr)
 c	  write(6,*) 'ELOSS',Eloss_mp,Eloss_mp_new 
@@ -56,7 +56,7 @@ c	  write(6,*) 'ELOSS',Eloss_mp,Eloss_mp_new
 	  Eloss_mp = Eloss_mp_new*1000.
 	  chsi = 0.307075/2.*zeff/aeff*thick/beta**2
 	  if(typeflag.eq.1)then
-	    x=abs(gauss1(10.0d0))
+	    x=abs(gauss1(10.0e0))
 	  elseif(typeflag.eq.2)then
 	    x=3
 	  elseif(typeflag.eq.3)then

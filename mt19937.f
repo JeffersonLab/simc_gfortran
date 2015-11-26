@@ -154,9 +154,9 @@ C To get around this, we just take -2147483647 and subtract 1.
       y=ieor(y,ishft(y,-18))
 
       if(y.lt.0) then
-        grnd=(dble(y)+2.0d0**32)/(2.0d0**32-1.0d0)
+        grnd=(dble(y)+2.0e0**32)/(2.0e0**32-1.0e0)
       else
-        grnd=dble(y)/(2.0d0**32-1.0d0)
+        grnd=dble(y)/(2.0e0**32-1.0e0)
       endif
 
       return

@@ -33,7 +33,8 @@ T       = $(simcdir)/cteq5/
 C       = $(simcdir)/calo/
 
 OBJ1	= target.o brem.o gauss1.o NtupleInit.o NtupleClose.o enerloss_new.o
-OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physics_proton.o loren.o sf_lookup.o
+#OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physics_proton.o loren.o sf_lookup.o
+OBJ2	= radc.o init.o dbase.o physics_piKmodel.o physics_delta.o physics_proton.o loren.o sf_lookup.o
 OBJ3	= semi_physics.o rho_physics.o rho_decay.o generate_rho.o trg_track.o semi_dilution.o
 OBJ4	= physics_omega.o physics_Xphasespace.o physics_rho_recoil.o physics_phi.o 
 OBJ4a   = results_write.o event.o mt19937.o jacobians.o

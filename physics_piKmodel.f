@@ -63,7 +63,7 @@
       complex*8 XL,XT,XTT,XLT
       real*8 sinterp(4)
 
-      integer Q2_count,t_count,itab,j
+      integer Q2_count,t_count,itab,j,pcount
 
       logical first
 
@@ -81,25 +81,25 @@ c Variables calculated in transformation to gamma-NUCLEON center of mass.
 
       data first_call/.true./
 
-      real*8 Q2_tab(12,130),W_tab(12,130),t_tab(12,130),stab(12,130,4)
-      character*35 filename(12)
-      integer nfiles, tbins(12)
-      nfiles=12
-      Wset=3.28
-      data filename /'VGL/ep_enpip_q21p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q21p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q22p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q22p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q23p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q23p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q24p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q24p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q25p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q25p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q26p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q26p50_w3p27_pirho.dat'/
+c      real*8 Q2_tab(12,130),W_tab(12,130),t_tab(12,130),stab(12,130,4)
+c      character*35 filename(12)
+c      integer nfiles, tbins(12)
+c      nfiles=12
+c      Wset=3.28
+c      data filename /'VGL/ep_enpip_q21p00_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q21p50_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q22p00_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q22p50_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q23p00_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q23p50_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q24p00_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q24p50_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q25p00_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q25p50_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q26p00_w3p27_pirho.dat',
+c     $     'VGL/ep_enpip_q26p50_w3p27_pirho.dat'/
 
-c      real*8 Q2_tab(5),t_tab(130),stab(5,130,4)
+c      real*8 Q2_tab(5,130),W_tab(12,130),t_tab(5,130),stab(5,130,4)
 c      character*35 filename(5)
 c      integer nfiles, tbins(5)
 c      nfiles=5
@@ -110,12 +110,11 @@ c     $     'VGL/ep_enpip_q28p50_w2p89_pirho.dat',
 c     $     'VGL/ep_enpip_q29p00_w2p89_pirho.dat',
 c     $     'VGL/ep_enpip_q29p50_w2p89_pirho.dat'/
 
-c      real*8 Q2_tab(12),t_tab(130),stab(12,130,4)
-c      character*35 filename(12)
+c      real*8 Q2_tab(12,130),W_tab(12,130),t_tab(12,130),stab(12,130,4)
+c      character*28 filename(12)
 c      integer nfiles, tbins(12)
 c      nfiles=12
 c      Wset=3.28
-c      character*28 filename(12)
 c      data filename /'VR/ep_enpip_q21p00_w3p28.dat',
 c     $     'VR/ep_enpip_q21p50_w3p28.dat',
 c     $     'VR/ep_enpip_q22p00_w3p28.dat',
@@ -129,17 +128,22 @@ c     $     'VR/ep_enpip_q25p50_w3p28.dat',
 c     $     'VR/ep_enpip_q26p00_w3p28.dat',
 c     $     'VR/ep_enpip_q26p50_w3p28.dat'/
 
-c      real*8 Q2_tab(5),t_tab(130),stab(5,130,4)
-c      character*35 filename(5)
-c      integer nfiles, tbins(5)
-c      nfiles=5
-c      Wset=2.89
-c      character*28 filename(5)
-c      data filename /'VR/ep_enpip_q27p50_w2p89.dat',
-c     $     'VR/ep_enpip_q28p00_w2p89.dat',
-c     $     'VR/ep_enpip_q28p50_w2p89.dat',
-c     $     'VR/ep_enpip_q29p00_w2p89.dat',
-c     $     'VR/ep_enpip_q29p50_w2p89.dat'/
+      real*8 Q2_tab(11,130),W_tab(11,130),t_tab(11,130),stab(11,130,4)
+      character*28 filename(11)
+      integer nfiles, tbins(11)
+      nfiles=11
+      Wset=2.89
+      data filename /'VR/ep_enpip_q26p50_w2p89.dat',
+     $     'VR/ep_enpip_q27p00_w2p89.dat',
+     $     'VR/ep_enpip_q27p50_w2p89.dat',
+     $     'VR/ep_enpip_q28p00_w2p89.dat',
+     $     'VR/ep_enpip_q28p50_w2p89.dat',
+     $     'VR/ep_enpip_q29p00_w2p89.dat',
+     $     'VR/ep_enpip_q29p50_w2p89.dat',
+     $     'VR/ep_enpip_q210p0_w2p89.dat',
+     $     'VR/ep_enpip_q210p5_w2p89.dat',
+     $     'VR/ep_enpip_q211p0_w2p89.dat',
+     $     'VR/ep_enpip_q211p5_w2p89.dat'/
 
 *******************************************************************************
 * Read model values when first called.
@@ -167,6 +171,7 @@ c            write(6,*)' lines found ',tbins(j),t_tab(j,tbins(j))
             close(unit=3)
             write(6,*) 'done'
          enddo
+         pcount=0
       endif                     !if first time.
 *******************************************************************************
 
@@ -324,11 +329,17 @@ c      write(6,*)' phicm ',phicm*180./3.14159,phipq*180./3.14159
       t_tmp = abs(t_gev)
       Q2_tmp = Q2_g
       if(Q2_tmp.lt.Q2_tab(1,1)) then
-         write(6,*)' WARNING: model table range too high Q2 ',Q2_tmp
+         if (pcount.le.500) then
+            write(6,*)' WARNING: model table range too high Q2 ',Q2_tmp
+            pcount=pcount+1
+         endif
          Q2_tmp = Q2_tab(1,1)
       endif
       if(Q2_tmp.gt.Q2_tab(nfiles,1)) then
-         write(6,*)' WARNING: model table range too low Q2 ',Q2_tmp
+         if (pcount.lt.500) then
+            write(6,*)' WARNING: model table range too low Q2 ',Q2_tmp
+            pcount=pcount+1
+         endif
          Q2_tmp = Q2_tab(nfiles,1)
       endif
 
@@ -345,14 +356,16 @@ c      write(6,*)' phicm ',phicm*180./3.14159,phipq*180./3.14159
 c            write(6,*)' Q2 ',Q2_tab(Q2_count,1),Q2_tmp
 
             if(t_tmp.lt.t_tab(Q2_count,1)) then
-               t_tmp = t_tab(Q2_count,1)
-               if (abs(t_tmp-t_tab(Q2_count,1)).gt.0.1) then
+               if (pcount.le.500) then
                   write(6,*)' WARNING: model table range too high -t ',t_tmp
+                  pcount=pcount+1
                endif
+               t_tmp = t_tab(Q2_count,1)
             endif
             if(t_tmp.gt.t_tab(Q2_count,tbins(Q2_count)-1)) then
-               if (abs(t_tmp-t_tab(Q2_count,tbins(Q2_count)-1)).gt.0.1) then
+               if (pcount.lt.500) then
                   write(6,*)' WARNING: model table range too low -t ',t_tmp
+                  pcount=pcount+1
                endif
                t_tmp = t_tab(Q2_count,tbins(Q2_count)-1)
             endif

@@ -13,8 +13,8 @@ simcdir = .
 #Csoft = /group/c-gep/jones/Linux_fc8/
 
 ## U Regina SETUP FLAGS 
-#simcdir = .
-#Csoft = /home/huberg/r2d2/simc/
+simcdir = .
+Csoft = /home/huberg/r2d2/simc/
 
 ## THE REST SHOULD BE OK WITHOUT MODIFICATION.
 
@@ -50,7 +50,8 @@ my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ
 my_deps = $(my_objs:.o=.d)
 
 MYOS := $(subst -,,$(shell uname))
-CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
+#CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
+CERNLIBS = -Wl,-static -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lkernlib -lmathlib -Wl,-dy
 
 #For use with gfortran compiler
 # -fno-automatic - all program storage treated as static
@@ -67,7 +68,9 @@ ifeq ($(MYOS),Linux)
   FFLAGS= $(INCLUDES) $(FFLAGSA)
   FFLAG1=$(FFLAGS) -c
   OTHERLIBS = -L$(LIBROOT) -lctp \
-        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib
+        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib64 
+# 64 vs 32 bit
+#        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib
   FC  := gfortran
   F77 := gfortran
 endif

@@ -109,7 +109,8 @@ c  lengths of drift in different elements
 	real*8 zd_d1mid5,zd_d1mid6,zd_d1mid7
 	real*8 zd_d1mex,zd_d1out
 	real*8 zd_fp
-        real*4 spec(58)
+c        real*4 spec(58)
+        real*8 spec(58)
 
 c	parameter(zd_q1in  = 307.00)
 c	parameter(zd_q1mid = 107.00)

@@ -12,7 +12,7 @@
 	logical	using_Eloss, using_Coulomb
 
 	real*8 zero
-	parameter (zero=0.0d0)	!double precision zero for subroutines calls.
+	parameter (zero=0.0e0)	!double precision zero for subroutines calls.
 
 ! The radiation length of the target
 
@@ -225,7 +225,7 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
      >		targ%Coulomb%max + dE_edge_test
 	pp%min = (1.+SPedge%p%delta%min/100.)*spec%p%P - dE_edge_test
 	pp%max = (1.+SPedge%p%delta%max/100.)*spec%p%P + dE_edge_test
-	pp%min = max(0.001d0,pp%min)  !avoid p=0 (which can lead to div by zero)(
+	pp%min = max(0.001e0,pp%min)  !avoid p=0 (which can lead to div by zero)(
 	edge%p%E%min = sqrt(pp%min**2 + Mh2)
 	edge%p%E%max = sqrt(pp%max**2 + Mh2)
 
@@ -296,7 +296,7 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
 	  slop%total%Em%used = slop_Ebeam + slop_Ee + slop_Ep + dE_edge_test
 	  edge%Em%min = cuts%Em%min - slop%total%Em%used
 	  edge%Em%max = cuts%Em%max + slop%total%Em%used
-	  edge%Em%min = max(0.d0,edge%Em%min)
+	  edge%Em%min = max(0.e0,edge%Em%min)
 	endif
 
 ! Edges on Em, Pm, etc... VERTEXedge.* values are vertex limits.  edge.* values
@@ -460,7 +460,7 @@ c	   gen%sumEgen%min = Ebeam_min - VERTEXedge%Trec%max - VERTEXedge%Trec_struck%
 
 	gen%sumEgen%min = gen%sumEgen%min - dE_edge_test
 	gen%sumEgen%max = gen%sumEgen%max + dE_edge_test
-	gen%sumEgen%min = max(0.d0,gen%sumEgen%min)
+	gen%sumEgen%min = max(0.e0,gen%sumEgen%min)
 
 ! ... E arm GENERATION limits from sumEgen.
 ! ... Not used for doing_hyd_elast, but define for the hardwired histograms.
@@ -524,9 +524,9 @@ c	   gen%sumEgen%min = Ebeam_min - VERTEXedge%Trec%max - VERTEXedge%Trec_struck%
 	H%gen%p%yptar%bin = (gen%p%yptar%max-gen%p%yptar%min)/float(nHbins)
 	H%gen%p%xptar%bin = (gen%p%xptar%max-gen%p%xptar%min)/float(nHbins)
 	H%gen%Em%min = VERTEXedge%Em%min
-	H%gen%Em%bin = (max(100.d0,VERTEXedge%Em%max) - VERTEXedge%Em%min)/float(nHbins)
+	H%gen%Em%bin = (max(100.e0,VERTEXedge%Em%max) - VERTEXedge%Em%min)/float(nHbins)
 	H%gen%Pm%min = VERTEXedge%Pm%min
-	H%gen%Pm%bin = (max(100.d0,VERTEXedge%Pm%max) - VERTEXedge%Pm%min)/float(nHbins)
+	H%gen%Pm%bin = (max(100.e0,VERTEXedge%Pm%max) - VERTEXedge%Pm%min)/float(nHbins)
 
 	H%geni%e%delta%min = H%gen%e%delta%min
 	H%geni%e%yptar%min = H%gen%e%yptar%min
@@ -663,7 +663,7 @@ c	exponentiate = use_expon
 ! modifications to vertex.* variables in later calls.
 
 	real*8 zero
-	parameter (zero=0.0d0)	!double precision zero for subroutine calls.
+	parameter (zero=0.0e0)	!double precision zero for subroutine calls.
 
 ! Compute some quantities that will be needed for rad corr on this event
 

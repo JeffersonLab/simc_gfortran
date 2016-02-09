@@ -124,7 +124,7 @@ C DJG: I can just ignore it.
 	   Epz = vertex0%ue%z*Eprime
 	   if(sigc_flag.eq.0) then  ! binning in z
 	      kcent = vertex0%zhad
-	      pt2 = sigc_kin_ind*1.d6
+	      pt2 = sigc_kin_ind*1.e6
 	      zhad = 0.0
 	      do i=1,sigc_nbin
 		 klo = sigc_kin_min+(i-1)*(sigc_kin_max-sigc_kin_min)/sigc_nbin
@@ -139,9 +139,9 @@ C DJG: I can just ignore it.
 	      pt2 = 0.0
 	      do i=1,sigc_nbin
 		 klo = sigc_kin_min+(i-1)*(sigc_kin_max-sigc_kin_min)/sigc_nbin
-		 klo = klo*1.d6
+		 klo = klo*1.e6
 		 khi = sigc_kin_min+i*(sigc_kin_max-sigc_kin_min)/sigc_nbin
-		 khi = khi*1.d6
+		 khi = khi*1.e6
 		 if(vertex%pt2.gt.klo .and. vertex%pt2.le.khi) then
 		    pt2 = klo + (khi-klo)/2.
 		 endif
@@ -153,9 +153,9 @@ c		 write(6,*) 'chessy poofs',pt2,klo,khi
 	      write(6,*) 'Central Kinematics:'
 	      write(6,*) 'Ebeam (GeV):',Eb/1000
 	      write(6,*) 'nu (GeV)   :',nu/1000
-	      write(6,*) 'Q2 (GeV2)  :',Q2/1d6
+	      write(6,*) 'Q2 (GeV2)  :',Q2/1e6
 	      if(sigc_flag.eq.0) then
-		 write(6,*) 'Pt2 (GeV2) :',pt2/1d6
+		 write(6,*) 'Pt2 (GeV2) :',pt2/1e6
 		 write(6,*) 'Binning in z from',sigc_kin_min,
      >  	      'to',sigc_kin_max
 	      elseif(sigc_flag.eq.1) then
@@ -200,7 +200,7 @@ c		 write(6,*) 'chessy poofs',pt2,klo,khi
 	   cthpq = cos(vertex%theta_pq)
 	endif
 
-	sx = (2.*Eb*mtar + mtar**2)/1.d6  !convert to GeV2
+	sx = (2.*Eb*mtar + mtar**2)/1.e6  !convert to GeV2
 	if(do_fermi) then  ! xbj = Q2/(2 P.q)
 	   xbj = Q2/2./(efer*nu - abs(pfer)*(pferx*qx + pfery*qy + pferz*qz))
 	   if(.not.doing_cent) then
@@ -222,9 +222,9 @@ c	endif
 
 C DJG convert some stuff to GeV
 
-	Q2gev = Q2/1.d6
+	Q2gev = Q2/1.e6
 	Qgev = sqrt(Q2gev)
-	pt2gev = pt2/1.d6
+	pt2gev = pt2/1.e6
 
 C Get the PDFs
 	if(first) then
@@ -424,8 +424,8 @@ C This is just given by 1/omega * 2*p_h**2*cos(theta)
 
 	jacobian = 1./(nu/1000.)*2.*(phad/1000.)**2*cthpq
 
-C The 1.d6 converts from microbarn/GeV^2 to microbarn/MeV^2
-	sigma_eepiX = sigsemi*jacobian/1.d6
+C The 1.e6 converts from microbarn/GeV^2 to microbarn/MeV^2
+	sigma_eepiX = sigsemi*jacobian/1.e6
 
 
 * Note that there is an additional factor 'fac' included with the fermi-smeared cross

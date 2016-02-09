@@ -80,9 +80,9 @@
 	if (sin_gamma.ne.0) cos_phi=(ev%uq%y*(ev%uq%y*ev%up%z-ev%uq%z*ev%up%y)
      >		- ev%uq%x*(ev%uq%z*ev%up%x-ev%uq%x*ev%up%z))
      >		/ sin_gamma / sqrt(1.-ev%uq%z**2)
-	if (abs(cos_phi).gt.1.) then		!set to +/-1, warn if >1.d-10
+	if (abs(cos_phi).gt.1.) then		!set to +/-1, warn if >1.e-10
 	  cos_phi = sign(1.0,cos_phi)
-	  if ( (abs(cos_phi)-1.) .gt. 1.d-10) write(6,*)
+	  if ( (abs(cos_phi)-1.) .gt. 1.e-10) write(6,*)
      >		'WARNING: deForest give cos_phi = ',cos_phi,' at event',nevent
 	endif
 
@@ -147,8 +147,8 @@
 
 	mu_p = 2.793
 
-	Q2 = -qsquar*(hbarc**2.)*1.d-6
-	Q  = sqrt(max(Q2,0.d0))
+	Q2 = -qsquar*(hbarc**2.)*1.e-6
+	Q  = sqrt(max(Q2,0.e0))
 
 	Q3 = Q**3.
 	Q4 = Q**4.

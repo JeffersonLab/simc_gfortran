@@ -54,11 +54,11 @@
 
 * f's and fer indicate fermi momenta, s, star or cm CM system
 	tcos = vertex%up%x*vertex%uq%x+vertex%up%y*vertex%uq%y+vertex%up%z*vertex%uq%z
-	if(tcos-1..gt.0..and.tcos-1..lt.1.d-8)tcos=1.0
+	if(tcos-1..gt.0..and.tcos-1..lt.1.e-8)tcos=1.0
 	tsin=sqrt(1.-tcos**2)
 
 	tfcos = pferx*vertex%uq%x+pfery*vertex%uq%y+pferz*vertex%uq%z
-	if(tfcos-1..gt.0..and.tfcos-1..lt.1.d-8)tfcos=1.0
+	if(tfcos-1..gt.0..and.tfcos-1..lt.1.e-8)tfcos=1.0
 	tfsin=sqrt(1.-tfcos**2)
 
 	cospq = cos(main%phi_pq)
@@ -118,7 +118,7 @@
 
 * DJG: Boost virtual photon to CM.
 
-	zero =0.d0
+	zero =0.e0
 	call loren(gstar,bstarx,bstary,bstarz,vertex%nu,
      >		zero,zero,vertex%q,nustar,qstarx,qstary,qstarz,qstar)
 

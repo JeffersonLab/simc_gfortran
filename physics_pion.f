@@ -70,7 +70,7 @@
 * complete_ev where possible.  WORSE YET, WE CHANGE UNITS OF MAIN.W,... HERE!!!
 
 	tfcos = pferx*vertex%uq%x+pfery*vertex%uq%y+pferz*vertex%uq%z
-	if(tfcos-1..gt.0..and.tfcos-1..lt.1.d-8)tfcos=1.0
+	if(tfcos-1..gt.0..and.tfcos-1..lt.1.e-8)tfcos=1.0
 	tfsin=sqrt(1.-tfcos**2)
 
 	s = (vertex%nu+efer)**2-(vertex%q+pfer*tfcos)**2-(pfer*tfsin)**2
@@ -108,11 +108,11 @@
 * IF low_w_flag is set.
 * NOTE: s, t, mtar, and Q2 must be converted to GeV first.
 
-c	ntup.sigcm1 = sig_blok(thetacm,phicm,main%t/1.d6,vertex%q2/1.d6,s/1%d6,main.epsilon,
+c	ntup.sigcm1 = sig_blok(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1%e6,main.epsilon,
 c     >		targ%Mtar_struck/1000.,which_pion)
 
 CDG Change default to PARAM04 - this works better at larger Q2
-	ntup%sigcm1 = sig_param04(thetacm,phicm,main%t/1.d6,vertex%q2/1.d6,s/1.d6,main%epsilon,
+	ntup%sigcm1 = sig_param04(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
      >		targ%Mtar_struck/1000.,which_pion)
 
 	sigma_eepi = ntup%sigcm1
@@ -120,8 +120,8 @@ CDG Change default to PARAM04 - this works better at larger Q2
 * For low w, use multipole expansion as default cross section model.
 	if(low_w_flag) then
 
-	  ntup%sigcm2 = sig_multipole(k_eq,efer,qstar,tfcos,ppicm,s/1.d6,thetacm,
-     >		phicm,main%epsilon,final_state,vertex%q2/1.d6,targ%Mtar_struck/1000.,pfer,mh)
+	  ntup%sigcm2 = sig_multipole(k_eq,efer,qstar,tfcos,ppicm,s/1.e6,thetacm,
+     >		phicm,main%epsilon,final_state,vertex%q2/1.e6,targ%Mtar_struck/1000.,pfer,mh)
 	  sigma_eepi = ntup%sigcm2
 
 	endif
@@ -346,7 +346,7 @@ C				  7:-----S1+
 				!the four terms together. DJG
 
 	sig219=(sigt+eps*sigl+eps*cos(2.*phicm)*sigtt
-     >		+sqrt(2.0*eps*(1.+eps))*cos(phicm)*siglt)/1.d0
+     >		+sqrt(2.0*eps*(1.+eps))*cos(phicm)*siglt)/1.e0
 
 * DJG: sig219 is dsig/dOmega_cm - convert to dsig/dtdphi_cm
 * DJG: using dt/dcos_cm = 2*ppicm*qcm
@@ -415,7 +415,7 @@ C				  7:-----S1+
 	  sigtt=sigtt/(0.3+q2_gev)
 
 	  sig219=(sigt+eps*sigl+eps*cos(2.*phicm)*sigtt
-     >		+sqrt(2.0*eps*(1.+eps))*cos(phicm)*siglt)/1.d0
+     >		+sqrt(2.0*eps*(1.+eps))*cos(phicm)*siglt)/1.e0
 
 * GMH: Brauel scaled all his data to W=2.19 GeV, so rescale by 1/(W**2-mp**2)**2
 * HPB: factor 15.333 therefore is value of (W**2-mp**2)**2 at W=2.19
@@ -466,7 +466,7 @@ CDG For now assume sigL(pi+)=sigL(pi-)
 
 
 	  sig219=(sigt+eps*sigl+eps*cos(2.*phicm)*sigtt
-     >		+sqrt(2.0*eps*(1.+eps))*cos(phicm)*siglt)/1.d0
+     >		+sqrt(2.0*eps*(1.+eps))*cos(phicm)*siglt)/1.e0
 
 * GMH: Brauel scaled all his data to W=2.19 GeV, so rescale by 1/(W**2-mp**2)**2
 * HPB: factor 15.333 therefore is value of (W**2-mp**2)**2 at W=2.19

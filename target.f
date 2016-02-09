@@ -18,7 +18,7 @@
 	s_Al = 0.0
 	liquid = targ%Z.lt.2.4
 
-	if (abs(zpos) .gt. (targ%length/2.+1.d-5)) then
+	if (abs(zpos) .gt. (targ%length/2.+1.e-5)) then
 	  write(6,*) 'call to trip_thru_target has |zpos| > targ.length/2.'
 	  write(6,*) 'could be numerical error, or could be error in target offset'
 	  write(6,*) 'zpos=',zpos,'  targ%length/2.=',targ%length/2.
@@ -273,7 +273,7 @@ c	      stop
 	logical	liquid
 
 	real*8 zero
-	parameter (zero=0.0d0)	!double precision zero for subroutine calls
+	parameter (zero=0.0e0)	!double precision zero for subroutine calls
 
 !Given limiting values for the electron/proton angles, the z-position in the
 !target, and beta for the proton, determine min and max losses in target (and
@@ -477,9 +477,9 @@ C the perfect range, but it's easier than reproducing the generated limits here
 ! Extreme multiple scattering.  Use nominal beam energy rather than minimum
 !  (should be close enough)
 
-	call extreme_target_musc(ebeam,1.d0,
+	call extreme_target_musc(ebeam,1.e0,
      >		targ%teff(1)%max,targ%musc_max(1),targ%musc_nsig_max)
-	call extreme_target_musc(pe%min,1.d0,
+	call extreme_target_musc(pe%min,1.e0,
      >		targ%teff(2)%max,targ%musc_max(2),targ%musc_nsig_max)
 	call extreme_target_musc(pp%min,betap%min,
      >		targ%teff(3)%max,targ%musc_max(3),targ%musc_nsig_max)

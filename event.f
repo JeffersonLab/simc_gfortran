@@ -123,7 +123,7 @@
 	type(event):: vertex, orig
 
 	real*8 nsig_max
-	parameter(nsig_max=3.0d0)      !max #/sigma for gaussian ran #s.
+	parameter(nsig_max=3.0e0)      !max #/sigma for gaussian ran #s.
 
 
 ! Randomize the position of the interaction inside the available region.
@@ -173,7 +173,7 @@ C DJG Note that this means that +fry points down. I will make frx point left.
 ! electron.  Remove targ.zoffset from the z position of the scattering
 ! in order to get the position relative to the center of the target.
 
-	call trip_thru_target (1, main%target%z-targ%zoffset, Ebeam, 0.0d0,
+	call trip_thru_target (1, main%target%z-targ%zoffset, Ebeam, 0.0e0,
      >		main%target%Eloss(1), main%target%teff(1),Me,1)
 	if (.not.using_Eloss) main%target%Eloss(1) = 0.0
 	if (using_Coulomb) then
@@ -709,7 +709,7 @@ c	  endif
 	  p_new_y = px*new_y_x + py*new_y_y + pz*new_y_z
 
 	  main%phi_pq = atan2(p_new_y,p_new_x)		!atan2(y,x)=atan(y/x)
-	  if (main%phi_pq.lt.0.d0) main%phi_pq=main%phi_pq+2.*pi
+	  if (main%phi_pq.lt.0.e0) main%phi_pq=main%phi_pq+2.*pi
 !	  if (p_new_y.lt.0.) then
 !	    main.phi_pq = 2*pi - main.phi_pq
 !	  endif
@@ -861,7 +861,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	oop_y =  vertex%uq%x	! oop_y = q_x *(z_hat x x_hat) = q_x * (y_hat)
 	vertex%PmPar = (vertex%Pmx*vertex%uq%x + vertex%Pmy*vertex%uq%y + vertex%Pmz*vertex%uq%z)
 	vertex%PmOop = (vertex%Pmx*oop_x + vertex%Pmy*oop_y) / sqrt(oop_x**2+oop_y**2)
-	vertex%PmPer = sqrt( max(0.d0, vertex%Pm**2 - vertex%PmPar**2 - vertex%PmOop**2 ) )
+	vertex%PmPer = sqrt( max(0.e0, vertex%Pm**2 - vertex%PmPar**2 - vertex%PmOop**2 ) )
 
 	if (debug(4)) write(6,*)'comp_ev: at 9',vertex%Pmx,vertex%Pmy,vertex%Pmz
 
@@ -901,11 +901,11 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 	if (doing_deutpi .or. doing_deutkaon .or. doing_deutdelta .or. doing_deutrho) then
 	  if ((vertex%Emiss**2-vertex%Pmiss**2).lt.0) write(6,*) 'BAD MM!!!!! Emiss,Pmiss=',vertex%Emiss, vertex%Pmiss
-	  MM = sqrt(max(0.d0,vertex%Emiss**2-vertex%Pmiss**2))
-	  krel = sqrt( max(0.d0,MM**2-4.*targ%Mrec_struck**2) )
+	  MM = sqrt(max(0.e0,vertex%Emiss**2-vertex%Pmiss**2))
+	  krel = sqrt( max(0.e0,MM**2-4.*targ%Mrec_struck**2) )
 	else if (doing_hepi .or. doing_hekaon .or. doing_hedelta .or. doing_herho) then
 	  if ((vertex%Emiss**2-vertex%Pmiss**2).lt.0) write(6,*) 'BAD MM!!!!! Emiss,Pmiss=',vertex%Emiss, vertex%Pmiss
-	  MM = sqrt(max(0.d0,vertex%Emiss**2-vertex%Pmiss**2))
+	  MM = sqrt(max(0.e0,vertex%Emiss**2-vertex%Pmiss**2))
 	  krelx = vertex%Pmx + 1.5*pferx*pfer
 	  krely = vertex%Pmy + 1.5*pfery*pfer
 	  krelz = vertex%Pmz + 1.5*pferz*pfer
@@ -1255,7 +1255,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	oop_y =  recon%uq%x	! oop_y = q_x *(z_hat x x_hat) = q_x * (y_hat)
 	recon%PmPar = (recon%Pmx*recon%uq%x + recon%Pmy*recon%uq%y + recon%Pmz*recon%uq%z)
 	recon%PmOop = (recon%Pmx*oop_x + recon%Pmy*oop_y) / sqrt(oop_x**2+oop_y**2)
-	recon%PmPer = sqrt( max(0.d0, recon%Pm**2 - recon%PmPar**2 - recon%PmOop**2 ) )
+	recon%PmPer = sqrt( max(0.e0, recon%Pm**2 - recon%PmPar**2 - recon%PmOop**2 ) )
 
 	if (doing_pion .or. doing_kaon .or. doing_delta .or. doing_rho .or. doing_semi) then
 	  recon%Em = recon%nu + targ%Mtar_struck - recon%p%E

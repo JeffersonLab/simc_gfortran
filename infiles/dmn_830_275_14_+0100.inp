@@ -1,34 +1,34 @@
 ; This is a CTP file
 
 begin parm experiment
-  ngen = 20000               ;  POS: # of successes; NEG: # of tries
+  ngen = 100000              ;  POS: # of successes; NEG: # of tries
   EXPER%charge = 1.0         ;  total charge (mC)
   doing_phsp = 0             ;  (ONE = TRUE)
-  doing_kaon = 1             ;  (ONE = TRUE)
-  which_kaon = 1             ;  (0=p-->K+lamda0,1=p-->K+sigma0,2=n-->K+sigma)
-  doing_pion = 0             ;  (ONE = TRUE)
+  doing_kaon = 0             ;  (ONE = TRUE)
+  doing_pion = 1             ;  (ONE = TRUE)
+  which_pion = 1             ;  (0=p->pi+,1=n->pi-,10/11 for pi+/pi- coherent)
   doing_decay = 1            ;  1=decay ON, 0=decay OFF.
-  ctau = 371.3               ;  decay length (cm)
+  ctau = 780.4               ;  decay length (cm)
 end parm experiment
 
 begin parm kinematics_main
-  Ebeam =  9343.0            ;  (MeV)
+  Ebeam =  8900.0            ;  (MeV)
   dEbeam = 0.05              ;  beam energy variation (%)
   electron_arm = 1           ;  1=hms,2=sos,3=hrsr,4=hrsl,5=shms
   hadron_arm = 5             ;  1=hms,2=sos,3=hrsr,4=hrsl,5=shms
-  spec%e%P = 2021.0          ;  e arm central momentum (MeV/c)
-  spec%e%theta = 31.300      ;  e arm angle setting (degrees)
-  spec%p%P = 6842.2          ;  p arm central momentum (MeV/c)
-  spec%p%theta = 7.850       ;  p arm angle setting (degrees)
+  spec%e%P =  916.0          ;  e arm central momentum (MeV/c)
+  spec%e%theta = 60.570      ;  e arm angle setting (degrees)
+  spec%p%P = 7685.2          ;  p arm central momentum (MeV/c)
+  spec%p%theta = 5.50        ;  p arm angle setting (degrees)
 end parm kinematics_main
 
 begin parm target
-  targ%A = 1.                ;  target A
+  targ%A = 2.                ;  target A
   targ%Z = 1.                ;  target Z
-  targ%mass_amu = 1.007276   ;  target mass in amu
+  targ%mass_amu = 2.01355    ;  target mass in amu
   targ%mrec_amu = 0.         ;  recoil mass in amu (eep=A-1 system,pion=A-2)
-  targ%rho = 0.0723          ;  target density (g/cm^3)
-  targ%thick = 578.4         ;  target thick (mg/cm^2) 8cm
+  targ%rho = 0.16743         ;  target density (g/cm^3)
+  targ%thick = 1339.4        ;  target thick (mg/cm^2) 8cm
   targ%angle = 0.            ;  target angle (for solid target) (degrees)
   targ%abundancy = 100.      ;  target purity (%)
   targ%can = 2               ;  1=beer can (fpi), 2=pudding can (nucpi)
@@ -56,8 +56,8 @@ begin parm p_arm_accept
   SPedge%p%delta%max =  50.0     ;  delta max
   SPedge%p%yptar%min = -60.0     ; .yptar.min = {TF} / 1000 (mrad)
   SPedge%p%yptar%max =  60.0     ; .yptar.max = {TF} / 1000
-  SPedge%p%xptar%min = -140.0    ; .xptar.min = {TF} / 1000 (mrad)
-  SPedge%p%xptar%max =  140.0    ; .xptar.max = {TF} / 1000
+  SPedge%p%xptar%min =-140.0     ; .xptar.min = {TF} / 1000 (mrad)
+  SPedge%p%xptar%max = 140.0     ; .xptar.max = {TF} / 1000
 end parm p_arm_accept
 
 begin parm beamandtargetinfo

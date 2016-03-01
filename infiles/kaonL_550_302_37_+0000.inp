@@ -43,8 +43,8 @@ begin parm debug             ;  (ONES give helpful debug info)
 end parm debug
 
 begin parm e_arm_accept
-  SPedge%e%delta%min = -20.0     ;  delta min (SPECTROMETER ACCEPTANCE!)
-  SPedge%e%delta%max =  20.0     ;  delta max
+  SPedge%e%delta%min = -25.0     ;  delta min (SPECTROMETER ACCEPTANCE!)
+  SPedge%e%delta%max =  25.0     ;  delta max
   SPedge%e%yptar%min = -60.0     ; .yptar.min = {TF} / 1000 (mrad)
   SPedge%e%yptar%max =  60.0     ; .yptar.max = {TF} / 1000
   SPedge%e%xptar%min = -140.0    ; .xptar.min = {TF} / 1000 (mrad)
@@ -52,12 +52,12 @@ begin parm e_arm_accept
 end parm e_arm_accept
 
 begin parm p_arm_accept
-  SPedge%p%delta%min = -20.0     ;  delta min (SPECTROMETER ACCEPTANCE!)
-  SPedge%p%delta%max =  40.0     ;  delta max
-  SPedge%p%yptar%min = -50.0     ; .yptar.min = {TF} / 1000 (mrad)
-  SPedge%p%yptar%max =  50.0     ; .yptar.max = {TF} / 1000
-  SPedge%p%xptar%min = -85.0     ; .xptar.min = {TF} / 1000 (mrad)
-  SPedge%p%xptar%max =  85.0     ; .xptar.max = {TF} / 1000
+  SPedge%p%delta%min = -35.0     ;  delta min (SPECTROMETER ACCEPTANCE!)
+  SPedge%p%delta%max =  50.0     ;  delta max
+  SPedge%p%yptar%min = -60.0     ; .yptar.min = {TF} / 1000 (mrad)
+  SPedge%p%yptar%max =  60.0     ; .yptar.max = {TF} / 1000
+  SPedge%p%xptar%min = -140.0    ; .xptar.min = {TF} / 1000 (mrad)
+  SPedge%p%xptar%max =  140.0    ; .xptar.max = {TF} / 1000
 end parm p_arm_accept
 
 begin parm beamandtargetinfo

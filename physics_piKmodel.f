@@ -74,76 +74,15 @@ c Variables calculated in transformation to gamma-NUCLEON center of mass.
       real*8 ebeamcm,pbeamcm,pbeamcmx,pbeamcmy,pbeamcmz !p_beam in C.M.
       real*8 etarcm,ptarcm,ptarcmx,ptarcmy,ptarcmz      !p_fermi in C.M.
       real*8 thetacm,phicm,phiqn,jacobian
-      real*8 pm2_tmp
+      real*8 pm2_tmp,q2_cent_g
 
       logical first_call
       save first_call
 
       data first_call/.true./
-
-c      real*8 Q2_tab(12,130),W_tab(12,130),t_tab(12,130),stab(12,130,4)
-c      character*35 filename(12)
-c      integer nfiles, tbins(12)
-c      nfiles=12
-c      Wset=3.28
-c      data filename /'VGL/ep_enpip_q21p00_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q21p50_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q22p00_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q22p50_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q23p00_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q23p50_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q24p00_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q24p50_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q25p00_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q25p50_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q26p00_w3p27_pirho.dat',
-c     $     'VGL/ep_enpip_q26p50_w3p27_pirho.dat'/
-
-c      real*8 Q2_tab(5,130),W_tab(12,130),t_tab(5,130),stab(5,130,4)
-c      character*35 filename(5)
-c      integer nfiles, tbins(5)
-c      nfiles=5
-c      Wset=2.89
-c      data filename /'VGL/ep_enpip_q27p50_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q28p00_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q28p50_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q29p00_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q29p50_w2p89_pirho.dat'/
-
-c      real*8 Q2_tab(12,130),W_tab(12,130),t_tab(12,130),stab(12,130,4)
-c      character*28 filename(12)
-c      integer nfiles, tbins(12)
-c      nfiles=12
-c      Wset=3.28
-c      data filename /'VR/ep_enpip_q21p00_w3p28.dat',
-c     $     'VR/ep_enpip_q21p50_w3p28.dat',
-c     $     'VR/ep_enpip_q22p00_w3p28.dat',
-c     $     'VR/ep_enpip_q22p50_w3p28.dat',
-c     $     'VR/ep_enpip_q23p00_w3p28.dat',
-c     $     'VR/ep_enpip_q23p50_w3p28.dat',
-c     $     'VR/ep_enpip_q24p00_w3p28.dat',
-c     $     'VR/ep_enpip_q24p50_w3p28.dat',
-c     $     'VR/ep_enpip_q25p00_w3p28.dat',
-c     $     'VR/ep_enpip_q25p50_w3p28.dat',
-c     $     'VR/ep_enpip_q26p00_w3p28.dat',
-c     $     'VR/ep_enpip_q26p50_w3p28.dat'/
-
-      real*8 Q2_tab(11,130),W_tab(11,130),t_tab(11,130),stab(11,130,4)
-      character*28 filename(11)
-      integer nfiles, tbins(11)
-      nfiles=11
-      Wset=2.89
-      data filename /'VR/ep_enpip_q26p50_w2p89.dat',
-     $     'VR/ep_enpip_q27p00_w2p89.dat',
-     $     'VR/ep_enpip_q27p50_w2p89.dat',
-     $     'VR/ep_enpip_q28p00_w2p89.dat',
-     $     'VR/ep_enpip_q28p50_w2p89.dat',
-     $     'VR/ep_enpip_q29p00_w2p89.dat',
-     $     'VR/ep_enpip_q29p50_w2p89.dat',
-     $     'VR/ep_enpip_q210p0_w2p89.dat',
-     $     'VR/ep_enpip_q210p5_w2p89.dat',
-     $     'VR/ep_enpip_q211p0_w2p89.dat',
-     $     'VR/ep_enpip_q211p5_w2p89.dat'/
+      real*8 Q2_tab(18,130),W_tab(18,130),t_tab(18,130),stab(18,130,4)
+      character*28 filename(18)
+      integer nfiles, tbins(18)
 
 *******************************************************************************
 * Read model values when first called.
@@ -152,9 +91,120 @@ c Columns are: Q2, W, -t (GeV2), dsig_L, T, TL, TT (mubarn/GeV2)
       if(first_call) then
          first_call=.false.
 
+c calculate central kinematics Q^2
+         q2_cent_g = ( (Ebeam - spec%e%P*cos(spec%e%theta))**2
+     c                 + (spec%e%P*sin(spec%e%theta))**2
+     c                 - (Ebeam - spec%e%P)**2 ) /1.e6
+c         write(6,*)' Q2_central = ',q2_cent_g
+
+         if (which_pion.eq.0) then ! pi+
+            if (q2_cent_g.lt.6.25) then
+               write(6,*)'Selecting VR pi+ model for Q^2=1.0-9.5, W=3.28'
+               nfiles=18
+               Wset=3.28
+               filename(1)='VR/ep_enpip_q21p00_w3p28.dat'
+               filename(2)='VR/ep_enpip_q21p50_w3p28.dat'
+               filename(3)='VR/ep_enpip_q22p00_w3p28.dat'
+               filename(4)='VR/ep_enpip_q22p50_w3p28.dat'
+               filename(5)='VR/ep_enpip_q23p00_w3p28.dat'
+               filename(6)='VR/ep_enpip_q23p50_w3p28.dat'
+               filename(7)='VR/ep_enpip_q24p00_w3p28.dat'
+               filename(8)='VR/ep_enpip_q24p50_w3p28.dat'
+               filename(9)='VR/ep_enpip_q25p00_w3p28.dat'
+               filename(10)='VR/ep_enpip_q25p50_w3p28.dat'
+               filename(11)='VR/ep_enpip_q26p00_w3p28.dat'
+               filename(12)='VR/ep_enpip_q26p50_w3p28.dat'
+               filename(13)='VR/ep_enpip_q27p00_w3p28.dat'
+               filename(14)='VR/ep_enpip_q27p50_w3p28.dat'
+               filename(15)='VR/ep_enpip_q28p00_w3p28.dat'
+               filename(16)='VR/ep_enpip_q28p50_w3p28.dat'
+               filename(17)='VR/ep_enpip_q29p00_w3p28.dat'
+               filename(18)='VR/ep_enpip_q29p50_w3p28.dat'
+            else
+               write(6,*)'Selecting VR pi+ model for Q^2=6.5-11.5, W=2.89'
+               nfiles=11
+               Wset=2.89
+               filename(1)='VR/ep_enpip_q26p50_w2p89.dat'
+               filename(2)='VR/ep_enpip_q27p00_w2p89.dat'
+               filename(3)='VR/ep_enpip_q27p50_w2p89.dat'
+               filename(4)='VR/ep_enpip_q28p00_w2p89.dat'
+               filename(5)='VR/ep_enpip_q28p50_w2p89.dat'
+               filename(6)='VR/ep_enpip_q29p00_w2p89.dat'
+               filename(7)='VR/ep_enpip_q29p50_w2p89.dat'
+               filename(8)='VR/ep_enpip_q210p0_w2p89.dat'
+               filename(9)='VR/ep_enpip_q210p5_w2p89.dat'
+               filename(10)='VR/ep_enpip_q211p0_w2p89.dat'
+               filename(11)='VR/ep_enpip_q211p5_w2p89.dat'
+               filename(12)=' '
+               filename(13)=' '
+               filename(14)=' '
+               filename(15)=' '
+               filename(16)=' '
+               filename(17)=' '
+               filename(18)=' '
+            endif
+
+      elseif (which_pion.eq.1) then !pi-
+            if (q2_cent_g.lt.6.25) then
+               write(6,*)'Selecting VR pi- model for Q^2=1.0-6.5, W=3.28'
+               nfiles=12
+               Wset=3.28
+               filename(1)='VR/en_eppim_q21p00_w3p28.dat'
+               filename(2)='VR/en_eppim_q21p50_w3p28.dat'
+               filename(3)='VR/en_eppim_q22p00_w3p28.dat'
+               filename(4)='VR/en_eppim_q22p50_w3p28.dat'
+               filename(5)='VR/en_eppim_q23p00_w3p28.dat'
+               filename(6)='VR/en_eppim_q23p50_w3p28.dat'
+               filename(7)='VR/en_eppim_q24p00_w3p28.dat'
+               filename(8)='VR/en_eppim_q24p50_w3p28.dat'
+               filename(9)='VR/en_eppim_q25p00_w3p28.dat'
+               filename(10)='VR/en_eppim_q25p50_w3p28.dat'
+               filename(11)='VR/en_eppim_q26p00_w3p28.dat'
+               filename(12)='VR/en_eppim_q26p50_w3p28.dat'
+               filename(13)=' '
+               filename(14)=' '
+               filename(15)=' '
+               filename(16)=' '
+               filename(17)=' '
+               filename(18)=' '
+            else
+               write(6,*)'Selecting VR pi- model for Q^2=6.5-11.5, W=2.89'
+               nfiles=11
+               Wset=2.89
+               filename(1)='VR/en_eppim_q26p50_w2p89.dat'
+               filename(2)='VR/en_eppim_q27p00_w2p89.dat'
+               filename(3)='VR/en_eppim_q27p50_w2p89.dat'
+               filename(4)='VR/en_eppim_q28p00_w2p89.dat'
+               filename(5)='VR/en_eppim_q28p50_w2p89.dat'
+               filename(6)='VR/en_eppim_q29p00_w2p89.dat'
+               filename(7)='VR/en_eppim_q29p50_w2p89.dat'
+               filename(8)='VR/en_eppim_q210p0_w2p89.dat'
+               filename(9)='VR/en_eppim_q210p5_w2p89.dat'
+               filename(10)='VR/en_eppim_q211p0_w2p89.dat'
+               filename(11)='VR/en_eppim_q211p5_w2p89.dat'
+               filename(12)=' '
+               filename(13)=' '
+               filename(14)=' '
+               filename(15)=' '
+               filename(16)=' '
+               filename(17)=' '
+               filename(18)=' '
+            endif
+
+      endif
+
+c      nfiles=5
+c      Wset=2.89
+c      data filename /'VGL/ep_enpip_q27p50_w2p89_pirho.dat',
+c     $     'VGL/ep_enpip_q28p00_w2p89_pirho.dat',
+c     $     'VGL/ep_enpip_q28p50_w2p89_pirho.dat',
+c     $     'VGL/ep_enpip_q29p00_w2p89_pirho.dat',
+c     $     'VGL/ep_enpip_q29p50_w2p89_pirho.dat'/
+
          do j=1,nfiles
             OPEN(3,FILE=filename(j),STATUS='OLD')
-            write(6,*) 'reading model file', j
+            write(6,80) j,filename(j)
+ 80         format(' Reading model file',i3,'  ',a28)
             do t_count = 1,130
                read(3,*,end=100) Q2_tab(j,t_count),
      1              W_tab(j,t_count),t_tab(j,t_count),
@@ -169,7 +219,7 @@ c Columns are: Q2, W, -t (GeV2), dsig_L, T, TL, TT (mubarn/GeV2)
             tbins(j)=t_count-1
 c            write(6,*)' lines found ',tbins(j),t_tab(j,tbins(j))
             close(unit=3)
-            write(6,*) 'done'
+c            write(6,*) 'done'
          enddo
          pcount=0
       endif                     !if first time.
@@ -544,72 +594,16 @@ c Variables calculated in transformation to gamma-NUCLEON center of mass.
       real*8 ebeamcm,pbeamcm,pbeamcmx,pbeamcmy,pbeamcmz !p_beam in C.M.
       real*8 etarcm,ptarcm,ptarcmx,ptarcmy,ptarcmz      !p_fermi in C.M.
       real*8 thetacm,phicm,phiqn,jacobian
-      real*8 pm2_tmp
+      real*8 pm2_tmp,q2_cent_g
 
       logical first_call
       save first_call
 
       data first_call/.true./
 
-      real*8 Q2_tab(12,130),W_tab(12,130),t_tab(12,130),stab(12,130,4)
-      character*35 filename(12)
-      integer nfiles, tbins(12)
-      nfiles=12
-      Wset=3.28
-      data filename /'VGL/ep_enpip_q21p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q21p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q22p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q22p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q23p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q23p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q24p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q24p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q25p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q25p50_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q26p00_w3p27_pirho.dat',
-     $     'VGL/ep_enpip_q26p50_w3p27_pirho.dat'/
-
-c      real*8 Q2_tab(5),t_tab(130),stab(5,130,4)
-c      character*35 filename(5)
-c      integer nfiles, tbins(5)
-c      nfiles=5
-c      Wset=2.89
-c      data filename /'VGL/ep_enpip_q27p50_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q28p00_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q28p50_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q29p00_w2p89_pirho.dat',
-c     $     'VGL/ep_enpip_q29p50_w2p89_pirho.dat'/
-
-c      real*8 Q2_tab(12),t_tab(130),stab(12,130,4)
-c      character*35 filename(12)
-c      integer nfiles, tbins(12)
-c      nfiles=12
-c      Wset=3.28
-c      character*28 filename(12)
-c      data filename /'VR/ep_enpip_q21p00_w3p28.dat',
-c     $     'VR/ep_enpip_q21p50_w3p28.dat',
-c     $     'VR/ep_enpip_q22p00_w3p28.dat',
-c     $     'VR/ep_enpip_q22p50_w3p28.dat',
-c     $     'VR/ep_enpip_q23p00_w3p28.dat',
-c     $     'VR/ep_enpip_q23p50_w3p28.dat',
-c     $     'VR/ep_enpip_q24p00_w3p28.dat',
-c     $     'VR/ep_enpip_q24p50_w3p28.dat',
-c     $     'VR/ep_enpip_q25p00_w3p28.dat',
-c     $     'VR/ep_enpip_q25p50_w3p28.dat',
-c     $     'VR/ep_enpip_q26p00_w3p28.dat',
-c     $     'VR/ep_enpip_q26p50_w3p28.dat'/
-
-c      real*8 Q2_tab(5),t_tab(130),stab(5,130,4)
-c      character*35 filename(5)
-c      integer nfiles, tbins(5)
-c      nfiles=5
-c      Wset=2.89
-c      character*28 filename(5)
-c      data filename /'VR/ep_enpip_q27p50_w2p89.dat',
-c     $     'VR/ep_enpip_q28p00_w2p89.dat',
-c     $     'VR/ep_enpip_q28p50_w2p89.dat',
-c     $     'VR/ep_enpip_q29p00_w2p89.dat',
-c     $     'VR/ep_enpip_q29p50_w2p89.dat'/
+      real*8 Q2_tab(18,130),W_tab(18,130),t_tab(18,130),stab(18,130,4)
+      character*28 filename(18)
+      integer nfiles, tbins(18)
 
 *******************************************************************************
 * Read model values when first called.
@@ -618,9 +612,48 @@ c Columns are: Q2, W, -t (GeV2), dsig_L, T, TL, TT (mubarn/GeV2)
       if(first_call) then
          first_call=.false.
 
+c calculate central kinematics Q^2
+         q2_cent_g = ( (Ebeam - spec%e%P*cos(spec%e%theta))**2
+     c                 + (spec%e%P*sin(spec%e%theta))**2
+     c                 - (Ebeam - spec%e%P)**2 ) /1.e6
+c         write(6,*)' Q2_central = ',q2_cent_g
+
+         if (which_kaon.eq.0) then ! p->K+Lambda0
+c            if (q2_cent_g.lt.6.25) then
+            write(6,*)'Selecting VR K+L0 model for Q^2=0.1-9.5, W=3.15'
+            nfiles=18
+            Wset=3.15
+            filename(1)='VR/ep_peekl_q20p10_w3p15.dat'
+            filename(2)='VR/ep_peekl_q20p50_w3p15.dat'
+            filename(3)='VR/ep_peekl_q21p00_w3p15.dat'
+            filename(4)='VR/ep_peekl_q21p50_w3p15.dat'
+            filename(5)='VR/ep_peekl_q22p00_w3p15.dat'
+            filename(6)='VR/ep_peekl_q22p50_w3p15.dat'
+            filename(7)='VR/ep_peekl_q23p00_w3p15.dat'
+            filename(8)='VR/ep_peekl_q23p50_w3p15.dat'
+            filename(9)='VR/ep_peekl_q24p00_w3p15.dat'
+            filename(10)='VR/ep_peekl_q24p50_w3p15.dat'
+            filename(11)='VR/ep_peekl_q25p00_w3p15.dat'
+            filename(12)='VR/ep_peekl_q25p50_w3p15.dat'
+            filename(13)='VR/ep_peekl_q26p00_w3p15.dat'
+            filename(14)='VR/ep_peekl_q26p50_w3p15.dat'
+            filename(15)='VR/ep_peekl_q27p00_w3p15.dat'
+            filename(16)='VR/ep_peekl_q28p50_w3p15.dat'
+            filename(17)='VR/ep_peekl_q29p00_w3p15.dat'
+            filename(18)='VR/ep_peekl_q29p50_w3p15.dat'
+c            endif
+         elseif (which_kaon.eq.1) then ! p->K+Sigma0
+            write(6,*)'Selecting VR K+S0 model for Q^2=?, W=?'
+            stop
+         elseif (which_kaon.eq.2) then ! n->K+Lambda-
+            write(6,*)'Selecting VR K+L- model for Q^2=?, W=?'
+            stop
+         endif
+
          do j=1,nfiles
             OPEN(3,FILE=filename(j),STATUS='OLD')
-            write(6,*) 'reading model file', j
+            write(6,80) j,filename(j)
+ 80         format(' Reading model file',i3,'  ',a28)
             do t_count = 1,130
                read(3,*,end=100) Q2_tab(j,t_count),
      1              W_tab(j,t_count),t_tab(j,t_count),
@@ -635,7 +668,7 @@ c Columns are: Q2, W, -t (GeV2), dsig_L, T, TL, TT (mubarn/GeV2)
             tbins(j)=t_count-1
 c            write(6,*)' lines found ',tbins(j),t_tab(j,tbins(j))
             close(unit=3)
-            write(6,*) 'done'
+c            write(6,*) 'done'
          enddo
       endif                     !if first time.
 *******************************************************************************

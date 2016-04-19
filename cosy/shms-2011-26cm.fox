@@ -1,0 +1,326 @@
+{------------------------------------------------------------------------------
+ Super-HMS spectrometer, with forward and reconstruction maps.
+ Adapted from D. Potterveld's 2005 SHMS work: D. Gaskell Sept. 2011 
+ Author: D. Potterveld, Argonne National Lab, June 2005
+ ------------------------------------------------------------------------------
+}
+INCLUDE 'JLAB' ;
+PROCEDURE RUN ;
+
+{=========================== Variable Declarations ===========================}
+
+   VARIABLE Z1C 1 ; VARIABLE L1 1 ;
+   VARIABLE Z2C 1 ; VARIABLE L2 1 ;
+   VARIABLE Z3C 1 ; VARIABLE L3 1 ;
+   VARIABLE ZDC 1 ; VARIABLE LD 1 ;
+   VARIABLE DZD1 1 ; VARIABLE DZD2 1;
+   VARIABLE DZF1 1 ; VARIABLE DZF2 1;
+   VARIABLE XDIP 1;
+   VARIABLE DTILT 1;
+   VARIABLE FTILT1 1; VARIABLE FTILT2 1;
+   VARIABLE ZDI 1 ; VARIABLE LDI 1 ;
+   VARIABLE ZFM 1 ; VARIABLE LFM 1 ;
+   VARIABLE ZBC 1 ; VARIABLE LB 1;
+   VARIABLE DR0 1;
+   VARIABLE DR1 1 ;
+   VARIABLE DR2 1 ;
+   VARIABLE DR3 1 ;
+   VARIABLE DR4 1 ;
+   VARIABLE DRD 1 ;
+   VARIABLE DRF 1 ;
+   VARIABLE Q1 1 ;        { quadrupole strength }
+   VARIABLE Q2 1 ;        { quadrupole strength }
+   VARIABLE Q3 1 ;        { quadrupole strength }
+   VARIABLE DN1 1 ;       { Dipole quadrupole index }
+   VARIABLE OBJ 1 ;       { function used in evaluating first order focus}
+   VARIABLE NFIT 1 ;      { max iterations in fit loop}
+   VARIABLE DOFIT 1 ;     { flag for doing fit}
+   VARIABLE Q3SCALE 1 ;   { flag for scaling Q3 }
+   VARIABLE FITTOL 1 ;    { fit tolerance }
+   VARIABLE FILE 80 ;     { filename}
+   VARIABLE QFILE 80 ;     { filename}
+   VARIABLE LINE 80 ;
+   VARIABLE TUNITS 1 ;
+   VARIABLE NRAYA 1 ; VARIABLE NRAYB 1 ;
+   VARIABLE I 1 ;
+   VARIABLE TMP 1 ;
+   VARIABLE CRDEFL 1 ;
+   VARIABLE CRROT 1 ;
+   VARIABLE SNAME 4 ;     {Spectrometer name}
+   VARIABLE FRMODE 1 ;    {Fringe field mode }
+   VARIABLE MORDER 1 ;    { Maximum order for transformations}
+   VARIABLE FORDER 1 ;    {Order of forward maps }
+   VARIABLE RORDER 1 ;    {Order of reconstruction map }
+   VARIABLE RES 1 4 ;     {Resolution array }
+
+   VARIABLE NX 1 ; VARIABLE NZ 1 ; VARIABLE DX 1 ; VARIABLE DZ 1 ;
+   VARIABLE BYM 1 90 700 ;
+
+   VARIABLE TMPSPOS 1000 ;  { Saved value of SPOS }
+   VARIABLE QSPOS 1000 ;    { Saved value of SPOS for quad 3}
+   VARIABLE DSPOS 1000 ;    { Saved value of SPOS for dipole }
+   VARIABLE FWDMAP 2000 8 ; { Saved transfer map }
+   VARIABLE QMAP 2000 8 ;   { Saved transfer map for Q3 }
+   VARIABLE DMAP 2000 8 ;   { Saved transfer map for dipole }
+   VARIABLE TRMAP 2000 8 ;  { Forward map in TRANSPORT notation }
+   VARIABLE RMAP 2000 5 ;   { Reconstruction map }
+
+{========================== Procedure declarations ===========================}
+
+   PROCEDURE QUAD ;
+      VARIABLE IS 1 ;
+      LOOP IS 1 4 ; FIELDMAP IS 'SHMS_Q3' ; ENDLOOP ;
+   ENDPROCEDURE ;
+
+   PROCEDURE DIPOLE ;
+      VARIABLE IS 1 ;
+      LOOP IS 1 8 ; FIELDMAP IS 'SHMS_DIP' ; ENDLOOP ;
+   ENDPROCEDURE ;
+
+{================================= Main Code =================================}
+
+{ Computation order specifications }
+
+   MORDER := 6 ;                        {Max order for calculations}
+   ASK forder 'Please enter the order for maps: (1-'&SF(morder,'(i1)')&')'
+       1 morder ;
+
+   OV forder 3 0 ;                      {Order Value <order><phase dim><#par>}
+   CO FORDER ; RORDER := FORDER ;
+
+{ Beam specifications }
+
+   RPM 11000.0 5.4858E-4 -1 ;           {<momentum> <mass in amu> <charge>}
+
+   SB  0  .040  0  .050  .015  0   0 .15   0   0   0 ;
+{  --> PX   PA  R12  PY   PB  R34 PT  PD  R56 PG  PZ      }
+
+{ Spectrometer name }
+
+   SNAME := 'SHMS' ;
+
+{ Fringe-field specifications.}
+
+   frmode := 3 ;
+   FR FRMODE ;
+
+{ Magnet geometry }
+   ZBC := 1.76 ;                {Center of bender}
+   Z1C := 4.140 ;               {Center of Q1}
+   Z2C := 6.80 ;                {Center of Q2}
+   Z3C := 9.45 ;                {Center of Q3}
+
+   ZDC := 12.937;           {Center of dipole - might not use for anything}
+   XDIP:= 0.26 ;            {Dipole vertical offset}
+   DTILT:= 9.2*pi/180.0;    {Dipole tilt}
+
+   DZF1:= sqrt(4.933^2+(1.632-XDIP)^2);
+   FTILT1:= atan((1.632-XDIP)/4.933);
+   FTILT2:= FTILT1-DTILT ;
+   DZF2:= DZF1*cos(FTILT2);
+
+
+   LB := 0.751 ;              {Effective length of bender}
+   L1 := 1.879 ;              {Effective length of Q1}
+   L2 := 1.64 ;               {Effective length of Q2}
+   L3 := 1.64 ;               {Effective length of Q3}
+   LD := 2.90;
+
+   {DRF := 3.65 ;              {Drift from dipole exit to fp}}
+   DRF:= (DZF2-LD/2)/cos(DTILT);
+
+{ for LSA tune }
+
+{   Q1 := -1.756263 ; Q2 := 1.857066 ; Q3 := 0.8841793 ; DRF := DRF + 1 ; }
+{   Q1 := -1.697080 ; Q2 := 2.195929 ; Q3 := 1.139401 ; DRF := DRF + 1 ; }
+{   Q1 := -1.958055 ; Q2 := 2.15 ; Q3 := 0.9358300 ; DRF := 5.043861 ; }
+{   Q1 := -2.3331 ; Q2 := 3.899 ; Q3 := -1.912845 ;}
+   Q1 := -2.044 ; Q2 := 4.3279 ; Q3 := -2.858 ;
+{   Q1 := -2.3 ; Q2 := 4.330082 ; Q3 := -2.528626 ;}
+   
+{ Fitting options }
+
+   ASK dofit 'Fit QUAD STRENGTHS (0=no, 1=old-style, 2=new-style): ' 0 2 ;
+   NFIT := 0 ; IF DOFIT#0 ; NFIT := 400 ; ENDIF ;
+   IF DOFIT=1 ; FITTOL := 1E-10 ; ELSEIF 1=1 ; FITTOL := 1E-4 ; ENDIF ;
+
+ 
+{ Begin composing forward maps }
+
+{  IF DOFIT#0 ; }          {Compute and save dipole map if fitting}
+{      UM ; DIPOLE ; SM DMAP ; DSPOS := SPOS ;}
+{   ENDIF ;}
+
+   FIT Q1  Q2  Q3 ;                      {Fitting loop}
+
+
+{ Compute some drift distances }
+
+      DR0 := ZBC-(LB/2);                     {Drift from target to bender}
+      DR1 := (Z1C - ZBC) - ((LB + L1)/2) ;     {Drift from Bender to Q1}
+      DR2 := (Z2C - Z1C) - ((L1 + L2)/2) ;   {Drift from Q1 to Q2}
+      DR3 := (Z3C - Z2C) - ((L2 + L3)/2) ;   {Drift from Q2 to Q3}
+{      DR4 := (ZDC - Z3C) - ((L3 + LD)/2) ;   {Drift from Q3 to dipole}}
+      DZD1:= XDIP/tan(DTILT);
+      DZD2:= (LD/2-XDIP/sin(DTILT))/cos(DTILT);
+      DR4 := (ZDC-Z3C) - L3/2 - DZD1 - DZD2 ; {Drift from Q3 to dipole}
+
+      UM ; TUNITS := 0 ;
+
+      IF DOFIT=2 ;      CR ; focalrays 7 7  0.0  0.0 ; BP ;
+      ELSEIF 1=1 ;      CR ; ER 1 3 1 3 1 3 1 1 ; BP ;
+      ENDIF ;
+
+{ Insert splitter magnet }
+
+      DL DR0 ;                        {Drift to Bender}
+      RA -90 ; DP 14.34959928 3.0 0.225 ; RA 90 ; {Bender}
+      DL DR1 ;                        {Drift TO Q1}
+      MQ L1 Q1 0.25 ;                 {Q1}
+{      MQ L1 Q1 0.2 ; }                {Q1}
+
+      DL DR2 ;                        {Drift TO Q2}
+      MQ L2 Q2 0.35 ;                 {Q2}
+{      MQ L2 Q2 0.3 ;}                 {Q2} {chen used 30}
+
+      DL DR3 ;                        {Drift to Q3}
+      MQ L3 Q3 0.35 ;                 {Q3}
+{      MQ L3 Q3 0.3 ;}                 {Q3} {chen used 30}
+
+
+      DL DR4 ;                        {Drift to dipole}{ Dipole }
+{      DP 8.874618 18.4 0.35 ;}         {Idealized dipole}
+      DP 9.187419156 18.4 0.35 ;         {Idealized dipole}
+
+{      IF DOFIT#0 ;}
+{         AM DMAP ; SPOS := SPOS + DSPOS ;}
+{      ENDIF ; }
+
+      DL DRF ;                        {Drift to detector focal plane}
+
+      PS 0.3 ;                        {Mark reconstruction plane}
+      DL 4.0 ;    {Extend rays for picture}
+      EP ;                            {End Picture}
+{      PP -101 0 0 ; PP -102 0 90 ;}
+      DL -4.0 ;   {Go back for optics calcs}
+
+{ Some diagnostics }
+
+      WRITE 6 ' Q1-3, D1-F, Z1-M, LENGTH = ' (Q1)&(Q2)&(Q3) ;
+      WRITE 6 DR1&DR2&DR3&DR4&DRF ;
+      WRITE 6 Z1C&Z2C&Z3C&ZFM&SPOS ;
+      
+{ Compute focal objective function }
+
+      IF DOFIT=2 ;                 {New style}
+         FOCALOBJ OBJ 7 7 ;
+      ENDIF ;
+      IF DOFIT=1 ;                 {Old style}
+
+         SM FWDMAP ;
+         tmpspos := spos ; tunits := 1 ;
+         CATR MAP TRMAP SPOS ; um ; spos := tmpspos ; am TRMAP ;
+         {OBJ := ME(1,2)*ME(1,2)+ME(3,4)*ME(3,4) ;}
+         OBJ := ABS(ME(1,2))+ABS(ME(3,4))+1.0*ABS(ME(5,2)+1.2) ;
+         {OBJ := ABS(ME(1,2))+ABS(ME(3,4)) ;}
+
+ {Add in quadrature a term to bias towards large FP angles}
+
+{         tmp := (180*atan(ME(1,1)*ME(1,26)/ME(1,6))/pi)+90 ;}
+{        obj := obj + ((90-tmp)/100)^2 ;}
+
+      ENDIF ;
+      IF DOFIT#0;
+         WRITE 6 'OBJ = '&S(OBJ) ;
+      ENDIF ;
+
+   ENDFIT FITTOL NFIT 1 OBJ ;
+
+{Convert map to transport form, if not done already}
+
+   IF TUNITS#1 ;
+   SM FWDMAP ; TUNITS := 1 ;
+   tmpspos := spos ; CATR MAP TRMAP SPOS ; um ; spos := tmpspos ; am TRMAP ;
+   ENDIF ;
+
+  WRITE 6 ' Q1-3, D1-F, Z1-M, LENGTH = ' (Q1)&(Q2)&(Q3) ;
+  WRITE 6 DR1&DR2&DR3&DR4&DRF ;
+  WRITE 6 Z1C&Z2C&Z3C&ZFM&SPOS ;
+{ Output diagnostic matrix elements }
+
+   WRITE 6 ' ME(5,2) = '&S(ME(5,2)) ;
+   WRITE 6 ' ME(1,2) = '&S(ME(1,2)) ;
+   WRITE 6 ' ME(3,4) = '&S(ME(3,4)) ;
+   IF FORDER>2 ;  WRITE 6 ' ME(3,444) = '&S(ME(3,444)) ; ENDIF ;
+   IF FORDER>4 ;  WRITE 6 ' ME(3,44444) = '&S(ME(3,44444)) ; ENDIF ;
+   WRITE 6 ' ME(3,46) = '&S(ME(3,46)) ;
+
+   WRITE 6 ' ME(1,26) = '&S(ME(1,26)) ;
+   WRITE 6 ' Ratio (3,46)/(1,6) = '&S(ME(3,46)/ME(1,6)) ;
+
+   WRITE 6 ' ME(1,1) = '&S(ME(1,1)) ;
+   WRITE 6 ' ME(1,2) = '&S(ME(1,2)) ;
+   WRITE 6 ' ME(1,6) = '&S(ME(1,6)) ;
+
+   WRITE 6 ' ME(2,1) = '&S(ME(2,1)) ;
+   WRITE 6 ' ME(2,2) = '&S(ME(2,2)) ;
+   WRITE 6 ' ME(2,6) = '&S(ME(2,6)) ;
+
+   WRITE 6 ' ME(3,3) = '&S(ME(3,3)) ;
+   WRITE 6 ' ME(3,4) = '&S(ME(3,4)) ;
+   WRITE 6 ' ME(3,6) = '&S(ME(3,6)) ;
+
+   WRITE 6 ' ME(4,3) = '&S(ME(4,3)) ;
+   WRITE 6 ' ME(4,4) = '&S(ME(4,4)) ;
+   WRITE 6 ' ME(4,6) = '&S(ME(4,6)) ;
+
+   WRITE 6 ' Total length = '&S(CONS(SPOS))&' meters' ;
+
+{ Compute focal plane tilt angle }
+
+   tmp := (180*atan(ME(1,1)*ME(1,26)/ME(1,6))/pi)+90 ;
+   write 6 ' Focal plane tilt ='&SF(tmp,'(f8.3)')&' degrees' ;
+
+{ Output forward map }
+{ This must be done by routine PT, starting with the map in COSY units. }
+
+   um ; spos := tmpspos ; am FWDMAP ;
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_for.dat' ;
+   openf 20 file 'UNKNOWN' ; pt 20 ; closef 20 ;
+   um ; spos := tmpspos ; am TRMAP ;
+
+{ Compute and output reconstruction map }
+
+   RR1 MAP 0 0 .04 0 .04 .15 0 0 1000 RORDER RMAP RES ;
+   write 6 ' RECON resolutions =  ' RES(1)&RES(2)&RES(3)&RES(4) ;
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_rec.dat' ;
+   openf 20 file 'UNKNOWN' ;
+   pmr rmap 20 ; closef 20 ;
+
+
+{ Output to postscript file }
+
+   PG -10 -10 ;
+
+{ Output to UGS device }
+
+{
+   PP -9 0 90 ;
+   write 6 ' Type <CR> to proceed: ' ;
+   read 5 LINE ;
+   PP -9 0 0 ;
+   write 6 ' Type <CR> to proceed: ' ;
+   read 5 LINE ;
+}
+
+{ End of output block }
+
+
+
+ENDPROCEDURE ;
+RUN ;
+END ;
+
+
+
+

@@ -111,29 +111,9 @@ C------------------------------------------------------------------------------C
 	radw = hcer_mirglass_thick/hcer_mirglass_radlen
 	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 c
-	drift = hcer_mirback1_thick/2+hcer_mirglass_thick/2
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	radw = hcer_mirback1_thick/hcer_mirback1_radlen
-	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-c
-	drift = hcer_mirback2_thick/2+hcer_mirback1_thick/2
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	radw = hcer_mirback2_thick/hcer_mirback2_radlen
-	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-c
-	drift = hcer_mirback3_thick/2+hcer_mirback2_thick/2
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	radw = hcer_mirback3_thick/hcer_mirback3_radlen
-	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-c
-	drift = hcer_mirback4_thick/2+hcer_mirback3_thick/2
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	radw = hcer_mirback4_thick/hcer_mirback4_radlen
-	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
 	drift = hcer_1_zexit - hcer_1_zmirror -hcer_mirglass_thick/2
-     > -hcer_mirback1_thick-hcer_mirback2_thick-hcer_mirback3_thick-hcer_mirback4_thick/2
-	radw = drift/hcer_1_radlen
+ 	radw = drift/hcer_1_radlen
 	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
 	if(ms_flag) call musc_ext(m2,p,radw,drift,
      > dydzs,dxdzs,ys,xs)

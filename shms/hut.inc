@@ -61,32 +61,20 @@ C hodoscopes
 	real*8 hscin_radlen
 	parameter (hscin_radlen =  42.4)
 
-C Ar/neo Cherenkov entrance foil, 2 mil of Al from D Day spreadsheet Jan 27 2012
+C Ar/neo Cherenkov entrance foil, Tedlar ( update from D. Day spreadsheet Feb 2016)
 	real*8 hcer_entr_radlen,hcer_entr_thick
-	parameter (hcer_entr_radlen = 8.90)
+	parameter (hcer_entr_radlen = 19.63)
 	parameter (hcer_entr_thick  = 0.002*2.54)
 C Ar/neo Cherenkov, for now 100% argon
 	real*8 hcer_1_radlen
 	parameter (hcer_1_radlen = 11700.0)
-C Ar/neo Cherenkov mirror, glass is 0.3cm, back is 
+C Ar/neo Cherenkov mirror, SiO2 , no backing
 	real*8 hcer_mirglass_radlen,hcer_mirglass_thick
 	parameter (hcer_mirglass_radlen = 12.29)
-	parameter (hcer_mirglass_thick  = 0.3)! Frac rad len = 2.4%
-	real*8 hcer_mirback1_radlen,hcer_mirback1_thick ! carbon
-	parameter (hcer_mirback1_radlen = 42.7)
-	parameter (hcer_mirback1_thick  = 0.016*2.54) ! 
-	real*8 hcer_mirback2_radlen,hcer_mirback2_thick ! Rohacell
-	parameter (hcer_mirback2_radlen = 540.7)
-	parameter (hcer_mirback2_thick  = 1.27) ! 
-	real*8 hcer_mirback3_radlen,hcer_mirback3_thick! carbon
-	parameter (hcer_mirback3_radlen = 42.7)
-	parameter (hcer_mirback3_thick  = 0.016*2.54) ! 
-	real*8 hcer_mirback4_radlen,hcer_mirback4_thick! Rohacell
-	parameter (hcer_mirback4_radlen = 540.7)
-	parameter (hcer_mirback4_thick  = 2.54) ! 
-C Ar/neo Cherenkov exit foil,
+	parameter (hcer_mirglass_thick  = 0.3)
+C Ar/neo Cherenkov exit foil Tedlar  ( update from D. Day spreadsheet Feb 2016)
 	real*8 hcer_exit_radlen,hcer_exit_thick
-	parameter (hcer_exit_radlen = 8.90)
+	parameter (hcer_exit_radlen = 19.63)
 	parameter (hcer_exit_thick  = 0.002*2.54)
 
 

@@ -509,7 +509,7 @@ C the perfect range, but it's easier than reproducing the generated limits here
 ! Note teff is thickness of material, in radiation lengths.
 
 c	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
-C Better form for beta .ne. 1
+C Better form for beta .ne. 1, from Lynch and Dahl, NIM B58 (1991) p.6-10, Eqn. 6
 	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff/beta**2))
 
 ! Compute scattering angles in perpendicular planes.
@@ -525,7 +525,7 @@ C Better form for beta .ne. 1
 	entry extreme_target_musc(p, beta, teff, dangle, r)
 
 c	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff))
-C Better form for beta .ne. 1
+C Better form for beta .ne. 1, from Lynch and Dahl, NIM B58 (1991) p.6-10, Eqn. 6
 	theta_sigma = Es/p/beta * sqrt(teff) * (1+epsilon*log10(teff/beta**2))
 	dangle = theta_sigma * nsig_max
 	r = nsig_max

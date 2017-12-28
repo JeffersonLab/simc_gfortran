@@ -111,7 +111,7 @@ c              goto 500
               endif
               coll_radw = thick/coll_radl
 ! TH - some adjustment here for multiple scattering test
-c              call musc(m2,p,coll_radw,thick,dydzs,dxdzs)
+c              call musc(m2,p,coll_radw,thick,dydzs,dxdzs) 
               call musc(m2,p,coll_radw,dydzs,dxdzs)
               epart = sqrt(p**2+m2)
               call enerloss_new(thick,coll_dens,zcoll,acoll,epart,

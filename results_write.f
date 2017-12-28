@@ -180,6 +180,11 @@ c	  ntu(11) = vertex%p%xptar			!mr
 		ntu(58) = ntup%theta_mq
 		ntu(59) = ntup%phi_mq
 		ntu(60) = ntup%u/1.e6
+		ntu(61) = ntup%phicmi
+		ntu(62) = ntup%tprimei
+		ntu(63) = ntup%wcmi
+		ntu(64) = ntup%epsiloni
+		ntu(65) = ntup%ui
 	     endif
 	  endif
 	else if (doing_semi.or.doing_rho) then

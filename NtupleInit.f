@@ -174,7 +174,17 @@
 	    NtupleTag(m) = 'phimq'      ! 59 or 67
 	    m=m+1
 	    NtupleTag(m) = 'minus_u'    ! 60 or 68
-         endif
+	    m=m+1
+	    NtupleTag(m) = 'phicmi'     ! 61 or 69
+	    m=m+1
+	    NtupleTag(m) = 'tprimei'     ! 62 or 70
+	    m=m+1
+	    NtupleTag(m) = 'wcmi'       ! 63 or 71
+	    m=m+1
+	    NtupleTag(m) = 'epsiloni'   ! 64 or 72
+	    m=m+1
+	    NtupleTag(m) = 'ui'         ! 65 or 73
+	  endif
 	else if (doing_semi.or.doing_rho) then
 	  m = m+1
 	  NtupleTag(m) = 'missmass'	! 34 <- Wprime for semi-inclusive folks

@@ -16,8 +16,6 @@ C     from Pawel's noted by xucc
 *     NOTE: when we refer to the center of mass system, it always refers to the
 *     photon-NUCLEON center of mass
 
-      real*8 m_rho/775.8/
-      real*8 gamma_rho/150.3/
       real*8 m_pisq, m_p, m_psq
 
       real*8 E0                 ! Electron beam energy
@@ -33,8 +31,8 @@ C     from Pawel's noted by xucc
       real*8 mass               ! omega mass
       real*8 invm,Wsq           ! invariant mass of hadronic system
       real*8 tt,uu              ! Mandelstam variables
-      real*8 tprime
-      real*8 e_photCM,e_rhoCM,t_min
+      real*8 tprime,t_min,uprime,u_min
+      real*8 e_photCM,e_rhoCM,e_pCM
 
       real*8 gamma_T            ! flux of transversely polarized virt. photons
       real*8 Breit_wigner,Soding
@@ -56,6 +54,8 @@ c      common /pawel_crosssection/mass_vtx
       real*8 sig_diffract,sig_hermes
       real*8 sig1,sig2
 
+      if (debug(2)) write(6,*)' peep_rho_recoil: enter '
+
       call transform_to_cm(vertex,main,
      &     gstar,bstar,bstarx,bstary,bstarz,
      &     nustar,qstar,qstarx,qstary,qstarz,
@@ -68,7 +68,7 @@ C     notice that the above symbol "pi" is borrowed from physics_pion
 C     it actually stands for proton. But I am too lazy to change it.
 C     noted by xucc
 
-      m_pisq= 139.57018**2
+      m_pisq= Mpi2
       m_p   = targ%Mtar_struck
       m_psq = m_p**2
 
@@ -114,34 +114,48 @@ C DJG: I changed theta_pq in event.f - need to recalculate tcos
 * main%t, so overwrite it
 * for the + sign I spent 1 hour to check. xucc
       tt = 2.0*(m_p**2-m_p*Ep)
-c      main%t =tt
+c     main%t =tt
+
+      uu = -qsq +m_psq +2.*(qvec*Pp*tcos -nu*Ep )
 
       e_photCM = (Wsq - qsq - m_psq)/invm/2.
       e_rhoCM  = (Wsq + mass**2 - m_psq)/invm/2.
+      e_pCM     = E_cm
       if ((e_rhoCM**2-mass**2)*(e_photCM**2+qsq).ge.0.) then
-         t_min = -qsq + mass**2 -2.*(e_rhoCM*e_photCM-
-     *        sqrt((e_rhoCM**2-mass**2)*(e_photCM**2+qsq)))
+         t_min = -qsq + mass**2 -2.*(e_rhoCM*e_photCM
+     *        -sqrt( (e_rhoCM**2-mass**2)*(e_photCM**2+qsq) ))
+         u_min = -qsq + m_psq -2.*(e_pCM*e_photCM
+     *        -sqrt( (e_pCM**2-m_psq)*(e_photCM**2+qsq) ))
+      else
+         write(6,*)' physics_rho_recoil: no valid t,u min '
       endif
-      main%tmin=-t_min
       tprime = abs(tt)-abs(t_min)
+      uprime = abs(uu)-abs(u_min)
+      main%tmin=t_min
+      
       if (tprime.lt.0.) then
          write(6,*)' unphysical -t<-t_min ',tt,t_min
       endif
-
-      uu = -qsq +m_psq +2.*(qvec*Pp*tcos -nu*Ep )
 
 ******************************************************************************
 *  we keep the tradition that ntup.sigcm is d2sigma/dt/dphi_cm [ub/MeV^2/rad]
 ******************************************************************************
 *
 * Diffractive rho production model used by P. Ambrosewicz
-      sig1 = sig_diffract(mass/1.e3,invm/1.e3,qsq/1.e6,
-     *     tt/1.e6,t_min/1.e6)
+c      sig1 = sig_diffract(mass/1.e3,invm/1.e3,qsq/1.e6,
+c     *     tt/1.e6,t_min/1.e6)
 
 * PYTHIA model with modifications from the HERMES MC
-      sig2 = sig_hermes(qsq,tt,t_min,nu,invm/1.e3,epsilon)
+      sig2 = sig_hermes(mass/1.e3,qsq,tt,t_min,uu,u_min,nu,invm/1.e3,
+     *       epsilon)
       
       ntup%sigcm=sig2
+
+      ntup%phicmi=phicm
+      ntup%wcmi=invm/1.e3
+      ntup%tprimei=tprime/1.e6
+      ntup%epsiloni=epsilon
+      ntup%ui=-uu/1.e6
 
 C DJG  Breit-Wigner in the event generation - not needed here anymore.      
 *******************************************************************************
@@ -149,12 +163,12 @@ C DJG  Breit-Wigner in the event generation - not needed here anymore.
 * d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad]
 *
 * gh - relativistic Breit-Wigner factor (eqn 38.52 of 2004 PDG book)
-      Breit_wigner=(m_rho*gamma_rho)**2/
-     *     ((mass**2-m_rho**2)**2 +(m_rho*gamma_rho)**2)
+      Breit_wigner=(Mrho*MrhoW)**2/
+     *     ((mass**2-Mrho**2)**2 +(Mrho*MrhoW)**2)
 
 * gh - since sigma_omega is integrated over the omega peak, normalize
 * Breit-Wigner to unit integral
-      Breit_wigner=Breit_wigner/(gamma_rho*pi/2.)
+      Breit_wigner=Breit_wigner/(MrhoW*pi/2.)
 
 * Soding model (skewness) correction
 *
@@ -171,7 +185,7 @@ C DJG  Breit-Wigner in the event generation - not needed here anymore.
 *      Soding=(mass/m_rho)**(-4.394+2.366*abs(tt/1.e6))
 
 * GH: leave it fixed at the CLAS value for now
-       Soding=(m_rho/mass)**0.0
+       Soding=(Mrho/mass)**0.0
 
 *******************************************************************************
 * Convert from d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad] 
@@ -221,14 +235,14 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 * all calculations are in GeV
 
       implicit none
+      include 'constants.inc'
 
       real*8 mass,invm,Wsq,qsq,tt,t_min,e_gamma
       real*8 A,B,C,b_slope,sig_grho
-      real*8 m_p,m_psq,pi
+      real*8 m_pgev,m_pgevsq
 
-      pi  = 3.141592653589793
-      m_p = 0.93827231
-      m_psq = m_p**2
+      m_pgev   = Mp/1.e3
+      m_pgevsq = m_pgev**2
 
       Wsq  = invm*invm
 
@@ -241,7 +255,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
          b_slope = 0.0
       endif
 
-      e_gamma  = (Wsq - m_psq)/m_p/2.
+      e_gamma  = (Wsq - m_pgevsq)/m_pgev/2.
       sig_grho = 29.4/e_gamma + 9.5
 
 * returned cross section is d2sigma/dt/dphi_cm [ub/MeV^2/rad]
@@ -256,7 +270,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      real*8 function sig_hermes(Q2,t,tmin,nu,w_gev,epsi)
+      real*8 function sig_hermes(mass,Q2,t,tmin,u,umin,nu,w_gev,epsi)
 
 * This routine calculates p(e,e'rho)p cross sections using D. Gaskell's
 * attempt to code in the form used in PYTHIA with modifications
@@ -265,12 +279,17 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       include 'constants.inc'
 
-      real*8 t,tmin,tprime
-      real*8 nu,epsi,Q2,w_gev,wfactor,m_p
+      real*8 t,tmin,tprime,u,umin,uprime
+      real*8 mass,nu,epsi,Q2,w_gev,wfactor,m_pgev
       real*8 sig0,sigt,sig219,R,cdeltatau,brho
 
-      m_p = 0.93827231
+      integer iflag
+
+      iflag=1                   ! flag for t(0) or u(1) channel
+
+      m_pgev = Mp/1.e3
       tprime = abs(t-tmin)/1.e6
+      uprime = abs(u-umin)/1.e6
       cdeltatau = hbarc/(sqrt(nu**2+Q2+mrho2)-nu) !in fm!
 
 * Put in some W dependence from photoproduction data
@@ -288,13 +307,13 @@ c       wfactor=(2.47**2-m_p**2)**2/(w_gev**2-m_p**2)**2
 * DJG:  R=L/T is usually fit to the form c_0 (Q2/M2_rho)^c1
 * GH:   c_0 and c_1 taken from HERMES data, Rakness thesis, Fig 5.9
 
-      R = 0.39*(Q2/mrho2)**(0.68)
+      R = 0.39*(Q2/Mrho2)**(0.68)
       if (R.gt.1) R=1
 
 * DJG:  The Q2 dependence is usually given by (M2_rho/(Q2+M2_rho))^2
 * DJG:  HERMES found that 2.575 works better than 2 in the exponent.
 
-      sigt = sig0*(1.0+epsi*R)*(mrho2/(Q2+mrho2))**(2.575)
+      sigt = sig0*(1.0+epsi*R)*(Mrho2/(Q2+Mrho2))**(2.575)
 
 * DJG: Need to parameterize t-dependence with b parameter as a function
 *      of c-tau
@@ -320,14 +339,20 @@ c      endif
 c GH: the conventional formula with exponential factor is for forward
 c     diffractive, it might not be appropriate for u-channel production
 
-      sig219 = sigt*brho*exp(-brho*tprime)/2.0/pi !ub/GeV**2/rad
-      
-      sig_hermes=sig219/1.d+06         !dsig/dtdphicm in microbarns/MeV**2/rad
+      if (iflag.lt.1) then      ! t-channel
+         sig219 = sigt*brho*exp(-brho*tprime)/2.0/pi !ub/GeV**2/rad
+      else
+         sig219 = sigt*brho*exp(-brho*uprime)/2.0/pi
+         sig219 = sig219/10.    ! back angle peak is ~10% of forward angle peak
+      endif
+         
+      sig_hermes=sig219/1.e+06         !dsig/dtdphicm in microbarns/MeV**2/rad
 
 c GH: check for weird behavior on upper side of rho peak
-      if (tprime.gt.8. and. sig_hermes.gt.1.e-14) then
+      if (iflag.lt.1. .and. mass.gt.1.2 .and. tprime.gt.Q2 .and.
+     *    sig_hermes.gt.1.e-14) then
          write(6,*)' tprime=',tprime,' sig=',sig_hermes
-         sig_hermes=1.e-14
+         sig_hermes=sig_hermes*1.e-6
       endif
       
       return

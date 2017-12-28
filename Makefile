@@ -33,10 +33,11 @@ T       = $(simcdir)/cteq5/
 C       = $(simcdir)/calo/
 
 OBJ1	= target.o brem.o gauss1.o NtupleInit.o NtupleClose.o enerloss_new.o
-#OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physics_proton.o loren.o sf_lookup.o
-OBJ2	= radc.o init.o dbase.o physics_piKmodel.o physics_delta.o physics_proton.o loren.o sf_lookup.o
+OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physics_proton.o loren.o sf_lookup.o
+#OBJ2	= radc.o init.o dbase.o physics_piKmodel.o physics_delta.o physics_proton.o loren.o sf_lookup.o
 OBJ3	= semi_physics.o rho_physics.o rho_decay.o generate_rho.o trg_track.o semi_dilution.o
-OBJ4	= physics_omega.o physics_Xphasespace.o physics_rho_recoil.o physics_phi.o 
+OBJ4	= physics_omega.o physics_Xphasespace.o physics_rho_recoil.o physics_phi.o
+OBJ4b   = physics_eta.o physics_eta_prime.o 
 OBJ4a   = results_write.o event.o mt19937.o jacobians.o
 OBJ5	= $(A)musc.o $(A)musc_ext.o $(A)project.o $(A)transp.o
 OBJ6	= $(A)rotate_haxis.o $(A)rotate_vaxis.o $(A)locforunt.o
@@ -47,7 +48,7 @@ OBJA	= $(L)mc_hrsl.o $(L)mc_hrsl_hut.o $(L)mc_hrsl_recon.o
 OBJB	= $(SH)mc_shms.o $(SH)mc_shms_hut.o $(SH)mc_shms_recon.o
 OBJC    = $(T)Ctq5Pdf.o
 OBJD    = $(C)mc_calo.o $(C)mc_calo_recon.o
-my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ4a) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD)
+my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ4b) $(OBJ4a) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD)
 
 my_deps = $(my_objs:.o=.d)
 

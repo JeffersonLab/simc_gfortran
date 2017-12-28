@@ -1,14 +1,12 @@
       real*8 function peep_phi(vertex,main)
 
-C     This function is adapted from Pawel Ambrozewicz
 c     gh - 14.12.18
-
+c     gh - modified 17.12.27
+      
       implicit none
       include 'simulate.inc'
 
 C     The following two record lines are from SIMC physics_kaon.f
-C     For we need these quantities as starting point which may be different
-C     from Pawel's noted by xucc
 
       type(event_main):: main
       type(event):: vertex
@@ -17,9 +15,7 @@ C     from Pawel's noted by xucc
 *     photon-NUCLEON center of mass
 
       real*8 sigma_phi
-      real*8 m_phi/1019.460/
-      real*8 gamma_phi/4.26/
-      real*8 m_Ksq, m_p, m_psq
+      real*8 m_p, m_psq
 
       real*8 E0                 ! Electron beam energy
       real*8 E_prime            ! scattered electron energy
@@ -33,8 +29,8 @@ C     from Pawel's noted by xucc
       real*8 mass               ! phi mass
       real*8 invm,Wsq           ! invariant mass of hadronic system
       real*8 tt,uu              ! Mandelstam variables
-      real*8 tprime
-      real*8 e_photCM,e_phiCM,t_min
+      real*8 tprime,t_min,t_max,uprime,u_min
+      real*8 e_photCM,e_phiCM,e_pCM
 
       real*8 gamma_T            ! flux of transversely polarized virt. photons
       real*8 Breit_wigner
@@ -50,7 +46,7 @@ C     from Pawel's noted by xucc
       real*8 etarcm,ptarcm,ptarcmx,ptarcmy,ptarcmz !p_fermi in C.M.
       real*8 thetacm,phicm,phiqn,jacobian,jac_old
 
-      real*8 sig_gmh,sig_diffract,sig_phigmh
+      real*8 sig_gmh,sig_diffract,sig_phigmh,sig_phiweiss
       real*8 sig1,sig2,sig3
 
       if (debug(2)) write(6,*)' peep_phi: enter '
@@ -67,7 +63,6 @@ C     notice that the above symbol "pi" is borrowed from physics_pion
 C     it actually stands for proton. But I am too lazy to change it.
 C     noted by xucc
 
-      m_Ksq= 493.677**2
       m_p   = targ%Mtar_struck
       m_psq = m_p**2
 
@@ -83,7 +78,7 @@ C     noted by xucc
       Wsq  = invm*invm
 
       mass = targ%Mrec_struck
-      if (mass**2.lt.m_Ksq) then
+      if (mass**2.lt.Mk2) then
          peep_phi=0.0
          return
       endif 
@@ -102,7 +97,8 @@ c     qvec is the momentum of virtual gamma in lab system.
 CDJG      tcos = cos(main%theta_pq)
 
 C DJG: I changed theta_pq in event.f - need to recalculate tcos
-      tcos = vertex%up%x*vertex%uq%x+vertex%up%y*vertex%uq%y+vertex%up%z*vertex%uq%z
+      tcos = vertex%up%x*vertex%uq%x+vertex%up%y*vertex%uq%y
+     >       +vertex%up%z*vertex%uq%z
       
 * since here the meson is the recoil particle, t for us is not the same thing as 
 * main%t, so overwrite it
@@ -110,39 +106,54 @@ C DJG: I changed theta_pq in event.f - need to recalculate tcos
       tt = 2.0*(m_p**2-m_p*Ep)
 c     main%t = tt
 
+      uu = -qsq +m_psq +2.*(qvec*Pp*tcos -nu*Ep )
+      
       e_photCM = (Wsq - qsq - m_psq)/invm/2.
       e_phiCM   = (Wsq + mass**2 - m_psq)/invm/2.
+      e_pCM     = (Wsq + m_psq - mass**2)/invm/2.
       if ((e_phiCM**2-mass**2)*(e_photCM**2+qsq).ge.0.) then
-         t_min = -qsq + mass**2 -2.*(e_phiCM*e_photCM-
-     *        sqrt((e_phiCM**2-mass**2)*(e_photCM**2+qsq)))
+         t_min = -qsq + mass**2 -2.*(e_phiCM*e_photCM
+     *        -sqrt( (e_phiCM**2-mass**2)*(e_photCM**2+qsq) ))
+         t_max = -qsq + mass**2 -2.*(e_phiCM*e_photCM
+     *     +sqrt((e_phiCM**2-mass**2)*(e_photCM**2+qsq)))
+         u_min = -qsq + m_psq -2.*(e_pCM*e_photCM
+     *        -sqrt( (e_pCM**2-m_psq)*(e_photCM**2+qsq) ))
+      else
+         write(6,*)' physics_phi: no valid t,u min '
       endif
-      main%tmin=t_min
       tprime = abs(tt)-abs(t_min)
+      uprime = abs(uu)-abs(u_min)
+      main%tmin=t_min
+      
       if (tprime.lt.0.) then
          write(6,*)' unphysical -t<-t_min ',tt,t_min
       endif
-
-      uu = -qsq +m_psq +2.*(qvec*Pp*tcos -nu*Ep )
+      if (uprime.lt.0.) then
+         write(6,*)' unphysical -u<-u_min ',uu,u_min
+      endif
 
 ******************************************************************************
 *  we keep the tradition that ntup.sigcm is d2sigma/dt/dphi_cm [ub/MeV^2/rad]
 ******************************************************************************
 *
-* Diffractive model used by P. Ambrosewicz
-      sig1 = sig_diffract(mass/1.e3,invm/1.e3,qsq/1.e6,
-     *     tt/1.e6,t_min/1.e6)
-
 * PYTHIA model with modifications from the HERMES MC
-      sig2 = sig_phigmh(qsq,tt,t_min,nu,invm/1.e3,epsilon)
+c      sig1 = sig_phigmh(mass/1.e3,qsq,tt,t_min,uu,u_min,nu,invm/1.e3,
+c     *       epsilon)
 
-* Parameterization based on saturated Regge model of J.M.Laget.
-* 2<W<3 GeV, 2<Q^2<3 GeV^2
-      sig3 = sig_gmh(thetacm,phicm,tt/1.e6,tprime/1.e6,vertex%q2/1.e6,
-     *     invm/1.e3,epsilon)
+      sig2 = sig_phiweiss(qsq/1.e6,tt/1.e6,t_min/1.e6,t_max/1.e6,
+     *       uu/1.e6,u_min/1.e6,invm/1.e3,epsilon)
 
-      ntup%sigcm=sig3
+c      write(6,*)' phi ',sig1,sig2
+      
+      ntup%sigcm=sig2
 
-      sigma_phi=ntup%sigcm
+      ntup%phicmi=phicm
+      ntup%wcmi=invm/1.e3
+      ntup%tprimei=tprime/1.e6
+      ntup%epsiloni=epsilon
+      ntup%ui=-uu/1.e6
+
+c      sigma_phi=ntup%sigcm
 
 C DJG Breit-Wigner in the event generation - not needed here anymore.
 *******************************************************************************
@@ -150,12 +161,12 @@ C DJG Breit-Wigner in the event generation - not needed here anymore.
 * d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad].
 *
 * gh - relativistic Breit-Wigner factor (eqn 38.52 of 2004 PDG book)
-      Breit_wigner=(m_phi*gamma_phi)**2/
-     *     ((mass**2-m_phi**2)**2 +(m_phi*gamma_phi)**2)
+      Breit_wigner=(Mphi*MphiW)**2/
+     *     ((mass**2-Mphi**2)**2 +(Mphi*MphiW)**2)
 
 * gh - since sigma_omega is integrated over the omega peak, normalize
 * Breit-Wigner to unit integral
-      Breit_wigner=Breit_wigner/(gamma_phi*pi/2.)
+      Breit_wigner=Breit_wigner/(MphiW*pi/2.)
 
 *******************************************************************************
 * Convert from d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad] 
@@ -200,7 +211,7 @@ C DJG hard-wired proton masses above...
       end
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      real*8 function sig_phigmh(Q2,t,tmin,nu,w_gev,epsi)
+      real*8 function sig_phigmh(mass,Q2,t,tmin,u,umin,nu,w_gev,epsi)
 
 * This routine calculates p(e,e'phi)p cross sections 
 * in the form used in PYTHIA with modifications
@@ -209,11 +220,17 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       include 'constants.inc'
 
-      real*8 t,tmin,tprime
-      real*8 nu,epsi,Q2,w_gev
+      real*8 t,tmin,tprime,u,umin,uprime
+      real*8 mass,nu,epsi,Q2,w_gev,wfactor,m_p
       real*8 sig0,sigt,sig219,R,cdeltatau,bphi
 
+      integer iflag
+
+      iflag=1                   ! flag for t(0) or u(1) channel
+      
+      m_p = Mp/1.e3
       tprime = abs(t-tmin)/1.e6
+      uprime = abs(u-umin)/1.e6
       cdeltatau = hbarc/(sqrt(nu**2+Q2+mphi2)-nu) !in fm!
 
 * W dependence from photoproduction data
@@ -239,9 +256,307 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c GH: the conventional formula with exponential factor is for forward
 c     diffractive, it might not be appropriate for u-channel production
 
-      sig219 = sigt*bphi*exp(-bphi*tprime)/2.0/pi !ub/GeV**2/rad
+      if (iflag.lt.1) then      ! t-channel
+         sig219 = sigt*bphi*exp(-bphi*tprime)/2.0/pi !ub/GeV**2/rad
+      else                      ! u-channel
+         sig219 = sigt*bphi*exp(-bphi*uprime)/2.0/pi
+         sig219 = sig219/10.    ! back angle peak is ~10% of forward angle peak
+      endif
+         
+      sig_phigmh=sig219/1.e+06         !dsig/dtdphicm in microbarns/MeV**2/rad
+
+c GH: check for weird behavior on upper side of peak
+      if (iflag.lt.1 .and. mass.gt.1.5 .and. tprime.gt.Q2 .and.
+     *    sig_phigmh.gt.1.e-20) then
+          write(6,*)' tprime=',tprime,' sig=',sig_phigmh
+          sig_phigmh=sig_phigmh*1.e-6
+       endif
       
-      sig_phigmh=sig219/1.d+06         !dsig/dtdphicm in microbarns/MeV**2/rad
+      return
+      end
+
+
+
+C---------------------------------------------------------------------
+      real*8 function sig_phiweiss(q2_gev,t_gev,tmin,tmax,u_gev,umin,
+     *  w_gev,epsi)
+
+      implicit none
+      include 'constants.inc'
+      
+      real*8 q2_gev,t_gev,tmin,tmax,u_gev,umin,w_gev,epsi
+      real*8 sig,sigt,sigl
+      real*8 ttmin,ttmax
+      integer itdep,itmin
+      integer iflag
+
+      iflag=1                   ! flag for t(0) or u(1) channel
+      itdep=1
+      itmin=0
+
+      call xphi(sigt, sigl, ttmin, ttmax, w_gev, t_gev, u_gev, q2_gev,
+     >     itdep, itmin, iflag)
+
+c check tmin, tmax values
+      if (abs(ttmin-tmin).lt.1.e-10) then
+         write(6,*)' sig_phiweiss: tmin disagreement ',tmin,ttmin
+      endif
+      if (abs(ttmax-tmax).lt.1.e-10) then
+         write(6,*)' sig_phiweiss: tmax disagreement ',tmax,ttmax
+      endif
+         
+      sig = sigt +epsi*sigl
+
+      sig_phiweiss = sig/2./pi*1.e-09    !dsig/dtdphicm in microbarns/MeV^2/rad
 
       return
       end
+
+      
+c---------------------------------------------------------------------
+      subroutine xphi(dxt, dxl, tmin,tmax, w, t, u, qq,
+     >    itdep, itmin, iflag)
+
+c     subroutine xphi(xt, xl, dxt, dxl, tmin, tmax, b, uug, w, t,
+c     *   qq, itdep, itmin)
+
+c     c. weiss (weiss.at.jlab.org) 
+c     v1 07mar12
+c     v2 09mar12  argument w instead of s, tmax, input checking 
+c
+c     exclusive phi meson electroproduction  gamma* + n  to  phi + n
+c     parametrization of virtual photoproduction cross sections
+c     (hand convention)
+c
+c     masses/energies/momenta in GeV
+c
+c     output:
+c     xt     total  transv. cross secn   sigma-t    (nb)
+c     xl     total  longit. cross secn   sigma-l    (nb)
+c     dxt    diff.  transv. cross secn  dsigma-t/dt (nb/gev**2)
+c     dxl    diff.  longit. cross secn  dsigma-l/dt (nb/gev**2)
+c     tmin   kinematic upper limit of t
+c     tmax   kinematic lower limit of t
+c     b      exponential t-slope
+c     uug    equivalent dipole mass squared
+c
+c
+c     input:
+c     w      gamma*-n cm energy w = sqrt(s)       (gev)
+c     t      invariant momentum transfer t .le. 0 (gev**2) 
+c     qq     photon virtuality q**2 .ge. 0        (gev**2)
+c
+c
+c     itdep  selects parametrization of t-dependence
+c            1   exponential
+c            2   dipole
+c
+c     the dipole mass parameter is calculated from the exponential
+c     slope by matching the profiles at a fixed value t = t0.
+c
+c
+c     itmin  determines check of kinematic bounds in t and actual value 
+c     of t used in calculation of differential cross secn
+c            0   t-actual = t. no check of bounds, allows t = 0
+c            1   t-actual = t. return zero if  t.ge.tmin  or  t.le.tmax
+c            2   t-actual = tmin
+c
+c     if  itmin = 0  is selected, the routine allows one to evaluate the 
+c     differential cross secn parametrization for any fixed  t,
+c     including unphysical values such as the point  t = 0. 
+c
+c     if  itmin = 1  is selected, the routine returns zero 
+c     differential cross secn if t is outside of kinematic bounds
+c 
+c     if  itmin = 2  is selected, the routine evaluates the differential 
+c     cross secns at  t = tmin, where  tmin  is calculated at the given
+c     values of  w  and  qq. in this case the actual value of  t  on input 
+c     is ignored. no change of the actual value of the argument  t  
+c     is made.
+c
+c
+c     if the energy is below threshold,  w .lt. wth = 1.958, 
+c     or if  qq .lt. 0 (defined numerically as qq .lt. (-eps) = -1.d-15)
+c     the routine exits with zero values for all output variables.
+c
+c
+c     implicit double precision (a - h, o - z)
+      implicit real*8 (a - h, o - z)
+      implicit integer (i - n)
+
+c
+c     ...numerical limit for t, qq check
+c
+      parameter(eps = 1.e-15)
+c
+c     ...masses
+c
+      parameter(un = 0.938e0, uphi = 1.020e0)
+c
+      wth = un + uphi
+c
+c     ...check w, qq input and return zero if out of bounds
+c
+      if (w.lt.wth.or.qq.lt.(-eps)) then
+         tmin = 0.e0
+         tmax = 0.e0
+         xt   = 0.e0
+         xl   = 0.e0
+         b    = 0.e0
+         uug  = 0.e0
+         dxt  = 0.e0
+         dxl  = 0.e0
+         return
+      endif
+c
+c     ...cross sections as function of w
+c
+      al1 = 400.  e0 
+      al2 =   1.  e0 
+      al3 =   0.32e0 
+      unt =   3.  e0
+      cr  =   0.4 e0
+c
+      xt = al1 *(1.e0 - wth**2/w**2)**al2 *w**al3
+     *     /(1.e0 + qq/uphi**2)**unt
+c
+      xl = cr*qq/uphi**2 *xt
+c
+c     ...calculate tmin, tmax
+c
+      call ftcm(w, qq,  1.e0, un, uphi, tmin)
+      call ftcm(w, qq, -1.e0, un, uphi, tmax)
+c
+c     ...check t input and set actual value of t
+c
+      if      (itmin.eq.0) then
+c
+         ta = t
+c
+      else if (itmin.eq.1) then
+c
+         if (t.lt.tmin.and.t.gt.tmax) then
+            ta = t
+         else
+            b   = 0.e0
+            uug = 0.e0
+            dxt = 0.e0
+            dxl = 0.e0
+            return
+         endif
+c
+      else if (itmin.eq.2) then
+c
+         ta = tmin
+c
+      else
+         stop 'itmin out of bounds'
+      endif
+c
+c     ...exponential t-slope as function of w
+c
+      b0    = 2.2  e0 
+      alphp = 0.24 e0 
+c
+      b     = b0 + 4.e0*alphp*log(w)  
+c
+c     ...equivalent dipole mass squared
+c
+      t0  = -0.5e0 
+      uug = -t0/(exp(-b*t0/4.e0) - 1.e0)
+c
+c     ...normalized t-profile
+c
+c        itdep = 1 exponential profile
+c                2 dipole      profile
+c
+      if      (itdep.eq.1) then
+
+         if (iflag.lt.1) then
+         
+            f  = exp(b*ta)
+            fi = exp(b*tmin)/b
+     *           - exp(b*tmax)/b
+
+c            write(6,*)' tt ',tmin,t,tmax
+c            write(6,*)f,fi,f/fi
+
+         else
+
+c gh - 17.12.27
+c christian recommends the following change for u-channel:
+c switch u-slope for t-slope, then divide by 10, since back angle peak 
+c is ~10% of forward angle peak (at least for omega electroproduction)   
+            
+            f  = exp(b*u)
+            umin=-qq+2.*un**2+uphi**2-w**2-tmax
+            umax=-qq+2.*un**2+uphi**2-w**2-tmin
+            fi = exp(b*umin)/b
+     *           - exp(b*umax)/b
+            f = f/10.
+            
+c            write(6,*)' uu ',umin,u,umax
+c            write(6,*)f,fi,f/fi
+
+         endif
+c
+      else if (itdep.eq.2) then
+c
+         f   = uug**4/(uug - ta  )**4 
+         fi  = uug**4/(uug - tmin)**3/3.e0
+     *       - uug**4/(uug - tmax)**3/3.e0 
+c
+      else
+         stop 'itdep out of bounds'
+      endif
+c
+c     ...differential cross sections
+c
+      dxt = xt*f/fi
+      dxl = xl*f/fi
+      
+      sigw=1.0
+      
+      end
+c
+c---------------------------------------------------------------------
+c
+      subroutine ftcm(w, qq, costh, un, um, t)
+c
+c     calculate  t  in meson electroproduction
+c     using exact kinematics in cm frame
+c
+c     initial and final baryon mass are the same
+c
+c     tmin is obtained for costh =  1
+c     tmax                 costh = -1
+c
+c      implicit double precision (a - h, o - z)
+      implicit real*8 (a - h, o - z)
+c
+      call lamfn(alam1, w**2, un**2,   -qq)
+      call lamfn(alam2, w**2, un**2, um**2)
+      p1  = sqrt(alam1)/2.e0/w
+      p2  = sqrt(alam2)/2.e0/w
+      e1  = sqrt(p1**2 + un**2)
+      e2  = sqrt(p2**2 + un**2)
+c
+      t = 2*un**2 - 2*e1*e2 + 2*costh*p1*p2
+c
+      end
+c
+c---------------------------------------------------------------------
+c
+      subroutine lamfn(alam, x, y, z)
+c
+c     lambda function (invariant expression of cm momentum)
+c
+c      implicit double precision (a - h, o - z)
+      implicit real*8 (a - h, o - z)
+c
+      alam = x**2 + y**2 + z**2 - 2*x*y - 2*x*z - 2*y*z
+c
+      end
+c
+c---------------------------------------------------------------------
+c

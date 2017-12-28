@@ -93,7 +93,7 @@ c gh - ranlux init
 	if (debug(2)) write(6,*)'central%sigcc=',central%sigcc
 	if (debug(4)) write(6,*)'sim: at 1'
 
-	targetfac=targ%mass_amu/3.75914d+6/(targ%abundancy/100.)
+	targetfac=targ%mass_amu/3.75914e+6/(targ%abundancy/100.)
      >		*abs(cos(targ%angle))/(targ%thick*1000.)
 	if (debug(4)) write(6,*)'sim: at 2'
 
@@ -207,7 +207,7 @@ cdg	call time (timestring1(11:23))
 	  if (mod(ntried,ninform).eq.1) then
 	    write (6,'(1x,a,i9,a,i8,a,e11.4)') 'Generating Event',
      >		ntried, ' ... ', nevent,'  successes so far - Monitor:',
-     >	  wtcontribute*luminosity/ntried
+     >		wtcontribute*luminosity/ntried
 	    if (ntried.ge.5000) ninform = 20000
 	  endif
 
@@ -754,6 +754,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	     else if(which_eepx.eq.4) then
 		write(iun,*) '           ****--------  H(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.5) then
+		write(iun,*) '           ****--------  H(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.6) then
 		write(iun,*) '           ****--------  H(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  H(e,e''p)Mx  --------****'
@@ -769,6 +771,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	     else if(which_eepx.eq.4) then
 		write(iun,*) '           ****--------  D(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.5) then
+		write(iun,*) '           ****--------  D(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.6) then
 		write(iun,*) '           ****--------  D(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  D(e,e''p)Mx  --------****'
@@ -784,6 +788,8 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	     else if(which_eepx.eq.4) then
 		write(iun,*) '           ****--------  A(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.5) then
+		write(iun,*) '           ****--------  A(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.6) then
 		write(iun,*) '           ****--------  A(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  A(e,e''p)Mx  --------****'

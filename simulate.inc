@@ -159,6 +159,7 @@ C Structure for variables that we want to available to the ntuple.
 		real*8 xfermi, yfermi
 		real*8 rhomass, rhotheta,PMsigned
 		real*8 thetacm,theta_mq,phi_mq
+		real*8 phicmi,tprimei,wcmi,epsiloni,ui
 	end type
 
 	type (ntupvars):: ntup

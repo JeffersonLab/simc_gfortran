@@ -17,7 +17,7 @@
 !	which_pion = 10(11) gives pi+ (pi-) coherent production.
 !	This sets doing_hydpi true for ALL targets (i.e. treat as
 !	a heavy proton) but with targ.Mtar_struck and targ.Mrec_struck
-!	set appropriatly.
+!	set appropriately.
 !
 ! 4. doing_phsp:Generate acceptance with radiation and cross section disabled,
 !	use doing_kaon or doing_pion to set hadron mass, then 
@@ -31,7 +31,11 @@
 !	a 'shortcut' version to start with.
 ! 6. doing_semi: H(e,e'pi)X (doing_semipi) and H(e,e'k)X (doing_semika) 
 ! 7. doing_rho: H(e,e'rho)p
+! 8. doing_eepx: H(e,e'p)M, where M=pi0,eta,rho,omega,eta',phi selected
+!       according to the recoil mass
+! 9. doing_Xphasespace: H(e,e'p)X where X is chosen according to 2pi phasespace	
 
+	
 	implicit none
 	include 'radc.inc'
 	include 'histograms.inc'
@@ -321,12 +325,15 @@ C DJG:
 	  else if(Meepx.gt.778.0.and.Meepx.lt.790.0) then
 	     targ%Mrec_struck = Momega
 	     which_eepx = 4
+	  else if(Meepx.gt.957.0.and.Meepx.lt.958.0) then
+	     targ%Mrec_struck = Metap
+	     which_eepx = 5
 	  else if(Meepx.gt.1015.0.and.Meepx.lt.1025.0) then
 	     targ%Mrec_struck = Mphi
-	     which_eepx = 5
+	     which_eepx = 6
 	  else
 	     targ%Mrec_struck = Meepx
-	     which_eepx = 6
+	     which_eepx = 7
 	  endif
 
 	else if (doing_delta) then		!Strike (and detect) proton, pion 'recoil'
@@ -768,6 +775,8 @@ C DJG:
 	     else if(which_eepx.eq.4) then
 		write(6,*) ' ****--------  H(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.5) then
+		write(6,*) ' ****--------  H(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.6) then
 		write(6,*) ' ****--------  H(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  H(e,e''p)Mx  --------****'
@@ -783,6 +792,8 @@ C DJG:
 	     else if(which_eepx.eq.4) then
 		write(6,*) ' ****--------  D(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.5) then
+		write(6,*) ' ****--------  D(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.6) then
 		write(6,*) ' ****--------  D(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  D(e,e''p)Mx  --------****'
@@ -798,6 +809,8 @@ C DJG:
 	     else if(which_eepx.eq.4) then
 		write(6,*) ' ****--------  A(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.5) then
+		write(6,*) ' ****--------  A(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.6) then
 		write(6,*) ' ****--------  A(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  A(e,e''p)Mx  --------****'

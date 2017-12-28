@@ -309,8 +309,8 @@ c	  vertex%p%E = Emin + grnd()*(Emax-Emin)
      >       .or.doing_Xphasespace) then
 	  Emin=gen%e%E%min
 	  Emax=gen%e%E%max
-	  if (doing_deuterium .or. doing_pion .or. doing_kaon .or. doing_eepx .or. 
-     >          doing_delta .or. doing_rho) then
+	  if (doing_deuterium .or. doing_pion .or. doing_kaon .or.
+     >          doing_eepx .or. doing_delta .or. doing_rho) then
 	    Emin = max(Emin,gen%sumEgen%min)
 	    Emax = min(Emax,gen%sumEgen%max)
 	  else if (doing_heavy) then		! A(e,e'p)
@@ -612,8 +612,8 @@ c	  endif
 	  if(doing_eepx) then
 	    if (debug(4)) write(6,*)'comp_ev: at 6.5a',which_eepx
 	      if (which_eepx.eq.3) then      !rho
-* the rho is very broad and gets a formula with more restricted width
-* even so, masses will be generated down to about 375 MeV
+c the rho is very broad and gets a formula with more restricted width
+c even so, masses will be generated down to about 375 MeV
 c ranlux substituted for grnd - gh
                  call ranlux (rannum4,1)
 	         rannum=dble(rannum4)
@@ -623,20 +623,16 @@ c ranlux substituted for grnd - gh
 c     >           tan((2.*grnd()-1.)*atan(2.*450./MrhoW))
 c     >           tan((2.*grnd()-1.)*atan(2.*500./MrhoW))
 	      else if (which_eepx.eq.4) then ! omega
-* all other mesons get the standard formula
-c ranlux substituted for grnd - gh
+c all other mesons (with width) get the standard formula
                  call ranlux (rannum4,1)
 	         rannum=dble(rannum4)
 	         targ%Mrec_struck = Momega + 
      >	         0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
-c     >	         0.5*MomegaW*tan((2.*grnd()-1.)*pi/2.)
-	      else if (which_eepx.eq.5) then ! phi
-c ranlux substituted for grnd - gh
+	      else if (which_eepx.eq.6) then ! phi
                  call ranlux (rannum4,1)
 	         rannum=dble(rannum4)
 	         targ%Mrec_struck = Mphi + 
      >	         0.5*MphiW*tan((2.*rannum-1.)*pi/2.)
-c     >	         0.5*MphiW*tan((2.*grnd()-1.)*pi/2.)
 	      endif
 	   if (debug(4)) write(6,*)'comp_ev: at 6.5b',targ%Mrec_struck
 	      if(targ%Mrec_struck.le.0.0) return
@@ -682,7 +678,7 @@ c     >	         0.5*MphiW*tan((2.*grnd()-1.)*pi/2.)
      >       (vertex%uq%x*vertex%up%x+vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
 	   write(6,*) 'a,b,c=',a/1000.,b/1000000.,c/1000.
 	   write(6,*) 't=',t/1000000.
-	   write(6,*) 'A,B,C=',QA/1.d6,QB/1.d9,QC/1.d12
+	   write(6,*) 'A,B,C=',QA/1.e6,QB/1.e9,QC/1.e12
 	   write(6,*) 'rad=',QB**2 - 4.*QA*QC
 	   write(6,*) 'e1,e2=',(-QB-sqrt(radical))/2000./QA,(-QB+sqrt(radical))/2000./QA
 	   write(6,*) 'E_pi1,2=',vertex%nu+targ%M-(-QB-sqrt(radical))/2./QA,
@@ -733,7 +729,6 @@ c     >	         0.5*MphiW*tan((2.*grnd()-1.)*pi/2.)
 	if (debug(4)) write(6,*)'comp_ev: at 7'
 
 ! Compute some pion and kaon stuff.  Some of these should be OK for proton too.
-
 
 	if (doing_pion .or. doing_kaon .or. doing_eepx.or.doing_delta 
      >     .or. doing_rho .or. doing_semi.or. doing_Xphasespace) then
@@ -982,7 +977,6 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	if (debug(5)) write(6,*) 'vertex%Pm,vertex%Trec,vertex%Em',vertex%Pm,vertex%Trec,vertex%Em
 	if (debug(4)) write(6,*)'comp_ev: at 10'
 
-
 ! calculate krel for deuteron/heavy pion(kaon).  Deuteron is straightforward.
 ! A>2 case is some approximation for 3He (DJG).
 
@@ -1226,7 +1220,9 @@ Cgh	W2 = mp**2 + 2.*mp*recon%nu - recon%Q2
 	p_new_x = px*new_x_x + py*new_x_y + pz*new_x_z
 	p_new_y = px*new_y_x + py*new_y_y + pz*new_y_z
 
-	if ((p_new_x**2+p_new_y**2).eq.0.) then
+c gh 17.12.27 - modify because of real inequality comparison warning
+c	if ((p_new_x**2+p_new_y**2).eq.0.) then
+	if (abs(p_new_x**2+p_new_y**2).le.1.e-6) then
 	  recon%phi_pq = 0.0
 	else
 	  recon%phi_pq = acos(p_new_x/sqrt(p_new_x**2+p_new_y**2))
@@ -1470,14 +1466,15 @@ c three-momentum transfer (Q)
 	implicit none
 	include 'simulate.inc'
 
-	integer		i, iPm1
-	real*8		a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
-	real*8          peep_omega, peep_rho, peep_phi, peepph
-	real*8		survivalprob, semi_dilution
-	real*8		weight, width, sigep, deForest, tgtweight
-	real*8          Em_weight           ! gh
-	integer         iEm1
-	logical		force_sigcc, success
+	integer i, iPm1
+	real*8  a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
+	real*8  peep_eta, peep_omega, peep_rho, peep_eta_prime,peep_phi
+	real*8 peepph
+	real*8  survivalprob, semi_dilution
+	real*8  weight, width, sigep, deForest, tgtweight
+	real*8  Em_weight           ! gh
+	integer iEm1
+	logical force_sigcc, success
 	type(event_main):: main
 	type(event)::	vertex, vertex0, recon
 
@@ -1585,18 +1582,21 @@ c three-momentum transfer (Q)
 	      main%sigcc = 1.0
 	      main%sigcc_recon = 1.0     !Need new xsec model.
 	   else if(which_eepx.eq.2) then !eta 
-	      main%sigcc = 1.0
-	      main%sigcc_recon = 1.0     !Need new xsec model.
+	      main%sigcc = peep_eta(vertex,main)
+	      main%sigcc_recon = 1.0
 	   else if(which_eepx.eq.3) then !rho
 	      main%sigcc = peep_rho(vertex,main) 
 	      main%sigcc_recon = 1.0
 	   else if(which_eepx.eq.4) then !omega
 	      main%sigcc = peep_omega(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.5) then !phi
+	   else if(which_eepx.eq.5) then !eta prime
+	      main%sigcc = peep_eta_prime(vertex,main) 
+	      main%sigcc_recon = 1.0
+	   else if(which_eepx.eq.6) then !phi
 	      main%sigcc = peep_phi(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.6) then
+	   else if(which_eepx.eq.7) then
 	      main%sigcc = 1.0
 	      main%sigcc_recon = 1.0
 	   endif
@@ -1698,7 +1698,9 @@ C If using Coulomb cirrections, include focusing factor
 	tmp=(costh - dy*sinth*sinph) / r
 	if (abs(tmp).gt.1) write(6,*) 'tmp=',tmp
 	theta = acos( (costh - dy*sinth*sinph) / r )
-	if (dx.ne.0.0) then
+c gh 17.12.27 - modify because of real inequality comparison warning
+c	if (dx.ne.0.0) then
+	if (abs(dx).lt.1.e-6) then
 	  phi = atan( (dy*costh + sinth*sinph) / dx )	!gives -90 to 90 deg.
 	  if (phi.le.0) phi=phi+pi			!make 0 to 180 deg.
 	  if (sinph.lt.0.) phi=phi+pi		!add pi to phi for HMS

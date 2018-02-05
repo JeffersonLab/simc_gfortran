@@ -29,7 +29,7 @@ C     The following two record lines are from SIMC physics_kaon.f
       real*8 mass               ! phi mass
       real*8 invm,Wsq           ! invariant mass of hadronic system
       real*8 tt,uu              ! Mandelstam variables
-      real*8 tprime,t_min,t_max,uprime,u_min
+      real*8 tprime,t_min,t_max,uprime,u_min,uu2,umin2
       real*8 e_photCM,e_phiCM,e_pCM
 
       real*8 gamma_T            ! flux of transversely polarized virt. photons
@@ -111,6 +111,13 @@ c     main%t = tt
       e_photCM = (Wsq - qsq - m_psq)/invm/2.
       e_phiCM   = (Wsq + mass**2 - m_psq)/invm/2.
       e_pCM     = (Wsq + m_psq - mass**2)/invm/2.
+
+c gh - 18.02.04
+c although t is single valued (negative), this is not true for u
+c right at the kinematic endpoint, u turns positive, so umin is positive
+c even though for most events u is negative.  This is surprising, but is
+c confirmed by checking against s+t+u relation.
+      
       if ((e_phiCM**2-mass**2)*(e_photCM**2+qsq).ge.0.) then
          t_min = -qsq + mass**2 -2.*(e_phiCM*e_photCM
      *        -sqrt( (e_phiCM**2-mass**2)*(e_photCM**2+qsq) ))
@@ -121,15 +128,25 @@ c     main%t = tt
       else
          write(6,*)' physics_phi: no valid t,u min '
       endif
-      tprime = abs(tt)-abs(t_min)
-      uprime = abs(uu)-abs(u_min)
+
+c check u using s+t+u relation
+c      uu2=-qsq+2.*m_psq+mass**2-invm**2-tt
+c      t_max = -qsq + mass**2 -2.*(e_phiCM*e_photCM
+c     *     +sqrt((e_phiCM**2-mass**2)*(e_photCM**2+qsq)))
+c      umin2=-qsq+2.*m_psq+mass**2-invm**2-t_max
+      
+      tprime = abs(tt-t_min)
+      uprime = abs(uu-u_min)
       main%tmin=t_min
       
-      if (tprime.lt.0.) then
-         write(6,*)' unphysical -t<-t_min ',tt,t_min
+      if (abs(t_min).gt.abs(tt)) then
+         write(6,*)' unphysical -t<-t_min ',tt,t_min,tprime
       endif
-      if (uprime.lt.0.) then
-         write(6,*)' unphysical -u<-u_min ',uu,u_min
+      if (abs(tt).gt.abs(t_max)) then
+         write(6,*)' unphysical -t>-t_max ',tt,t_max,tprime
+      endif
+      if (uu.gt.u_min) then
+         write(6,*)' unphysical -u<-u_min ',uu,u_min,uprime
       endif
 
 ******************************************************************************

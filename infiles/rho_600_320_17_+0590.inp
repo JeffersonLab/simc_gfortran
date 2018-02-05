@@ -9,7 +9,7 @@ begin parm experiment
   doing_pion = 0             ;  (ONE = TRUE)
   doing_decay = 0            ;  1=decay ON, 0=decay OFF.
   doing_eepx = 1             ;  H(e,e'p)Mx (Mx=omega,rho,pi0,etc.)
-  Meepx = 1019.46            ;  Mphi=1019.460
+  Meepx = 775.5              ;  Momega=782.65, Mrho=775.5
 end parm experiment
 
 begin parm kinematics_main

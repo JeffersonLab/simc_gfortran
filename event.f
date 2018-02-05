@@ -1469,7 +1469,7 @@ c three-momentum transfer (Q)
 	integer i, iPm1
 	real*8  a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
 	real*8  peep_eta, peep_omega, peep_rho, peep_eta_prime,peep_phi
-	real*8 peepph
+	real*8  peepph, peep_pizero
 	real*8  survivalprob, semi_dilution
 	real*8  weight, width, sigep, deForest, tgtweight
 	real*8  Em_weight           ! gh
@@ -1579,8 +1579,8 @@ c three-momentum transfer (Q)
 
 	elseif (doing_eepx) then
 	   if(which_eepx.eq.1) then      !pi0 
-	      main%sigcc = 1.0
-	      main%sigcc_recon = 1.0     !Need new xsec model.
+	      main%sigcc = peep_pizero(vertex,main)
+	      main%sigcc_recon = 1.0
 	   else if(which_eepx.eq.2) then !eta 
 	      main%sigcc = peep_eta(vertex,main)
 	      main%sigcc_recon = 1.0

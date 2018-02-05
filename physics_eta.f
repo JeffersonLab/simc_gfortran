@@ -29,7 +29,7 @@ C     The following two record lines are from SIMC physics_kaon.f
 
       real*8 mass               ! omega mass
       real*8 invm,Wsq           ! invariant mass of hadronic system
-      real*8 tt,t_min,tprime,uu ! Mandelstam variables
+      real*8 tt,t_min,tprime,uu,t_max ! Mandelstam variables
       real*8 e_photCM,e_etaCM
 
       real*8 gamma_T            ! flux of transversely polarized virt. photons
@@ -116,12 +116,23 @@ c      main%t =tt
       if ((e_etaCM**2-mass**2)*(e_photCM**2+qsq).ge.0.) then
          t_min = -qsq + mass**2 -2.*(e_etaCM*e_photCM-
      *        sqrt((e_etaCM**2-mass**2)*(e_photCM**2+qsq)))
+         t_max = -qsq + mass**2 -2.*(e_etaCM*e_photCM
+     *        +sqrt((e_etaCM**2-mass**2)*(e_photCM**2+qsq)))
+
       else
          write(6,*)' physics_eta: no valid t min '
       endif
-      tprime = abs(tt)-abs(t_min)
+      
+      tprime = abs(tt-t_min)
       main%tmin=-t_min
 
+      if (abs(tt).lt.abs(t_min)) then
+         write(6,*)' unphysical -t<-t_min ',tt,t_min,tprime
+      endif
+      if (abs(tt).gt.abs(t_max)) then
+         write(6,*)' unphysical -t>-t_max ',tt,t_max,tprime
+      endif
+      
 ******************************************************************************
 *  we keep the tradition that ntup.sigcm is d2sigma/dt/dphi_cm [ub/MeV^2/rad]
 ******************************************************************************
@@ -143,12 +154,12 @@ C DJG  Breit-Wigner in the event generation - not needed here anymore.
 * d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad]
 *
 * gh - relativistic Breit-Wigner factor (eqn 38.52 of 2004 PDG book)
-      Breit_wigner=(m_eta*gamma_eta)**2/
-     *     ((mass**2-m_eta**2)**2 +(m_eta*gamma_eta)**2)
+c      Breit_wigner=(m_eta*gamma_eta)**2/
+c     *     ((mass**2-m_eta**2)**2 +(m_eta*gamma_eta)**2)
 
 * gh - since sigma_omega is integrated over the omega peak, normalize
 * Breit-Wigner to unit integral
-      Breit_wigner=Breit_wigner/(gamma_eta*pi/2.)
+c      Breit_wigner=Breit_wigner/(gamma_eta*pi/2.)
 
 *******************************************************************************
 * Convert from d3sigma/dt/dphi_cm/dMx [ub/MeV^3/rad] 

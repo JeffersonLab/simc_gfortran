@@ -204,7 +204,8 @@ c SECTION ADDED FOR HMS COLLIMATOR
 c	  write(*,*)'m2=',m2
 c	  write(*,*)'mpi2 =',mpi2
 c	  write(*,*)'-----------------------'
-	  if (m2.gt.100.0**2) then ! check for pions/muons, if yes step through coll.
+	  if (m2.gt.100.0**2 .and. m2.lt.350.**2) then
+! check for pions/muons, if yes step through coll.
 
 c	     write(*,*) 'I found a pion',p
 	    call mc_hms_coll(m2,p,p_spec,decay_flag,dflag,collsuccess,coll_flag,pathlen)

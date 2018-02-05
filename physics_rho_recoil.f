@@ -31,7 +31,7 @@ C     from Pawel's noted by xucc
       real*8 mass               ! omega mass
       real*8 invm,Wsq           ! invariant mass of hadronic system
       real*8 tt,uu              ! Mandelstam variables
-      real*8 tprime,t_min,uprime,u_min
+      real*8 tprime,t_min,t_max,uprime,u_min
       real*8 e_photCM,e_rhoCM,e_pCM
 
       real*8 gamma_T            ! flux of transversely polarized virt. photons
@@ -121,21 +121,38 @@ c     main%t =tt
       e_photCM = (Wsq - qsq - m_psq)/invm/2.
       e_rhoCM  = (Wsq + mass**2 - m_psq)/invm/2.
       e_pCM     = E_cm
+      
+c gh - 18.02.04
+c although t is single valued (negative), this is not true for u
+c right at the kinematic endpoint, u turns positive, so umin is positive
+c even though for most events u is negative.  This is surprising, but is
+c confirmed by checking against s+t+u relation.
+      
       if ((e_rhoCM**2-mass**2)*(e_photCM**2+qsq).ge.0.) then
          t_min = -qsq + mass**2 -2.*(e_rhoCM*e_photCM
      *        -sqrt( (e_rhoCM**2-mass**2)*(e_photCM**2+qsq) ))
+         t_max = -qsq + mass**2 -2.*(e_rhoCM*e_photCM
+     *        +sqrt((e_rhoCM**2-mass**2)*(e_photCM**2+qsq)))
          u_min = -qsq + m_psq -2.*(e_pCM*e_photCM
      *        -sqrt( (e_pCM**2-m_psq)*(e_photCM**2+qsq) ))
       else
          write(6,*)' physics_rho_recoil: no valid t,u min '
       endif
-      tprime = abs(tt)-abs(t_min)
-      uprime = abs(uu)-abs(u_min)
+      
+      tprime = abs(tt-t_min)
+      uprime = abs(uu-u_min)
       main%tmin=t_min
       
-      if (tprime.lt.0.) then
-         write(6,*)' unphysical -t<-t_min ',tt,t_min
+      if (abs(tt).lt.abs(t_min)) then
+         write(6,*)' unphysical -t<-t_min ',tt,t_min,tprime
       endif
+      if (abs(tt).gt.abs(t_max)) then
+         write(6,*)' unphysical -t>-t_max ',tt,t_max,tprime
+      endif
+      if (uu.gt.u_min) then
+         write(6,*)' unphysical -u<-u_min ',uu,u_min,uprime
+      endif
+      
 
 ******************************************************************************
 *  we keep the tradition that ntup.sigcm is d2sigma/dt/dphi_cm [ub/MeV^2/rad]

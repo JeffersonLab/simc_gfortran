@@ -135,39 +135,41 @@ c     main%t = tt
       e_omCM   = (Wsq + mass**2 - m_psq)/invm/2.
       e_pCM    = (Wsq + m_psq - mass**2)/invm/2.
 
+c gh - 18.02.04
+c although t is single valued (negative), this is not true for u
+c right at the kinematic endpoint, u turns positive, so umin is positive
+c even though for most events u is negative.  This is surprising, but is
+c confirmed by checking against s+t+u relation.
+      
       if ((e_omCM**2-mass**2)*(e_photCM**2+qsq).ge.0.) then
          t_min = -qsq + mass**2 -2.*(e_omCM*e_photCM
      *        -sqrt((e_omCM**2-mass**2)*(e_photCM**2+qsq)))
+         t_max = -qsq + mass**2 -2.*(e_omCM*e_photCM
+     *        +sqrt((e_omCM**2-mass**2)*(e_photCM**2+qsq)))
          u_min = -qsq + m_psq -2.*(e_pCM*e_photCM
      *        -sqrt( (e_pCM**2-m_psq)*(e_photCM**2+qsq) ))
       else
          write(6,*)' physics_omega: no valid t,u min '
       endif
 
-c     check u using s+t+u relation
-      uu2=-qsq+2.*m_psq+mass**2-invm**2-tt
-      t_max = -qsq + mass**2 -2.*(e_omCM*e_photCM
-     *     +sqrt((e_omCM**2-mass**2)*(e_photCM**2+qsq)))
-      umin2=-qsq+2.*m_psq+mass**2-invm**2-t_max
-c      write(6,*)' uu ',uu,uu2,u_min,umin2,uprime
+c check u using s+t+u relation
+c      uu2=-qsq+2.*m_psq+mass**2-invm**2-tt
+c      umin2=-qsq+2.*m_psq+mass**2-invm**2-t_max
 
-      tprime = abs(tt)-abs(t_min)
-      uprime = abs(uu)-abs(u_min)
+      tprime = abs(tt-t_min)
+      uprime = abs(uu-u_min)
       main%tmin=t_min 
 
-      if (tprime.lt.0.) then
-         write(6,*)' unphysical -t<-t_min ',tt,t_min,t_max,tprime
+      if (abs(tt).lt.abs(t_min)) then
+         write(6,*)' unphysical -t<-t_min ',tt,t_min,tprime
       endif
-c     gh 17.12.27
-c     for some reason, sometimes u takes an unphysical positive value
-c     even though everything else appears okay
-c     s+t+u double-check also confirms u,umin values
-c     maybe due to some radiative effect??
-      if (uprime.lt.0.) then
+      if (abs(tt).gt.abs(t_max)) then
+         write(6,*)' unphysical -t>-t_max ',tt,t_max,tprime
+      endif
+      if (uu.gt.u_min) then
          write(6,*)' physics_omega: event with unphysical -u<-u_min'
          write(6,100)u_min,uu,uprime
-         write(6,100)t_min,tt,t_max,tprime
- 100     format(4f15.2)
+ 100     format(3f15.2)
        endif
           
 ******************************************************************************
@@ -187,7 +189,7 @@ c     *     uprime/1.e6,vertex%q2/1.e6,invm/1.e3,mass/1.e3,epsilon)
 
 * Wenliang Li's thesis parameterization
 c      sig3 = sig_wli(thetacm,phicm,uu/1.e6,vertex%q2/1.e6,
-c     *     invm/1.e3,epsilon,q2_nominal)
+c    *     invm/1.e3,epsilon,q2_nominal)
 
 * Wenliang Li's extrapolation to higher Q2
       sig4 = sig_LT_extrapolation(thetacm,phicm,uu/1.e6,tt/1.e6,
@@ -198,6 +200,7 @@ c     *     invm/1.e3,epsilon
 c
 c      print*, " sig ",sig2,sig3,sig4
 
+c      ntup%sigcm=sig3
       ntup%sigcm=sig4
 
       ntup%phicmi=phicm

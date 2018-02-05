@@ -101,7 +101,8 @@ C If we hit the collimator, check for hadronic reaction, do eloss, mult. scat. f
 c TH - un-comment the following line if want no collimator punch through!
 c              goto 500
 
-              if(m2.gt.15000.) then !check if pion - if muon, don't check for hadronic interaction
+              if(m2.gt.15000. .and. m2.lt.350.**2) then
+! check if pion - if muon, don't check for hadronic interaction
                  call coll_absorb(p,thick,trans)
                  rantemp = grnd()
                  if(rantemp.gt.trans) then 

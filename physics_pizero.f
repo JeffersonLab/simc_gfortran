@@ -377,7 +377,6 @@ c         write(6,*)' T2 ',Q2tmp,sigt,sigTloW,sigThiW
      *     +sqrt(2.*eps*(1.+eps))*cos(phicm)*siglt
 
       sig_pi0gmh = sig/2./pi*1.e-09 !dsig/dtdphicm in microbarns/MeV^2/rad
-      write(6,*)' phi ',phicm
       
       return
       end

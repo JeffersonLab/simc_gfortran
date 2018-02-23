@@ -263,7 +263,7 @@ c sigLT  p1+p2/(-t)
       real*8 p1LT(4)  / 156., 12.57,  5.17,  1.97/
       real*8 p2LT(4)  /-60.0, -2.08, -0.85, -0.32/
       
-      integer iflag,pcount,ndat,Q2count
+      integer iflag,pcount,ndat,Q2count,Q2c
 
       iflag=1                   ! flag for t(0) or u(1) channel
       ndat=4
@@ -289,12 +289,14 @@ c sigLT  p1+p2/(-t)
       endif
       
 c calculate hi,lo cross sections
-      do Q2count=1,(ndat-1)
-         Q2hi=0.
-         Q2lo=0.
-         delQ2=1.
-         if( (Q2tmp.ge.Q2tab(Q2count)).and. (Q2tmp.lt.Q2tab(Q2count+1) )
-     1        .or. Q2tmp.ge.Q2tab(Q2count+1) ) then
+      Q2hi=0.
+      Q2lo=0.
+      delQ2=1.
+      Q2count=0
+      do Q2c=1,(ndat-1)
+         if( (Q2tmp.ge.Q2tab(Q2c)).and. (Q2tmp.lt.Q2tab(Q2c+1) )
+     1        .or. Q2tmp.ge.Q2tab(Q2c+1) ) then
+            Q2count = Q2c
             Q2hi = Q2tab(Q2count+1)
             Whi  = Wtab(Q2count+1)
             Q2lo = Q2tab(Q2count)
@@ -346,27 +348,36 @@ c sighi,lo are at different W.  scale both to the W needed for the event
 
 c interpolate to get cross section at Q2 needed for the event
       
-      if( (Q2tmp.ge.Q2tab(Q2count)).and.(Q2tmp.lt.Q2tab(Q2count+1)))
-     1     then
+      if( Q2count.le.3 .and. Q2tmp.ge.Q2tab(Q2count) .and.
+     1     Q2tmp.lt.Q2tab(Q2count+1) ) then
          
          sigT  = ( sigTloW*(Q2hi-Q2tmp)+ sigThiW*(Q2tmp-Q2lo))/delQ2
          sigL  = ( sigLloW*(Q2hi-Q2tmp)+ sigLhiW*(Q2tmp-Q2lo))/delQ2
          sigTT = (sigTTloW*(Q2hi-Q2tmp)+sigTThiW*(Q2tmp-Q2lo))/delQ2
          sigLT = (sigLTloW*(Q2hi-Q2tmp)+sigLThiW*(Q2tmp-Q2lo))/delQ2
 
-      elseif (Q2tmp.ge.Q2tab(Q2count+1) ) then
+c        write(6,*)' T1 ',Q2tmp,sigt,sigTloW,sigThiW
+      
+      elseif (Q2tmp.ge.Q2tab(4) ) then
          
          sigT  =  sigThiW+ (sigThiW-sigTloW) /delQ2
          sigL  =  sigLhiW+ (sigLhiW-sigLloW) /delQ2
          sigTT = sigTThiW+(sigTThiW-sigTTloW)/delQ2
          sigLT = sigLThiW+(sigLThiW-sigLTloW)/delQ2
          
+c         write(6,*)' T2 ',Q2tmp,sigt,sigTloW,sigThiW
+
+      else
+
+         write(6,*)' Q2tmp error ',Q2tmp,Q2count
+
       endif
       
       sig = sigt +eps*sigl +eps*cos(2.*phicm)*sigtt
      *     +sqrt(2.*eps*(1.+eps))*cos(phicm)*siglt
-      
+
       sig_pi0gmh = sig/2./pi*1.e-09 !dsig/dtdphicm in microbarns/MeV^2/rad
+      write(6,*)' phi ',phicm
       
       return
       end

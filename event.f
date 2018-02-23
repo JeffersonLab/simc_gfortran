@@ -1,4 +1,4 @@
-	subroutine limits_update(main,vertex,orig,recon,doing_deuterium,
+        subroutine limits_update(main,vertex,orig,recon,doing_deuterium,
      >	  doing_pion,doing_kaon,doing_eepx,doing_delta,doing_rho,contrib,
      >    slop)
 
@@ -263,12 +263,12 @@ C modified 5/15/06 for poinct
 ! Generate Electron Angles (all cases):
 c ranlux substituted for grnd - gh
         call ranlux (rannum4,1)
-	rannum=dble(rannum4)
-	vertex%e%yptar=gen%e%yptar%min+rannum*(gen%e%yptar%max-gen%e%yptar%min)
+        rannum=dble(rannum4)
+        vertex%e%yptar=gen%e%yptar%min+rannum*(gen%e%yptar%max-gen%e%yptar%min)
 c	vertex%e%yptar=gen%e%yptar%min+grnd()*(gen%e%yptar%max-gen%e%yptar%min)
         call ranlux (rannum4,1)
-	rannum=dble(rannum4)
-	vertex%e%xptar=gen%e%xptar%min+rannum*(gen%e%xptar%max-gen%e%xptar%min)
+        rannum=dble(rannum4)
+        vertex%e%xptar=gen%e%xptar%min+rannum*(gen%e%xptar%max-gen%e%xptar%min)
 c	vertex%e%xptar=gen%e%xptar%min+grnd()*(gen%e%xptar%max-gen%e%xptar%min)
 
 ! Generate Hadron Angles (all but H(e,e'p)):
@@ -277,13 +277,13 @@ c	vertex%e%xptar=gen%e%xptar%min+grnd()*(gen%e%xptar%max-gen%e%xptar%min)
      >         .or.doing_Xphasespace) then
 c ranlux substituted for grnd - gh
           call ranlux (rannum4,1)
-	  rannum=dble(rannum4)
-	  vertex%p%yptar=gen%p%yptar%min+rannum*
+          rannum=dble(rannum4)
+          vertex%p%yptar=gen%p%yptar%min+rannum*
 c	  vertex%p%yptar=gen%p%yptar%min+grnd()*
      >  	(gen%p%yptar%max-gen%p%yptar%min)
           call ranlux (rannum4,1)
-	  rannum=dble(rannum4)
-	  vertex%p%xptar=gen%p%xptar%min+rannum*
+          rannum=dble(rannum4)
+          vertex%p%xptar=gen%p%xptar%min+rannum*
 c	  vertex%p%xptar=gen%p%xptar%min+grnd()*
      >          (gen%p%xptar%max-gen%p%xptar%min)
 	endif
@@ -296,10 +296,10 @@ c	  vertex%p%xptar=gen%p%xptar%min+grnd()*
 	  main%gen_weight=main%gen_weight*(Emax-Emin)/(gen%p%E%max-gen%p%E%min)
 c ranlux substituted for grnd - gh
           call ranlux (rannum4,1)
-	  rannum=dble(rannum4)
-	  vertex%p%E = Emin + rannum*(Emax-Emin)
+          rannum=dble(rannum4)
+          vertex%p%E = Emin + rannum*(Emax-Emin)
 c	  vertex%p%E = Emin + grnd()*(Emax-Emin)
-	  vertex%p%P = sqrt(vertex%p%E**2 - Mh2)
+          vertex%p%P = sqrt(vertex%p%E**2 - Mh2)
 	  vertex%p%delta = 100.*(vertex%p%P-spec%p%P)/spec%p%P
 	endif
 
@@ -321,11 +321,11 @@ c	  vertex%p%E = Emin + grnd()*(Emax-Emin)
 	  main%gen_weight=main%gen_weight*(Emax-Emin)/(gen%e%E%max-gen%e%E%min)
 c ranlux substituted for grnd - gh
           call ranlux (rannum4,1)
-	  rannum=dble(rannum4)
-	  vertex%e%E = Emin + rannum*(Emax-Emin)
+          rannum=dble(rannum4)
+          vertex%e%E = Emin + rannum*(Emax-Emin)
 c	  vertex%e%E = Emin + grnd()*(Emax-Emin)
-	  vertex%e%P = vertex%e%E
-	  vertex%e%delta = 100.*(vertex%e%P-spec%e%P)/spec%e%P
+          vertex%e%P = vertex%e%E
+          vertex%e%delta = 100.*(vertex%e%P-spec%e%P)/spec%e%P
 	endif	!not (doing_hyd_elast)
 
 
@@ -616,33 +616,32 @@ c the rho is very broad and gets a formula with more restricted width
 c even so, masses will be generated down to about 375 MeV
 c ranlux substituted for grnd - gh
                  call ranlux (rannum4,1)
-	         rannum=dble(rannum4)
-	         targ%Mrec_struck = Mrho +
+                 rannum=dble(rannum4)
+                 targ%Mrec_struck = Mrho +
      >           0.5*MrhoW*
      >           tan((2.*rannum-1.)*atan(2.*450./MrhoW))
 c     >           tan((2.*grnd()-1.)*atan(2.*450./MrhoW))
-c     >           tan((2.*grnd()-1.)*atan(2.*500./MrhoW))
-	      else if (which_eepx.eq.4) then ! omega
+               else if (which_eepx.eq.4) then ! omega
 c all other mesons (with width) get the standard formula
                  call ranlux (rannum4,1)
-	         rannum=dble(rannum4)
-	         targ%Mrec_struck = Momega + 
+                 rannum=dble(rannum4)
+                 targ%Mrec_struck = Momega + 
      >	         0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
-	      else if (which_eepx.eq.6) then ! phi
+               else if (which_eepx.eq.6) then ! phi
                  call ranlux (rannum4,1)
-	         rannum=dble(rannum4)
-	         targ%Mrec_struck = Mphi + 
+                 rannum=dble(rannum4)
+                 targ%Mrec_struck = Mphi + 
      >	         0.5*MphiW*tan((2.*rannum-1.)*pi/2.)
-	      endif
-	   if (debug(4)) write(6,*)'comp_ev: at 6.5b',targ%Mrec_struck
-	      if(targ%Mrec_struck.le.0.0) return
-	   endif
+              endif
+            if (debug(4)) write(6,*)'comp_ev: at 6.5b',targ%Mrec_struck
+              if(targ%Mrec_struck.le.0.0) return
+            endif
 
-	  vertex%Pm = pfer	!vertex%Em generated at beginning.
-	  vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
-	  a = -1.*vertex%q*(vertex%uq%x*vertex%up%x+
+          vertex%Pm = pfer	!vertex%Em generated at beginning.
+          vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
+          a = -1.*vertex%q*(vertex%uq%x*vertex%up%x+
      >         vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
-	  b = vertex%q**2
+          b = vertex%q**2
 	  c = vertex%nu + targ%M
 
 ! For nuclei, correct for fermi motion and missing energy.  Also, check
@@ -790,6 +789,7 @@ c all other mesons (with width) get the standard formula
 
 	  main%phi_pq = atan2(p_new_y,p_new_x)		!atan2(y,x)=atan(y/x)
 	  if (main%phi_pq.lt.0.e0) main%phi_pq=main%phi_pq+2.*pi
+
 !	  if (p_new_y.lt.0.) then
 !	    main.phi_pq = 2*pi - main.phi_pq
 !	  endif
@@ -1220,9 +1220,7 @@ Cgh	W2 = mp**2 + 2.*mp*recon%nu - recon%Q2
 	p_new_x = px*new_x_x + py*new_x_y + pz*new_x_z
 	p_new_y = px*new_y_x + py*new_y_y + pz*new_y_z
 
-c gh 17.12.27 - modify because of real inequality comparison warning
-c	if ((p_new_x**2+p_new_y**2).eq.0.) then
-	if (abs(p_new_x**2+p_new_y**2).le.1.e-6) then
+	if ((p_new_x**2+p_new_y**2).eq.0.) then
 	  recon%phi_pq = 0.0
 	else
 	  recon%phi_pq = acos(p_new_x/sqrt(p_new_x**2+p_new_y**2))
@@ -1698,9 +1696,7 @@ C If using Coulomb cirrections, include focusing factor
 	tmp=(costh - dy*sinth*sinph) / r
 	if (abs(tmp).gt.1) write(6,*) 'tmp=',tmp
 	theta = acos( (costh - dy*sinth*sinph) / r )
-c gh 17.12.27 - modify because of real inequality comparison warning
-c	if (dx.ne.0.0) then
-	if (abs(dx).lt.1.e-6) then
+	if (dx.ne.0.0) then
 	  phi = atan( (dy*costh + sinth*sinph) / dx )	!gives -90 to 90 deg.
 	  if (phi.le.0) phi=phi+pi			!make 0 to 180 deg.
 	  if (sinph.lt.0.) phi=phi+pi		!add pi to phi for HMS

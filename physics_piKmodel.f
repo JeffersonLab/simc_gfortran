@@ -74,7 +74,7 @@ c Variables calculated in transformation to gamma-NUCLEON center of mass.
       real*8 ebeamcm,pbeamcm,pbeamcmx,pbeamcmy,pbeamcmz !p_beam in C.M.
       real*8 etarcm,ptarcm,ptarcmx,ptarcmy,ptarcmz      !p_fermi in C.M.
       real*8 thetacm,phicm,phiqn,jacobian
-      real*8 pm2_tmp,q2_cent_g
+      real*8 pm2_tmp,q2_cent_g,W_cent_g
 
       logical first_call
       save first_call
@@ -91,14 +91,40 @@ c Columns are: Q2, W, -t (GeV2), dsig_L, T, TL, TT (mubarn/GeV2)
       if(first_call) then
          first_call=.false.
 
-c calculate central kinematics Q^2
+c calculate central kinematics Q^2 and W
          q2_cent_g = ( (Ebeam - spec%e%P*cos(spec%e%theta))**2
      c                 + (spec%e%P*sin(spec%e%theta))**2
      c                 - (Ebeam - spec%e%P)**2 ) /1.e6
-c         write(6,*)' Q2_central = ',q2_cent_g
+         W_cent_g = sqrt( (Ebeam - spec%e%P + Mp)**2 
+     c                 - (Ebeam - spec%e%P*cos(spec%e%theta))**2
+     c                 - (spec%e%P*sin(spec%e%theta))**2 ) /1.e3
+
+c         write(6,*)' Q2_central = ',q2_cent_g,W_cent_g
 
          if (which_pion.eq.0) then ! pi+
-            if (q2_cent_g.lt.6.25) then
+            if (q2_cent_g.lt.4.25 .and. W_cent_g.le.2.35) then
+               write(6,*)'Selecting VR pi+ model for Q^2=0.1-6.0, W=2.10'
+               nfiles=13
+               Wset=2.10
+               filename(1)='VR/ep_enpip_q20p10_w2p10.dat'
+               filename(2)='VR/ep_enpip_q20p50_w2p10.dat'
+               filename(3)='VR/ep_enpip_q21p00_w2p10.dat'
+               filename(4)='VR/ep_enpip_q21p50_w2p10.dat'
+               filename(5)='VR/ep_enpip_q22p00_w2p10.dat'
+               filename(6)='VR/ep_enpip_q22p50_w2p10.dat'
+               filename(7)='VR/ep_enpip_q23p00_w2p10.dat'
+               filename(8)='VR/ep_enpip_q23p50_w2p10.dat'
+               filename(9)='VR/ep_enpip_q24p00_w2p10.dat'
+               filename(10)='VR/ep_enpip_q24p50_w2p10.dat'
+               filename(11)='VR/ep_enpip_q25p00_w2p10.dat'
+               filename(12)='VR/ep_enpip_q25p50_w2p10.dat'
+               filename(13)='VR/ep_enpip_q26p00_w2p10.dat'
+               filename(14)=' '
+               filename(15)=' '
+               filename(16)=' '
+               filename(17)=' '
+               filename(18)=' '
+            elseif (q2_cent_g.lt.6.25 .and. W_cent_g.gt.2.35) then
                write(6,*)'Selecting VR pi+ model for Q^2=1.0-9.5, W=3.28'
                nfiles=18
                Wset=3.28

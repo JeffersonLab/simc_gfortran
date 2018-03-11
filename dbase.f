@@ -313,27 +313,30 @@ C DJG:
 
 ! gh NOT CLEAR TO ME THAT THE FOLLOWING IS APPROPRIATE FOR WIDE MESONS
 	  sign_hadron=1.0
-	  if(Meepx.gt.130.0.and.Meepx.lt.140.0) then
-	     targ%Mrec_struck = Mpi0
+	  if(Meepx.lt..01) then
+	     targ%Mrec_struck = 1.0e-6
 	     which_eepx = 1
+	  elseif(Meepx.gt.130.0.and.Meepx.lt.140.0) then
+	     targ%Mrec_struck = Mpi0
+	     which_eepx = 2
 	  else if(Meepx.gt.500.0.and.Meepx.lt.600.0) then
 	     targ%Mrec_struck = Meta
-	     which_eepx = 2
+	     which_eepx = 3
 	  else if(Meepx.gt.765.0.and.Meepx.lt.778.0) then
 	     targ%Mrec_struck = Mrho
-	     which_eepx = 3
+	     which_eepx = 4
 	  else if(Meepx.gt.778.0.and.Meepx.lt.790.0) then
 	     targ%Mrec_struck = Momega
-	     which_eepx = 4
+	     which_eepx = 5
 	  else if(Meepx.gt.957.0.and.Meepx.lt.958.0) then
 	     targ%Mrec_struck = Metap
-	     which_eepx = 5
+	     which_eepx = 6
 	  else if(Meepx.gt.1015.0.and.Meepx.lt.1025.0) then
 	     targ%Mrec_struck = Mphi
-	     which_eepx = 6
+	     which_eepx = 7
 	  else
 	     targ%Mrec_struck = Meepx
-	     which_eepx = 7
+	     which_eepx = 8
 	  endif
 
 	else if (doing_delta) then		!Strike (and detect) proton, pion 'recoil'
@@ -767,16 +770,18 @@ C DJG:
 	else if (doing_eepx) then
 	  if (doing_hydeepx) then
 	     if(which_eepx.eq.1) then
+		write(6,*) ' ****--------  H(e,e''p)gamma  --------****'
+	     elseif(which_eepx.eq.2) then
 		write(6,*) ' ****--------  H(e,e''p)pi0  --------****'
-	     else if(which_eepx.eq.2) then
-		write(6,*) ' ****--------  H(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.3) then
-		write(6,*) ' ****--------  H(e,e''p)rho  --------****'
+		write(6,*) ' ****--------  H(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.4) then
-		write(6,*) ' ****--------  H(e,e''p)omega  --------****'
+		write(6,*) ' ****--------  H(e,e''p)rho  --------****'
 	     else if(which_eepx.eq.5) then
-		write(6,*) ' ****--------  H(e,e''p)eta_prime  --------****'
+		write(6,*) ' ****--------  H(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.6) then
+		write(6,*) ' ****--------  H(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.7) then
 		write(6,*) ' ****--------  H(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  H(e,e''p)Mx  --------****'
@@ -784,16 +789,18 @@ C DJG:
 	     endif
 	  else if (doing_deuteepx) then
 	     if(which_eepx.eq.1) then
+		write(6,*) ' ****--------  D(e,e''p)gamma  --------****'
+	     elseif(which_eepx.eq.2) then
 		write(6,*) ' ****--------  D(e,e''p)pi0  --------****'
-	     else if(which_eepx.eq.2) then
-		write(6,*) ' ****--------  D(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.3) then
-		write(6,*) ' ****--------  D(e,e''p)rho  --------****'
+		write(6,*) ' ****--------  D(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.4) then
-		write(6,*) ' ****--------  D(e,e''p)omega  --------****'
+		write(6,*) ' ****--------  D(e,e''p)rho  --------****'
 	     else if(which_eepx.eq.5) then
-		write(6,*) ' ****--------  D(e,e''p)eta_prime  --------****'
+		write(6,*) ' ****--------  D(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.6) then
+		write(6,*) ' ****--------  D(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.7) then
 		write(6,*) ' ****--------  D(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  D(e,e''p)Mx  --------****'
@@ -801,16 +808,18 @@ C DJG:
 	     endif
 	  else if (doing_heeepx) then
 	     if(which_eepx.eq.1) then
+		write(6,*) ' ****--------  A(e,e''p)gamma  --------****'
+	     elseif(which_eepx.eq.2) then
 		write(6,*) ' ****--------  A(e,e''p)pi0  --------****'
-	     else if(which_eepx.eq.2) then
-		write(6,*) ' ****--------  A(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.3) then
-		write(6,*) ' ****--------  A(e,e''p)rho  --------****'
+		write(6,*) ' ****--------  A(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.4) then
-		write(6,*) ' ****--------  A(e,e''p)omega  --------****'
+		write(6,*) ' ****--------  A(e,e''p)rho  --------****'
 	     else if(which_eepx.eq.5) then
-		write(6,*) ' ****--------  A(e,e''p)eta_prime  --------****'
+		write(6,*) ' ****--------  A(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.6) then
+		write(6,*) ' ****--------  A(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.7) then
 		write(6,*) ' ****--------  A(e,e''p)phi  --------****'
 	     else
 		write(6,*) ' ****--------  A(e,e''p)Mx  --------****'

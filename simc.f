@@ -746,16 +746,18 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	else if (doing_eepx) then
 	  if (doing_hydeepx) then
 	     if(which_eepx.eq.1) then
+		write(iun,*) '           ****--------  H(e,e''p)gamma  --------****'
+	     elseif(which_eepx.eq.2) then
 		write(iun,*) '           ****--------  H(e,e''p)pi0  --------****'
-	     else if(which_eepx.eq.2) then
-		write(iun,*) '           ****--------  H(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.3) then
-		write(iun,*) '           ****--------  H(e,e''p)rho0  --------****'
+		write(iun,*) '           ****--------  H(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.4) then
-		write(iun,*) '           ****--------  H(e,e''p)omega  --------****'
+		write(iun,*) '           ****--------  H(e,e''p)rho0  --------****'
 	     else if(which_eepx.eq.5) then
-		write(iun,*) '           ****--------  H(e,e''p)eta_prime  --------****'
+		write(iun,*) '           ****--------  H(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.6) then
+		write(iun,*) '           ****--------  H(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.7) then
 		write(iun,*) '           ****--------  H(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  H(e,e''p)Mx  --------****'
@@ -763,16 +765,18 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	     endif
 	  else if (doing_deuteepx) then
 	     if(which_eepx.eq.1) then
+		write(iun,*) '           ****--------  D(e,e''p)gamma  --------****'
+	     elseif(which_eepx.eq.2) then
 		write(iun,*) '           ****--------  D(e,e''p)pi0  --------****'
-	     else if(which_eepx.eq.2) then
-		write(iun,*) '           ****--------  D(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.3) then
-		write(iun,*) '           ****--------  D(e,e''p)rho0  --------****'
+		write(iun,*) '           ****--------  D(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.4) then
-		write(iun,*) '           ****--------  D(e,e''p)omega  --------****'
+		write(iun,*) '           ****--------  D(e,e''p)rho0  --------****'
 	     else if(which_eepx.eq.5) then
-		write(iun,*) '           ****--------  D(e,e''p)eta_prime  --------****'
+		write(iun,*) '           ****--------  D(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.6) then
+		write(iun,*) '           ****--------  D(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.7) then
 		write(iun,*) '           ****--------  D(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  D(e,e''p)Mx  --------****'
@@ -780,16 +784,18 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	     endif
 	  else if (doing_heeepx) then
 	     if(which_eepx.eq.1) then
+		write(iun,*) '           ****--------  A(e,e''p)gamma  --------****'
+	     elseif(which_eepx.eq.2) then
 		write(iun,*) '           ****--------  A(e,e''p)pi0  --------****'
-	     else if(which_eepx.eq.2) then
-		write(iun,*) '           ****--------  A(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.3) then
-		write(iun,*) '           ****--------  A(e,e''p)rho0  --------****'
+		write(iun,*) '           ****--------  A(e,e''p)eta  --------****'
 	     else if(which_eepx.eq.4) then
-		write(iun,*) '           ****--------  A(e,e''p)omega  --------****'
+		write(iun,*) '           ****--------  A(e,e''p)rho0  --------****'
 	     else if(which_eepx.eq.5) then
-		write(iun,*) '           ****--------  A(e,e''p)eta_prime  --------****'
+		write(iun,*) '           ****--------  A(e,e''p)omega  --------****'
 	     else if(which_eepx.eq.6) then
+		write(iun,*) '           ****--------  A(e,e''p)eta_prime  --------****'
+	     else if(which_eepx.eq.7) then
 		write(iun,*) '           ****--------  A(e,e''p)phi  --------****'
 	     else
 		write(iun,*) '           ****--------  A(e,e''p)Mx  --------****'

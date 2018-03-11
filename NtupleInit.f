@@ -129,7 +129,8 @@
 	  m = m+1
 	  NtupleTag(m) = 'Mhadron'	! 49
 	  m = m+1
-	  NtupleTag(m) = 'pdotqhat'	! 50
+c	  NtupleTag(m) = 'pdotqhat'	! 50
+	  NtupleTag(m) = 'MM2'	        ! 50
 	  m = m+1
 	  NtupleTag(m) = 'Q2i'		! 51
 	  m = m+1

@@ -611,7 +611,7 @@ c	  endif
 
 	  if(doing_eepx) then
 	    if (debug(4)) write(6,*)'comp_ev: at 6.5a',which_eepx
-	      if (which_eepx.eq.3) then      !rho
+	      if (which_eepx.eq.4) then      !rho
 c the rho is very broad and gets a formula with more restricted width
 c even so, masses will be generated down to about 375 MeV
 c ranlux substituted for grnd - gh
@@ -621,13 +621,13 @@ c ranlux substituted for grnd - gh
      >           0.5*MrhoW*
      >           tan((2.*rannum-1.)*atan(2.*450./MrhoW))
 c     >           tan((2.*grnd()-1.)*atan(2.*450./MrhoW))
-               else if (which_eepx.eq.4) then ! omega
+               else if (which_eepx.eq.5) then ! omega
 c all other mesons (with width) get the standard formula
                  call ranlux (rannum4,1)
                  rannum=dble(rannum4)
                  targ%Mrec_struck = Momega + 
      >	         0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
-               else if (which_eepx.eq.6) then ! phi
+               else if (which_eepx.eq.7) then ! phi
                  call ranlux (rannum4,1)
                  rannum=dble(rannum4)
                  targ%Mrec_struck = Mphi + 
@@ -1405,6 +1405,7 @@ C DJG Note that, as usual in simc, t is actually -t. I'll fix this later.
 	  endif
 	  ntup%mm = mm
 	  ntup%mmA = mmA
+	  ntup%mm2 = mm2
 	  ntup%t = t
 	  ntup%thetacm=thetacm
 
@@ -1467,7 +1468,7 @@ c three-momentum transfer (Q)
 	integer i, iPm1
 	real*8  a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
 	real*8  peep_eta, peep_omega, peep_rho, peep_eta_prime,peep_phi
-	real*8  peepph, peep_pizero
+	real*8  peepph, peep_pizero, peep_dvcs
 	real*8  survivalprob, semi_dilution
 	real*8  weight, width, sigep, deForest, tgtweight
 	real*8  Em_weight           ! gh
@@ -1576,25 +1577,28 @@ c three-momentum transfer (Q)
 	  endif
 
 	elseif (doing_eepx) then
-	   if(which_eepx.eq.1) then      !pi0 
+	   if(which_eepx.eq.1) then      !dvcs 
+	      main%sigcc = peep_dvcs(vertex,main)
+	      main%sigcc_recon = 1.0
+	   else if(which_eepx.eq.2) then      !pi0 
 	      main%sigcc = peep_pizero(vertex,main)
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.2) then !eta 
+	   else if(which_eepx.eq.3) then !eta 
 	      main%sigcc = peep_eta(vertex,main)
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.3) then !rho
+	   else if(which_eepx.eq.4) then !rho
 	      main%sigcc = peep_rho(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.4) then !omega
+	   else if(which_eepx.eq.5) then !omega
 	      main%sigcc = peep_omega(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.5) then !eta prime
+	   else if(which_eepx.eq.6) then !eta prime
 	      main%sigcc = peep_eta_prime(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.6) then !phi
+	   else if(which_eepx.eq.7) then !phi
 	      main%sigcc = peep_phi(vertex,main) 
 	      main%sigcc_recon = 1.0
-	   else if(which_eepx.eq.7) then
+	   else 
 	      main%sigcc = 1.0
 	      main%sigcc_recon = 1.0
 	   endif

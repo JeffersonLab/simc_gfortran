@@ -141,9 +141,10 @@ c SHMS Cerenkov
 	real*8 hcer_left, hcer_right
 	real*8 hcer_top, hcer_bottom
 
-c
-	parameter (hdc_1_zpos = -40.0)
-	parameter (hdc_2_zpos =  40.0)
+c	parameter (hdc_1_zpos = -40.0)     !Original SOS DC1 zPos C.Y. 07/17/2018
+	parameter (hdc_1_zpos = -40.656)
+c	parameter (hdc_2_zpos =  40.0)     !Original SOS DC2 zPos C.Y. 07/17/2018
+	parameter (hdc_2_zpos =  39.332)
 	parameter (hdc_1_left  =  40.0)
 	parameter (hdc_1_right = -40.0)
 	parameter (hdc_1y_offset = 0.0)
@@ -170,16 +171,22 @@ C Scintillator positions and thicknesses
 	real*8 hscin_2x_left,hscin_2x_right,hscin_2x_offset
 	real*8 hscin_2y_top,hscin_2y_bot,hscin_2y_offset
 
-	parameter (hscin_1x_zpos = 51.9)
-	parameter (hscin_1y_zpos = 60.9)
-	parameter (hscin_2x_zpos = 271.9)
-	parameter (hscin_2y_zpos = 280.9)
+c       parameter (hscin_1x_zpos = 51.9)    !Original Hodo1x C.Y. 07/17/2018
+	parameter (hscin_1x_zpos = 52.1)
+c	parameter (hscin_1y_zpos = 60.9)    !Original Hodo1y C.Y. 07/17/2018
+	parameter (hscin_1y_zpos = 61.7)
+c	parameter (hscin_2x_zpos = 271.9)   !Original Hodo2x C.Y. 07/17/2018
+	parameter (hscin_2x_zpos = 271.4)
+c	parameter (hscin_2y_zpos = 280.9)   !Original Hodo2y C.Y. 07/17/2018
+	parameter (hscin_2y_zpos = 282.4)
 	parameter (hscin_1x_thick = 1.000*1.067)
 	parameter (hscin_1y_thick = 1.000*1.067)
 	parameter (hscin_2x_thick = 1.000*1.067)
 	parameter (hscin_2y_thick = 1.000*1.067)
-	parameter (hscin_1x_left  =  45.)
-	parameter (hscin_1x_right = -45.)
+c  	parameter (hscin_1x_left  =  45.)      !Original (SOS) Hodo1x left C.Y. 07/17/2018
+	parameter (hscin_1x_left  =  50.)
+c	parameter (hscin_1x_right = -45.)      !Original (SOS) Hodo1x right C.Y. 07/17/2018
+	parameter (hscin_1x_right = -50.)
 	parameter (hscin_1x_offset = 0.0)
 	parameter (hscin_1y_top   = -45.)
 	parameter (hscin_1y_bot   =  45.)
@@ -187,8 +194,10 @@ C Scintillator positions and thicknesses
 	parameter (hscin_2x_left  =   55.)
 	parameter (hscin_2x_right =  -55.)
 	parameter (hscin_2x_offset =  0.)
-	parameter (hscin_2y_top   = -57.5)
-	parameter (hscin_2y_bot   =  57.5)
+c	parameter (hscin_2y_top   = -57.5)     !Original (SOS) Hodo2Y TOP C.Y. 07/17/2018
+	parameter (hscin_2y_top   = -62.5)
+c	parameter (hscin_2y_bot   =  57.5)     !Original (SOS) Hodo2Y BOT C.Y. 07/17/2018
+	parameter (hscin_2y_bot   =  62.5)
 	parameter (hscin_2y_offset = 0)
 
 

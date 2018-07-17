@@ -154,9 +154,9 @@ C Wire plane positions, construct hdc_zpos array using these parameters
 	real*8 hdc_2x_offset,hdc_2y_offset
 	real*8 hdc_del_plane
 
-c	parameter (hdc_1_zpos = -51.923)
+c	parameter (hdc_1_zpos = -51.923)     !6 GeV Chamber   !CY 07/17/2018
 	parameter (hdc_1_zpos = -52.1084)
-c	parameter (hdc_2_zpos =  29.299)
+c	parameter (hdc_2_zpos =  29.299)     !6 GeV Chamber    !CY 07/17/2018
 	parameter (hdc_2_zpos =  29.2608)
 	parameter (hdc_del_plane = hdc_thick + hdc_wire_thick + hdc_cath_thick)
 	parameter (hdc_1_left  =  26.0)
@@ -197,25 +197,26 @@ C Scintillator positions and thicknesses
 	parameter (hscin_2y_thick = 1.067)
 	parameter (hscin_1x_left  =  37.75)
 	parameter (hscin_1x_right = -37.75)
-c	parameter (hscin_1x_offset = -1.55)
+c	parameter (hscin_1x_offset = -1.55)      !CY 07/17/2018
 	parameter (hscin_1x_offset = -1.3)
 	parameter (hscin_1y_top   = -60.25)
 	parameter (hscin_1y_bot   =  60.25)
-c	parameter (hscin_1y_offset = -0.37)
+c	parameter (hscin_1y_offset = -0.37)      !CY 07/17/2018
 	parameter (hscin_1y_offset = -1.3)
 	parameter (hscin_2x_left  =  37.75)
 	parameter (hscin_2x_right = -37.75)
-c	parameter (hscin_2x_offset = -0.63)
+c	parameter (hscin_2x_offset = -0.63)      !CY 07/17/2018
 	parameter (hscin_2x_offset = -0.60)
 	parameter (hscin_2y_top   = -60.25)
 	parameter (hscin_2y_bot   =  60.25)
-c	parameter (hscin_2y_offset = -1.46)
+c	parameter (hscin_2y_offset = -1.46)      !CY 07/17/2018
 	parameter (hscin_2y_offset = -2.40)
 
 C Cherenkov position
 	real*8 hcer_zentrance,hcer_zmirror,hcer_zexit
 	parameter (hcer_zentrance = 110.000)
-	parameter (hcer_zmirror   = 230.000)
+C	parameter (hcer_zmirror   = 245.000)  ORIGINAL SIMC value
+	parameter (hcer_zmirror   = 230.000)  !Value obtained from param file 07/17/2018 CY
 	parameter (hcer_zexit     = 265.000)
 
 C Calorimeter position

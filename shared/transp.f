@@ -272,7 +272,7 @@ C    SOS: if spectr = 2
 	else if (spectr.eq.4) then
 	  file_name='hrsl/hrs_forward_cosy.dat'
 	else if (spectr.eq.5) then
-	  file_name='shms/shms-2011-26cm-monte_ideal_6ord_forward.dat'
+	  file_name='shms/shms_forward.dat'
 	else if (spectr.eq.6) then
 c	  file_name='shms/shms_forward_cosy_LSA.dat'
 	  write(6,*) 'LSA tune for SHMS no longer used!'

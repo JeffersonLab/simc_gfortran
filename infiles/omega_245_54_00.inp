@@ -1,8 +1,8 @@
 ; This is a CTP file
 
 begin parm experiment
-  ngen = 500000                 ;  POS: # of successes; NEG: # of tries
-;  ngen = 500                    ;  POS: # of successes; NEG: # of tries
+;  ngen = 500000                 ;  POS: # of successes; NEG: # of tries
+  ngen = 10                    ;  POS: # of successes; NEG: # of tries
   EXPER%charge = 1.0            ;  total charge (mC)
   doing_phsp = 0                ;  (ONE = TRUE)
   doing_kaon = 0                ;  (ONE = TRUE)

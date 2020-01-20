@@ -1,0 +1,335 @@
+{------------------------------------------------------------------------------
+ Super-HMS spectrometer, with forward and reconstruction maps.
+
+ VERSION for Monte Carlo maps
+
+ Quads are (lengthened versions of) the HMS Q1 magnet.
+ Quad-Dipole is from the QD-separated model of 2005
+
+ A SPLITTER magnet (horiz bend) is inserted before Q1.
+
+ Author: D. Potterveld, Argonne National Lab, June 2005
+ MC version: DHP, Nov 2005
+ 
+------------------------------------------------------------------------------
+}
+INCLUDE 'JLAB' ;
+PROCEDURE RUN ;
+
+{=========================== Variable Declarations ===========================}
+
+   VARIABLE Z1C 1 ; VARIABLE L1 1 ; VARIABLE L1E 1 ; VARIABLE Q1MID 1 ;
+   VARIABLE Z2C 1 ; VARIABLE L2 1 ; VARIABLE L2E 1 ; VARIABLE Q2MID 1 ;
+   VARIABLE Z3C 1 ; VARIABLE L3 1 ; VARIABLE L3E 1 ; VARIABLE Q3MID 1;
+   VARIABLE ZDC 1 ; VARIABLE LD 1 ; VARIABLE LDE 1 ;
+   VARIABLE ZBC 1 ; VARIABLE LB 1; VARIABLE LBE 1;
+   VARIABLE DZD1 1 ; VARIABLE DZD2 1;
+   VARIABLE DZF1 1 ; VARIABLE DZF2 1;
+   VARIABLE XDIP 1;
+   VARIABLE DTILT 1;
+   VARIABLE FTILT1 1; VARIABLE FTILT2 1;
+   VARIABLE ZFM 1 ;
+   VARIABLE DR0 1;
+   VARIABLE DR1 1 ;
+   VARIABLE DR2 1 ;
+   VARIABLE DR3 1 ;
+   VARIABLE DR4 1 ;
+   VARIABLE DRF 1 ;
+   VARIABLE DRFOC 1;
+   VARIABLE DR0EN 1; VARIABLE DR0EX 1;
+   VARIABLE DR1EN 1; VARIABLE DR1EX 1;
+   VARIABLE DR2EN 1; VARIABLE DR2EX 1;
+   VARIABLE DR3EN 1; VARIABLE DR3EX 1;
+   VARIABLE DLEX 1;
+   VARIABLE Q1 1 ;        { quadrupole strength }
+   VARIABLE Q2 1 ;        { quadrupole strength }
+   VARIABLE Q3 1 ;        { quadrupole strength }
+   VARIABLE Q3SCALE 1 ;   { flag for scaling Q3 }
+   VARIABLE FILE 80 ;     { filename}
+   VARIABLE QFILE 80 ;     { filename}
+   VARIABLE TILT 1 ;      { Focal plane tilt angle }
+   VARIABLE I 1 ;
+   VARIABLE TMP 1 ;
+   VARIABLE SNAME 4 ;     {Spectrometer name}
+   VARIABLE FRMODE 1 ;    {Fringe field mode }
+   VARIABLE MORDER 1 ;    { Maximum order for transformations}
+   VARIABLE FORDER 1 ;    {Order of forward maps }
+   VARIABLE RORDER 1 ;    {Order of reconstruction map }
+   VARIABLE RES 1 4 ;     {Resolution array }
+
+   VARIABLE TMPSPOS 1000 ;  { Saved value of SPOS }
+   VARIABLE GMAP 2000 8 ;   { Global transfer map }
+   VARIABLE RMAP 2000 5 ;   { Reconstruction map }
+
+{========================== Procedure declarations ===========================}
+
+ { Output forward transformation data at an aperture and update internal maps }
+
+   PROCEDURE APERTURE LABEL REGION ;
+      WRITE 20 '!NAME: '&LABEL ;
+      WRITE 20 '!REGION: '&REGION ;
+      WRITE 20 '!OFFSET: '&SF(TMPSPOS,'(F25.16)')&' (in meters)' ;
+      WRITE 20 '!LENGTH: '&SF(SPOS,'(F25.16)')&' (canonical length in meters)' ;
+      PT 20 ;                           {Output data}
+      TMPSPOS := TMPSPOS + SPOS ;
+      ANM MAP GMAP GMAP ; UM ;          {Update global map + reset}
+      WRITE 6 ' Aperture at S = '&S(TMPSPOS)&' '&LABEL ;
+   ENDPROCEDURE ;
+
+ { Compute and output maps to inner aperture and exit of quad magnet. }
+
+   PROCEDURE MAGQUAD NAME LEFF Q A FRAC ;
+      VARIABLE DRIFT 1 ; VARIABLE LMID 1 ;
+
+{ Compute the location of the inner aperture }
+
+      LMID  := (LEFF*FRAC) ;
+
+      IF FRMODE#0 ; FR -1 ; MQ LEFF Q A ; ENDIF ; {Entrance fringe field}
+      FR  0 ; MQ LMID Q A ;                       {First part of quad}
+      APERTURE NAME&'_MID' 'FRONT' ;
+
+      MQ LEFF-LMID Q A ;                          {Second part of quad}
+      IF FRMODE#0 ; FR -2 ; MQ LEFF Q A ; ENDIF ; {Exit fringe field}
+
+      APERTURE NAME&'_MAGNETIC_EXIT' 'BACK' ;
+
+      FR FRMODE ; ENDPROCEDURE ;                  {Restore fringe field mode}
+
+{ Q3 fieldmap }
+
+  PROCEDURE QUAD ;
+      VARIABLE IS 1 ;
+      LOOP IS 1 4 ; FIELDMAP IS 'SHMS_Q3' ; ENDLOOP ;
+   ENDPROCEDURE ;
+
+
+{Dipole fieldmap}
+
+   PROCEDURE DIPOLE ;
+      VARIABLE IS 1 ;
+      LOOP IS 1 8 ; FIELDMAP IS 'SHMS_DIP' ; ENDLOOP ;
+   ENDPROCEDURE ;
+
+{================================= Main Code =================================}
+
+{ Beam specifications }
+
+   MORDER := 6 ;                        {Max order for calculations}
+   OV morder 3 0 ;                      {Order Value <order><phase dim><#par>}
+
+   RPM 11000.0 5.4858E-4 -1 ;           {<momentum> <mass in amu> <charge>}
+
+   SB  0  .040  0  .050  .015  0   0 .15   0   0   0 ;
+{  --> PX   PA  R12  PY   PB  R34 PT  PD  R56 PG  PZ      }
+
+{ Spectrometer name }
+
+   SNAME := 'SHMS' ;
+
+{ Fringe-field specifications.}
+
+   frmode := 3 ;
+   FR FRMODE ;
+
+{ Magnet geometry }
+   ZBC := 1.76 ;                {Center of bender}
+   Z1C := 4.140 ;               {Center of Q1}
+   Z2C := 6.80 ;                {Center of Q2}
+   Z3C := 9.45 ;                {Center of Q3}
+
+   ZDC := 12.937;           {Center of dipole - might not use for anything}
+   XDIP:= 0.26 ;             {Dipole vertical offset}
+   DTILT:= 9.2*pi/180.0;    {Dipole tilt}
+
+   DZF1:= sqrt(4.933^2+(1.632-XDIP)^2);
+   FTILT1:= atan((1.632-XDIP)/4.933);
+   FTILT2:= FTILT1-DTILT ;
+   DZF2:= DZF1*cos(FTILT2);
+
+   LB := 1.1522 ;
+   L1 := 2.44  ;                {Physical length of Q1}
+   L2 := 2.369  ;                {Physical length of Q2}
+   L3 := 2.369  ;                {Physical length of Q3}
+   LD := 4.098  ;                {Physical length of dipole}
+
+   LBE := 0.751 ;              {Effective length of bender}
+   L1E := 1.879 ;              {Effective length of Q1}
+   L2E := 1.64 ;               {Effective length of Q2}
+   L3E := 1.64 ;               {Effective length of Q3}
+   LDE := 2.90 ;
+
+   DRF:= (DZF2-LDE/2)/cos(DTILT);
+
+{ Compute some drift distances }
+
+      DR0 := ZBC-(LB/2);                     {Drift from target to bender}
+      DR1 := (Z1C - ZBC) - ((LB + L1)/2) ;   {Drift from Bender to Q1}
+      DR2 := (Z2C - Z1C) - ((L1 + L2)/2) ;   {Drift from Q1 to Q2}
+      DR3 := (Z3C - Z2C) - ((L2 + L3)/2) ;   {Drift from Q2 to Q3}
+{      DR4 := (ZDC - Z3C) - ((L3 + LD)/2) ;  {Drift from Q3 to dipole}}
+      DZD1:= XDIP/tan(DTILT);
+      DZD2:= (LDE/2-XDIP/sin(DTILT))/cos(DTILT);
+      DR4 := (ZDC-Z3C) - L3E/2 - DZD1 - DZD2 ; {Drift from Q3 to dipole}
+
+   DR0EN := (LB-LBE)/2; {Drift from bender mech to mag ent}
+   DR0EX := (LB-LBE)/2; {Drift from bender mag to mech ex}
+
+   DR1EN := (L1-L1E)/2; {Drift from Q1 mech to mag ent}
+   DR1EX := (L1-L1E)/2; {Drift from Q1 mag to mech ex}
+
+   DR2EN := (L2-L2E)/2; {Drift from Q2 mech to mag ent}
+   DR2EX := (L2-L2E)/2; {Drift from Q2 mag to mech ex}
+
+   DR3EN := (L3-L3E)/2; {Drift from Q3 mech to mag ent}
+   DR3EX := (L3-L3E)/2; {Drift from Q3 mag to mech ex}
+
+   DLEX := 0.599/cos(DTILT) ; {Drift from dipole mag to mech exit} 
+   DRFOC := DRF-DLEX ;
+
+{ QUAD STRENGTHS }
+
+{COSY solution}
+{Let Q1/Q2/Q3 all vary: ME(5,2) = -1.2}
+   Q1 := -2.036634 ;
+   Q2 :=  4.326750 ;
+   Q3 := -2.862092 ;
+
+{Let Q1/Q2/Q3 all vary: ME(5,2) = -0.8}
+{   Q1 := -2.370969 ;}
+{   Q2 :=  4.330444 ;}
+{   Q3 := -2.530578 ;}
+
+{ Computation order specifications }
+
+   ASK forder 'Order for maps (1-'&SF(morder,'(i1)')&'): ' 1 morder ;
+   CO FORDER ; RORDER := FORDER ;
+
+{ Begin composing forward maps }
+
+   qfile := SNAME&'_Q3S.dat' ;  {Quad scaling symplectic map}
+   file  := SNAME&'_fr'&sf(frmode,'(i1)')&'_for_maps.dat' ;
+   openf 20 file 'UNKNOWN' ;
+
+      FR FRMODE ;
+      UM ; SM GMAP ; TMPSPOS := SPOS ;  {Initialize global map}
+
+{ Insert splitter magnet }
+
+     DL DR0 ;
+     APERTURE 'BENDER_MECHANICAL_ENTRANCE' 'FULL';
+     DL DR0EN ;
+     APERTURE 'BENDER_MAGNETIC_ENTRANCE' 'FULL'; 
+
+     RA -90 ; DP 14.34959928 3.0 0.225 ; RA 90 ; {Bender}
+     APERTURE 'BENDER_MAGNETIC_EXIT' 'FULL' ;
+
+     DL DR0EX ;
+     APERTURE 'BENDER_MECHANICAL_EXIT' 'FULL' ;
+
+{ QUAD 1 }
+
+      DL DR1 ;                        {Drift TO Q1}
+      APERTURE 'Q1_MECHANICAL_ENTRANCE' 'FULL' ;
+      DL DR1EN ;
+      APERTURE 'Q1_MAGNETIC_ENTRANCE' 'FULL' ;
+      MAGQUAD 'Q1' L1E Q1 0.25 1/2 ;
+      DL DR1EX ;
+      APERTURE 'Q1_MECHANICAL_EXIT' 'FULL' ;
+
+{ QUAD 2 }
+
+      DL DR2 ;                        {Drift TO Q2}
+      APERTURE 'Q2_MECHANICAL_ENTRANCE' 'FULL' ;
+      DL DR2EN ;
+      APERTURE 'Q2_MAGNETIC_ENTRANCE' 'FULL' ;
+      MAGQUAD 'Q2' L2E Q2 0.35 1/2 ;
+      DL DR2EX ;
+      APERTURE 'Q2_MECHANICAL_EXIT' 'FULL' ;
+{ QUAD 3 }
+
+      DL DR3 ;                        {Drift TO Q3}
+      APERTURE 'Q3_MECHANICAL_ENTRANCE' 'FULL' ;
+      DL DR3EN ;
+      APERTURE 'Q3_MAGNETIC_ENTRANCE' 'FULL' ;
+      MAGQUAD 'Q3' L3E Q3 0.35 1/2 ;
+      DL DR3EX ;
+      APERTURE 'Q3_MECHANICAL_EXIT' 'FULL' ;
+
+      DL 0.18 ; {dipole mechanical entrance}
+      APERTURE 'DIPOLE_MECHANICAL_ENTRANCE' 'D-FRONT' ;  
+
+      DL 0.301 ; {dipole mechanical entrance}
+      APERTURE 'DIPOLE_FLARE' 'D-FRONT' ;  
+
+      DL 0.394715 ; {drift to magnetic entrance}
+      APERTURE 'DIPOLE_MAGNETIC_ENTRANCE' 'D-FRONT' ; 
+
+{ Dipole }
+{Break into 8 segments of 2.3 degrees = 18.4 deg total}
+      FR -1; DP 9.187419156 18.4 0.35 ;  {calculate entrance fringe field}
+      FR 0 ; DP 9.187419156 2.3 0.35 ; {now use for first trans}
+      APERTURE 'DIPOLE_MID' 'dipole';
+      FR 0; {turn all fringe fields off}
+      LOOP I 1 6;
+          DP 9.187419156 2.3 0.35 ;
+          APERTURE 'DIPOLE_MID' 'dipole' ;
+      ENDLOOP ;
+      FR -2; DP 9.187419156 18.4 0.35 ; {calculate exit fringe field}
+      FR 0; DP 9.187419156 2.3 0.35 ;
+      APERTURE 'DIPOLE_MAGNETIC_EXIT' 'dipole' ;
+
+      FR FRMODE ;
+
+      DL DLEX ;
+      APERTURE 'DIPOLE_MECHANICAL_EXIT' 'drift' ; {dipole mechanical exit}
+
+{ Focal Plane }
+
+      DL DRFOC ;                        {Drift to detector focal plane}
+      APERTURE 'FOCAL_PLANE' 'drift' ;
+   closef 20 ;                        {Done outputting forward maps}
+
+{ Output global map in transport notation }
+
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_for_global.dat' ;
+   openf 20 file 'UNKNOWN' ; UM ; AM GMAP ; PT 20 ; closef 20 ; UM ;
+
+{ Some diagnostics }
+
+      WRITE 6 ' Q1-3, D1-F, Z1-M, LENGTH = ' (Q1)&(Q2)&(Q3) ;
+      WRITE 6 DR1&DR2&DR3&DR4&DRF ;
+      WRITE 6 Z1C&Z2C&Z3C&ZFM&SPOS ;
+      
+{ Convert GMAP from canonical to TRANSPORT form}
+
+   CATR GMAP MAP TMPSPOS ; spos := tmpspos ;
+
+   WRITE 6 ' Total length = '&S(CONS(SPOS))&' meters' ;
+
+{ Output diagnostic matrix elements }
+
+   WRITE 6 ' ME(5,2) = '&S(ME(5,2)) ;
+   WRITE 6 ' ME(1,2) = '&S(ME(1,2)) ;
+   WRITE 6 ' ME(3,4) = '&S(ME(3,4)) ;
+
+{ Compute focal plane tilt angle }
+
+   TILT := (180*atan(ME(1,1)*ME(1,26)/ME(1,6))/pi)+90 ;
+   write 6 ' Focal plane tilt ='&SF(tilt,'(f8.3)')&' degrees' ;
+
+{ Compute RECON map }
+
+   RR1 MAP 0 0 .04 0 .04 .15 0 0 10000 RORDER RMAP RES ;
+   write 6 ' RECON resolutions =  ' RES(1)&RES(2)&RES(3)&RES(4) ;
+   file := SNAME&'_fr'&sf(frmode,'(i1)')&'_rec.dat' ;
+   openf 20 file 'UNKNOWN' ; pmr rmap 20 ; closef 20 ;
+
+
+ENDPROCEDURE ;
+RUN ;
+END ;
+
+
+
+

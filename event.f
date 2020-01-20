@@ -789,7 +789,6 @@ c all other mesons (with width) get the standard formula
 
 	  main%phi_pq = atan2(p_new_y,p_new_x)		!atan2(y,x)=atan(y/x)
 	  if (main%phi_pq.lt.0.e0) main%phi_pq=main%phi_pq+2.*pi
-
 !	  if (p_new_y.lt.0.) then
 !	    main.phi_pq = 2*pi - main.phi_pq
 !	  endif

@@ -90,7 +90,9 @@
 
 	ntup%sigcm2 = sig_factorized2007(vertex%q2,main%wcm,main%t,
      1                   pkcm,targ%Mrec_struck,main%epsilon)
-
+c	ntup%sigcm2 = sig_factorized(vertex%q2,main%wcm,main%t,
+c     1  pkcm,targ%Mrec_struck,main%epsilon)
+	
 * Choose the cross section model to use by default.
 !	sigma_eek = ntup.sigcm1		!Saghai
 	sigma_eek = ntup%sigcm2		!Factorized model

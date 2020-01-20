@@ -70,7 +70,8 @@ C First time through, read in coefficients from data file.
 c	     open (unit=chan,status='old',file='shms/shms_hsa_2009_recon_cosy_daveme2.dat')
 c	     open (unit=chan,status='old',file='shms/shms_recon_cosy_2011_dipole26cm_dm1.2_nov9.dat')
 c	     open (unit=chan,status='old',file='shms/shms_recon_refit_5th_order.dat')
-	     open (unit=chan,status='old',file='shms/shms_recon_fit_90deg_1cm_5th_order.dat')
+c	     open (unit=chan,status='old',file='shms/shms_recon_fit_90deg_1cm_5th_order.dat')
+	     open (unit=chan,status='old',file='shms/shms_recon.dat')
 c	     open (unit=chan,status='old',file='shms/shms_hsa_2009_recon_cosy.dat')
 ! CMOP REFIT
 c	     open (unit=chan,status='old',file=

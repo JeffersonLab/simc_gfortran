@@ -61,32 +61,20 @@ C hodoscopes
 	real*8 hscin_radlen
 	parameter (hscin_radlen =  42.4)
 
-C Ar/neo Cherenkov entrance foil, 2 mil of Al from D Day spreadsheet Jan 27 2012
+C Ar/neo Cherenkov entrance foil, Tedlar ( update from D. Day spreadsheet Feb 2016)
 	real*8 hcer_entr_radlen,hcer_entr_thick
-	parameter (hcer_entr_radlen = 8.90)
+	parameter (hcer_entr_radlen = 19.63)
 	parameter (hcer_entr_thick  = 0.002*2.54)
 C Ar/neo Cherenkov, for now 100% argon
 	real*8 hcer_1_radlen
 	parameter (hcer_1_radlen = 11700.0)
-C Ar/neo Cherenkov mirror, glass is 0.3cm, back is 
+C Ar/neo Cherenkov mirror, SiO2 , no backing
 	real*8 hcer_mirglass_radlen,hcer_mirglass_thick
 	parameter (hcer_mirglass_radlen = 12.29)
-	parameter (hcer_mirglass_thick  = 0.3)! Frac rad len = 2.4%
-	real*8 hcer_mirback1_radlen,hcer_mirback1_thick ! carbon
-	parameter (hcer_mirback1_radlen = 42.7)
-	parameter (hcer_mirback1_thick  = 0.016*2.54) ! 
-	real*8 hcer_mirback2_radlen,hcer_mirback2_thick ! Rohacell
-	parameter (hcer_mirback2_radlen = 540.7)
-	parameter (hcer_mirback2_thick  = 1.27) ! 
-	real*8 hcer_mirback3_radlen,hcer_mirback3_thick! carbon
-	parameter (hcer_mirback3_radlen = 42.7)
-	parameter (hcer_mirback3_thick  = 0.016*2.54) ! 
-	real*8 hcer_mirback4_radlen,hcer_mirback4_thick! Rohacell
-	parameter (hcer_mirback4_radlen = 540.7)
-	parameter (hcer_mirback4_thick  = 2.54) ! 
-C Ar/neo Cherenkov exit foil,
+	parameter (hcer_mirglass_thick  = 0.3)
+C Ar/neo Cherenkov exit foil Tedlar  ( update from D. Day spreadsheet Feb 2016)
 	real*8 hcer_exit_radlen,hcer_exit_thick
-	parameter (hcer_exit_radlen = 8.90)
+	parameter (hcer_exit_radlen = 19.63)
 	parameter (hcer_exit_thick  = 0.002*2.54)
 
 
@@ -153,9 +141,10 @@ c SHMS Cerenkov
 	real*8 hcer_left, hcer_right
 	real*8 hcer_top, hcer_bottom
 
-c
-	parameter (hdc_1_zpos = -40.0)
-	parameter (hdc_2_zpos =  40.0)
+C	parameter (hdc_1_zpos = -40.0)     !Original (NOT surveyed) DC1 zPos C.Y. 07/17/2018
+	parameter (hdc_1_zpos = -40.656)
+C	parameter (hdc_2_zpos =  40.0)     !Original (NOT surveyed) DC2 zPos C.Y. 07/17/2018
+	parameter (hdc_2_zpos =  39.332)
 	parameter (hdc_1_left  =  40.0)
 	parameter (hdc_1_right = -40.0)
 	parameter (hdc_1y_offset = 0.0)
@@ -182,16 +171,22 @@ C Scintillator positions and thicknesses
 	real*8 hscin_2x_left,hscin_2x_right,hscin_2x_offset
 	real*8 hscin_2y_top,hscin_2y_bot,hscin_2y_offset
 
-	parameter (hscin_1x_zpos = 51.9)
-	parameter (hscin_1y_zpos = 60.9)
-	parameter (hscin_2x_zpos = 271.9)
-	parameter (hscin_2y_zpos = 280.9)
+C       parameter (hscin_1x_zpos = 51.9)    !Original Hodo1x C.Y. 07/17/2018
+	parameter (hscin_1x_zpos = 52.1)
+C	parameter (hscin_1y_zpos = 60.9)    !Original Hodo1y C.Y. 07/17/2018
+	parameter (hscin_1y_zpos = 61.7)
+C	parameter (hscin_2x_zpos = 271.9)   !Original Hodo2x C.Y. 07/17/2018
+	parameter (hscin_2x_zpos = 271.4)
+C	parameter (hscin_2y_zpos = 280.9)   !Original Hodo2y C.Y. 07/17/2018
+	parameter (hscin_2y_zpos = 282.4)
 	parameter (hscin_1x_thick = 1.000*1.067)
 	parameter (hscin_1y_thick = 1.000*1.067)
 	parameter (hscin_2x_thick = 1.000*1.067)
 	parameter (hscin_2y_thick = 1.000*1.067)
-	parameter (hscin_1x_left  =  45.)
-	parameter (hscin_1x_right = -45.)
+C  	parameter (hscin_1x_left  =  45.)      !Original (SOS) Hodo1x left C.Y. 07/17/2018
+	parameter (hscin_1x_left  =  50.)
+C	parameter (hscin_1x_right = -45.)      !Original (SOS) Hodo1x right C.Y. 07/17/2018
+	parameter (hscin_1x_right = -50.)
 	parameter (hscin_1x_offset = 0.0)
 	parameter (hscin_1y_top   = -45.)
 	parameter (hscin_1y_bot   =  45.)
@@ -199,8 +194,10 @@ C Scintillator positions and thicknesses
 	parameter (hscin_2x_left  =   55.)
 	parameter (hscin_2x_right =  -55.)
 	parameter (hscin_2x_offset =  0.)
-	parameter (hscin_2y_top   = -57.5)
-	parameter (hscin_2y_bot   =  57.5)
+C	parameter (hscin_2y_top   = -57.5)     !Original (SOS) Hodo2Y TOP C.Y. 07/17/2018
+	parameter (hscin_2y_top   = -62.5)
+C	parameter (hscin_2y_bot   =  57.5)     !Original (SOS) Hodo2Y BOT C.Y. 07/17/2018
+	parameter (hscin_2y_bot   =  62.5)
 	parameter (hscin_2y_offset = 0)
 
 

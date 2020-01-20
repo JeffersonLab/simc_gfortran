@@ -207,7 +207,7 @@ cdg	call time (timestring1(11:23))
 	  if (mod(ntried,ninform).eq.1) then
 	    write (6,'(1x,a,i9,a,i8,a,e11.4)') 'Generating Event',
      >		ntried, ' ... ', nevent,'  successes so far - Monitor:',
-     >		wtcontribute*luminosity/ntried
+     >	  wtcontribute*luminosity/ntried
 	    if (ntried.ge.5000) ninform = 20000
 	  endif
 

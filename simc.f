@@ -1578,7 +1578,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	endif
 
 	main%SP%e%yptar = orig%e%yptar + dangles(1) + dang_in(1)
-	main%SP%e%xptar = orig%e%xptar + dangles(2) + dang_in(2)*spec%p%cos_th
+	main%SP%e%xptar = orig%e%xptar + dangles(2) + dang_in(2)*spec%e%cos_th
 
 ! CASE 1: Using the spectrometer Monte Carlo
 

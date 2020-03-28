@@ -64,7 +64,6 @@
 	extra_dbase_file=' '
 	write(6,*) 'Enter the input filename (assumed to be in infiles directory)'
 	read(5,'(a)') dbase_file
-
 	j=index(dbase_file,'/')
 	if (j.eq.0) then					!no path given
 	  write(filename,'(a)') 'infiles/'//dbase_file
@@ -79,6 +78,7 @@
 	endif
 	write(6,'(a10,a69)')'filename=',filename
 	if (i.gt.1) base=filename(j+1:i-1)
+        write(start_random_state_file,'(a)') 'outfiles/'//filename(j+1:i-1)//'_start_random_state.dat'
 
 ! ... load and book input file
 
@@ -103,6 +103,9 @@
 	  ierr = thbook()
 	  if (ierr.ne.0) stop ' Booking problem!  Not going to try again...wouldnt be prudent'
 	endif	!extra dbase input file
+c
+	   if (random_seed .eq. -1) random_seed=time()	   
+	write(*,*) 'Use random seed = ',random_seed
 
 C DJG: Ugly hack! This must come before the test on doing_pion
 	if(doing_pion .and. doing_semi) then

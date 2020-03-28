@@ -35,7 +35,7 @@ C       = $(simcdir)/calo/
 OBJ1	= target.o brem.o gauss1.o NtupleInit.o NtupleClose.o enerloss_new.o
 OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physics_proton.o loren.o sf_lookup.o
 OBJ3    = semi_physics.o rho_physics.o rho_decay.o generate_rho.o trg_track.o semi_dilution.o
-OBJ4	= results_write.o event.o mt19937.o jacobians.o
+OBJ4	= results_write.o event.o ranlux.o jacobians.o
 OBJ5	= $(A)musc.o $(A)musc_ext.o $(A)project.o $(A)transp.o
 OBJ6	= $(A)rotate_haxis.o $(A)rotate_vaxis.o $(A)locforunt.o
 OBJ7	= $(H)mc_hms.o $(H)mc_hms_hut.o $(H)mc_hms_recon.o
@@ -51,7 +51,7 @@ my_deps = $(my_objs:.o=.d)
 
 MYOS := $(subst -,,$(shell uname))
 #CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
-CERNLIBS = -Wl,-static -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lkernlib -lmathlib -Wl,-dy
+CERNLIBS = -Wl,-static -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lkernlib -lmathlib -ljetset74 -Wl,-dy
 
 #For use with gfortran compiler
 # -fno-automatic - all program storage treated as static
@@ -63,7 +63,7 @@ ifeq ($(MYOS),Linux)
 #  CERN_ROOT = /usr/lib/cernlib/2006
 # 64 bit, standard Fedora distributuion
 #  CERN_ROOT =  /usr/lib64/cernlib/2006 
-  FFLAGSA=-O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
+  FFLAGSA=-O -w -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
   INCLUDES=-I.
   FFLAGS= $(INCLUDES) $(FFLAGSA)
   FFLAG1=$(FFLAGS) -c

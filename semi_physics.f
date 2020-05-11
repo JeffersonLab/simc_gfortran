@@ -366,7 +366,7 @@ C difference for pions anyway.
 	      if(doing_hplus) then
 		 dsigdz = (qu**2*u*D_fav + qu**2*ubar*D_unfav +
      >  	      qd**2*d*D_s + qd**2*dbar*D_s + 
-     >  	      qs**2*s*D_unfav + qs**2+sbar*D_fav)/sum_sq
+     >  	      qs**2*s*D_unfav + qs**2*sbar*D_fav)/sum_sq
 	      else
 		 dsigdz = (qu**2*u*D_unfav + qu**2*ubar*D_fav +
      >  	      qd**2*d*D_s + qd**2*dbar*D_s + 

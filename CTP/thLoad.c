@@ -125,8 +125,8 @@ extern daVarStatus thRHandler();*/
 char *types[]={PARMSTR, GETHITSTR, TESTSTR, HISTSTR, UHISTSTR,
                TREESTR,
                REPORTSTR, 0};
-thStatus (*hooks[])()={thLoadParameters, thBookGethits, thBookTests,
-		       thBookHists, thBookHists,
+thStatus (*hooks[])()={thLoadParameters, /*thBookGethits,*/ thBookTests,
+		       /*thBookHists, thBookHists,*/
                        thBookTree,
                        thBookReports, 0};
 

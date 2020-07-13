@@ -5,7 +5,8 @@
 	include 'hbook.inc'
 	include 'simulate.inc'
 
-	real*4	ntu(80)
+	integer i
+	real*8	ntu(80)
 	type(event_main):: main
 	type(event):: vertex, orig, recon
 
@@ -226,7 +227,10 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	  ntu(44) = main%weight
 	endif
 
-	call HFN(NtupleID,ntu)
+c	call HFN(NtupleID,ntu)
+	do i=1,NtupleSize
+	   write(NtupleIO) ntu(i)
+	enddo
 	if (debug(2)) write(6,*)'r_ntu_write: ending'
 	return
 	end
@@ -263,7 +267,7 @@ c	  ntu(11) = vertex%p%xptar			!mr
 	  ntu(8) = 4.
 	endif
 	ntu(9) = main%weight
-	call HFN(NtupleID,ntu)
+c	call HFN(NtupleID,ntu)
 	if (debug(2)) write(6,*)'r_ntu_write: ending'
 	return
 	end

@@ -52,9 +52,9 @@ c
 
 	
 
+C DJG Remove cernlib requirements July, 2020
 ! ... initialize histogram area for HBOOK
-
-	call hlimit(PawSize)
+c	call hlimit(PawSize)
 
 ! ... read in the data base
 
@@ -67,7 +67,7 @@ c
 
 	i = index(base,' ')
 	if (Nntu.gt.0) then
-	  filename = 'worksim/'//base(1:i-1)//'.rzdat'
+	  filename = 'worksim/'//base(1:i-1)//'.bin'
 	  call NtupleInit(filename)
 	endif
 

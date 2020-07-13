@@ -160,8 +160,8 @@ daVarStatus thHistRHandler(char *name, daVarStruct *varclass, any *retval)
     retval->any_u.error = S_DAVAR_UNKATTR;
     if(thLastIdRhandled != *((DAINT *) varp->varptr)) {
       thLastIdRhandled = *((DAINT *) varp->varptr);
-      HGIVE(*((DAINT *) varp->varptr),chtitle,NX,XMI,XMA,NY,YMI,YMA
-	    ,NWT,LOC);
+      /*HGIVE(*((DAINT *) varp->varptr),chtitle,NX,XMI,XMA,NY,YMI,YMA
+	,NWT,LOC);*/
     }
     if(strcasecmp(attribute,TH_ND) == 0){
       retval->valtype = DAVARINT_RPC;
@@ -207,7 +207,7 @@ daVarStatus thHistRHandler(char *name, daVarStruct *varclass, any *retval)
       retval->any_u.r.r_val = (float *)malloc(size*sizeof(float));
       /* Next line gives warning "assignment of read-only location */
       char tmpstring[] = "HIST";
-      HUNPAK(thLastIdRhandled,retval->any_u.r.r_val,tmpstring,(int) 1);
+      /*HUNPAK(thLastIdRhandled,retval->any_u.r.r_val,tmpstring,(int) 1);*/
     }
   }
   return(status);

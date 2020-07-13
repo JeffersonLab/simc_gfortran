@@ -66,6 +66,7 @@ c output filename
 
       read(io) NtupleSize
 
+      write(6,*) 'Variables in output file:'
       do i=1,NtupleSize
          read(io) NtupleTag(i)
          write(6,*) NtupleTag(i)

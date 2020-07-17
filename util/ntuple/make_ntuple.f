@@ -49,12 +49,12 @@ c input filename
       write(6,*) 'Enter filename to convert (without .bin extesntion)'
       read(5,*) rawname
       i=index(rawname,' ')
-      filename='../worksim/'//rawname(1:i-1)//'.bin'
+      filename='../../worksim/'//rawname(1:i-1)//'.bin'
       write(6,*) 'opening file: ',filename
       open(io,file=filename,form="unformatted",access="sequential")
 
 c output filename
-      ntfilename='../worksim/'//rawname(1:i-1)//'.rzdat'
+      ntfilename='../../worksim/'//rawname(1:i-1)//'.rzdat'
       call HCDIR(directory,'R')
       call HROPEN(chanout,NtupleName,ntfilename,'N',recl,status)
 

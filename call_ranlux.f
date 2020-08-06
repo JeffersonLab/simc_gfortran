@@ -58,7 +58,8 @@ c
       double precision function grnd()
       implicit none
       integer len/1000/,latest,i
-      real*4 rvec(1000)
+c      real*4 rvec(1000)
+      real*8 rvec(1000)
       
       if(latest.le.0 .or. latest.ge.1000) then
        CALL RANLUX(RVEC,LEN)

@@ -1,0 +1,11 @@
+./simc << endofinput > runout/$1.out
+$1
+endofinput
+cd util/ntuple
+./make_ntuple << endofinput
+$1
+endofinput
+cd ../..
+rm worksim/$1.bin
+
+

@@ -85,11 +85,11 @@ typedef struct thHook thHook;
 /* How many of these c routines are "advertised */
 thHook thHooks[] = {
   {PARMSTR   ,thLoadParameters,0,0,0,0,0,0},
-  {GETHITSTR ,thBookGethits,thExecuteaGethitBlock,0,0,0,0,0},
+  /*{GETHITSTR ,thBookGethits,thExecuteaGethitBlock,0,0,0,0,0},*/
   {TESTSTR   ,thBookTests,thExecuteTestsV,thClearTestFlagsV,thClearTestScalersV
      ,thIncTestScalersV,0,0},
-  {HISTSTR,thBookHists,thExecuteHistsV,thClearHistsV,0,0,0,0},
-  {UHISTSTR,thBookHists,0,0,0,0,0,0},
+  /*{HISTSTR,thBookHists,thExecuteHistsV,thClearHistsV,0,0,0,0},*/
+  /*{UHISTSTR,thBookHists,0,0,0,0,0,0},*/
   {TREESTR,thBookTree,thFillTreeV,thClearTreeV,0,0,thWriteTreeV,thCloseTreeV},
   {REPORTSTR,thBookReports,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0}};

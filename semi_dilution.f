@@ -68,7 +68,7 @@
 	real*8 Ctq5Pdf	
 c	external Ctq5Pdf
 
-	logical first
+	logical first,kfirst
 
 
 	parameter (iset=1)
@@ -81,6 +81,7 @@ c	external Ctq5Pdf
 	parameter (Q2zero=2.0)   !Gev^2 for u,d,s,g
 
 	data first /.TRUE./
+	data kfirst /.TRUE./
 
 	if(first) then
 	   call SetCtq5(iset)    ! initialize Cteq5 (we're using cteq5m)
@@ -136,7 +137,13 @@ C Form of parameterization is D = N z^a1 (1-z)^a2
 
 	elseif(doing_semika) then
 
-	   STOP 'Kaons fragmentation functions not implemented yet'
+	   if (kfirst) then
+	      write(6,*) 'Kaon FF in semi_dilution not iomplemented yet -using pion values'
+	      kfirst=.false.
+	   endif
+	   N = 1.150 - 1.522*sv + 1.378*sv**2 - 0.527*sv**3
+	   a1 = -0.740 - 1.680*sv + 1.546*sv**2 - 0.596*sv**3
+	   a2 = 1.430 + 0.543*sv - 0.023*sv**2
 
 	endif
 

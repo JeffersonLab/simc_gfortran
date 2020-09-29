@@ -1420,14 +1420,15 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	  main%sigcc = peepiX(vertex,vertex0,main,survivalprob,.FALSE.)
 	  main%sigcc_recon = 1.0
 	  main%sigcent = peepiX(vertex,vertex0,main,survivalprob,.TRUE.)
-	  ntup%dilu = semi_dilution(vertex,main) 
+c	  ntup%dilu = semi_dilution(vertex,main) 
+	  ntup%dilu = 1.0
 
 	else
 	  main%sigcc = 1.0
 	  main%sigcc_recon = 1.0
 	endif
 
-C If using Coulomb cirrections, include focusing factor
+C If using Coulomb corrections, include focusing factor
 	if(using_Coulomb) then
 	   main%sigcc = main%sigcc*(1.0+targ%Coulomb%ave/Ebeam)**2
 	endif

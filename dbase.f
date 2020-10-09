@@ -17,7 +17,10 @@
 !	which_pion = 10(11) gives pi+ (pi-) coherent production.
 !	This sets doing_hydpi true for ALL targets (i.e. treat as
 !	a heavy proton) but with targ.Mtar_struck and targ.Mrec_struck
-!	set appropriatly.
+!	set appropriately.
+!       Added additional options for which_pion:
+!       which_pion = 2: gamma* p -> pi+ Delta0,  gamma* D -> pi+ Delta0 n, or -> pi+ Delta- p
+!       which_pion = 3: gamma* p -> pi- Delta++, gamma* D -> pi- Delta++ n, or -> pi- Delta+ p
 !
 ! 4. doing_phsp:Generate acceptance with radiation and cross section disabled,
 !	use doing_kaon or doing_pion to set hadron mass, then 
@@ -316,6 +319,14 @@ C DJG:
 	    targ%Mtar_struck = Mn      ! D(e,e'pi-) pp
 	    targ%Mrec_struck = Mp
 	    sign_hadron=-1.0
+	  else if (which_pion .eq. 2 ) then
+	    targ%Mtar_struck = Mp      ! H(e,e'pi+)Delta0, D(e,e'pi+)nDelta0, D(e,e'pi+)pDelta-
+	    targ%Mrec_struck = MDelta
+	    sign_hadron = 1.0
+	  else if (which_pion .eq. 3) then
+	    targ%Mtar_struck = Mp      ! H(e,e'pi-)Delta++, D(e,e'pi-)nDelta++, D(e,e'pi-)pDelta+
+	    targ%Mrec_struck = MDelta
+	    sign_hadron = -1.0
 	  else if (which_pion .eq. 10) then
 	    targ%Mtar_struck = targ%M  ! A(e,e'pi+)A'
 	    targ%Mrec_struck = targ%Mrec
@@ -708,15 +719,17 @@ C DJG:
 	  else
 	    stop 'I don''t have ANY idea what (e,e''pi) we''re doing!!!'
 	  endif
-	  if (which_pion.eq.0 .or. which_pion.eq.10) then
+	  if (which_pion.eq.0 .or. which_pion.eq.10 .or. which_pion.eq.2) then
 	    write(6,*) ' ****-------  pi+ production  -------****'
-	  else if (which_pion.eq.1 .or. which_pion.eq.11) then
+	  else if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then
 	    write(6,*) ' ****-------  pi- production  -------****'
 	  endif
 	  if (which_pion.eq.0 .or. which_pion.eq.1) then
 	    write(6,*) ' ****---- Quasifree Production ----****'
 	  else if (which_pion.eq.10 .or. which_pion.eq.11) then
 	    write(6,*) ' ****----  Coherent Production ----****'
+	  else if (which_pion.eq.2 .or. which_pion.eq.3) then
+	    write(6,*) ' ****---- Quasifree Production - Delta final state ----****'
 	  endif
 	else if (doing_kaon) then
 	  if (doing_hydkaon) then

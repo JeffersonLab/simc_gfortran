@@ -130,7 +130,7 @@ CDG For lower W, user Peter Bosted's implementation of the MAID model
 	   cthcm = cos(thetacm)
 	   E0 = vertex%Ein/1000.0  !convert to GeV
 	   ipi = 3 ! pi+ by default
-	   if (which_pion.eq.1 .or. which_pion.eq.11) ipi=4 ! pi-
+	   if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3 .or. which_pion.eq.4) ipi=4 ! pi-
 	   call sigmaid(ipi,Q2gev,Wgev,E0,cthcm,phicm,sig0)
 ! convert from mub / dOmega* to mub / dt / dphi*
 	   ntup%sigcm2 = sig0 / ppicm / qstar / 2.
@@ -415,7 +415,7 @@ C				  7:-----S1+
 	  siglt= 0.0*sin(thetacm)
 	  sigtt= -(4.0*sigl+0.5*sigt)*(sin(thetacm))**2
 
-	  if (which_pion.eq.1 .or. which_pion.eq.11) then	!pi-
+	  if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then	!pi-
 	    sigt =sigt *0.25*(1.+3.*exp(-10.*abs(t)))
 	    sigtt=sigtt*0.25*(1.+3.*exp(-10.*abs(t)))
 	  endif
@@ -481,7 +481,7 @@ C				  7:-----S1+
 
 
 CDG For now assume sigL(pi+)=sigL(pi-)
-	if (which_pion.eq.1 .or. which_pion.eq.11) then	!pi-
+	if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then	!pi-
 	   sigt =sigt *0.25*(1.+3.*exp(-10.*abs(t)))
 	   sigtt=sigtt*0.25*(1.+3.*exp(-10.*abs(t)))
 	endif
@@ -538,7 +538,7 @@ CDG For now assume sigL(pi+)=sigL(pi-)
 
 
 CDG For now assume sigL(pi+)=sigL(pi-)
-	if (which_pion.eq.1 .or. which_pion.eq.11) then	!pi-
+	if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then	!pi-
 	   sigt =sigt *0.25*(1.0+3.0*exp(-10.0*abs(t)))
 	   sigtt=sigtt*0.25*(1.0+3.0*exp(-10.0*abs(t)))
 	endif

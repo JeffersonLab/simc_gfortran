@@ -737,10 +737,12 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  else
 	    stop 'I don''t have ANY idea what (e,e''pi) we''re doing!!!'
 	  endif
-	  if (which_pion .eq. 0) then
+	  if (which_pion .eq. 0 .or. which_pion .eq. 1) then
 	    write(iun,*) '              ****----  Default Final State ----****'
 	  else if (which_pion .eq. 10) then
-	    write(iun,*) '              ****----  Final State is A+pi ----****'
+	    write(iun,*) '              ****----  Final State is A + pi ----****'
+	  else if (which_pion.eq.2 .or. which_pion.eq.3) then
+	    write(iun,*) '              ****----  Final State is pi + Delta ----****'
 	  endif
 	else if (doing_kaon) then
 	  if (doing_hydkaon) then

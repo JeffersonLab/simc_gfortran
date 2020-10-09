@@ -64,7 +64,7 @@ ifeq ($(MYOS),Linux)
   FFLAGS= $(INCLUDES) $(FFLAGSA)
   FFLAG1=$(FFLAGS) -c
   OTHERLIBS = -L$(LIBROOT) -lctp \
-        -L$(CERN_ROOT)/lib -L/usr/lib64 
+        -L/usr/lib64 
 # 64 vs 32 bit
 #        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib
   FC  := gfortran

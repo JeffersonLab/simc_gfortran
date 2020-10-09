@@ -571,7 +571,10 @@ c	     ntup.rhomass=Mh
 c            write(6,*) 'rho mass is', Mh
 c	  endif
 	      
-
+C DJG If doing Deltas final state for pion production, generate Delta mass
+	  if(which_pion.eq.2 .or. which_pion.eq.3) then
+	     targ%Mrec_struck = Mdelta + 0.5*Delta_width*tan((2.*grnd()-1.)*pi/2.)
+	  endif
 
 	  vertex%Pm = pfer	!vertex%Em generated at beginning.
 	  vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
@@ -1392,6 +1395,23 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 	elseif (doing_pion) then
 	  main%sigcc = peepi(vertex,main)
+C Use Clebsch-Gordon coefficients to approximate xsec for Delta final states
+C This ignores the fact that the g*p and g*n cross sections may not be the same
+	  if(which_pion.eq.2) then ! pi+ Delta
+	     if(doing_hydpi) then
+		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
+	     elseif(doing_deutpi) then
+		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
+     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
+	     endif 
+	  elseif (which_pion.eq.3) then  !pi- Delta
+	     if(doing_hydpi) then
+		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
+	     elseif(doing_deutpi) then
+		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
+     >                     + 0.25*main%sigcc !(pi- Delta+)/(pi- p)
+	     endif
+	  endif
 	  main%sigcc_recon = 1.0
 	  if (which_pion.eq.1 .or. which_pion.eq.11) then  !OK for coherent???
 	    tgtweight = targ%N

@@ -247,17 +247,29 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 ! DJG:  consistent.
 
 	R = 0.33*(vertex%Q2/mrho2)**(0.61)
+! PYB added this
+	if(R.lt.0.) write(222,'(''r'',3e12.3)')
+     >    r,vertex%Q2,mrho2
+	if(R.lt.0.) R=0.
 
 ! DJG:  The Q2 dependence is usually given by (M2_rho/(Q2+M2_rho))^2
 ! DJG:  HERMES found that 2.575 works better than 2 in the exponent.
 
 	sigt = sig0*(1.0+epsi*R)*(mrho2/(vertex%Q2+mrho2))**(2.575)
 
+! PYB added this
+	if(sigt.lt.0.) write(222,'(''sigt'',6e12.3)')
+     >    sigt, sig0, epsi,r,mrho2,vertex%q2
+	if(sigt<0.) sigt = 0.
+
+
 ! DJG:  Need to parameterize t-dependence with b parameter as a function of c-tau
 
 	cdeltatau = hbarc/(sqrt(vertex%nu**2+vertex%Q2+mrho2)-vertex%nu) !in fm!
 	if(cdeltatau.lt.2.0) then
 	   brho = 4.4679 + 8.6106*log10(cdeltatau)
+! PYB added this
+	   if(brho.lt.1.0) brho = 1.0
 	else
 	   brho = 7.0
 	endif
@@ -276,6 +288,12 @@ C DJG Convert to dsig/dOmega_cm using dt/d(costhetacm) = 2 qcm pcm
 	gtpr = alpha/2./(pi**2)*vertex%e%E/vertex%Ein*(s-(targ%Mtar_struck/1000.)**2)/2./
      >		((efer-pfer*tfcos)/1000.)/Q2_g/(1.-epsi)
 
+	if(gtpr.le.0.) then
+         write(222,'(''gtpr'',10e10.2)') 
+     >   gtpr, efer,pfer,
+     >   vertex%Ein, s, targ%Mtar_struck, tfcos,Q2_g
+	 gtpr = 0.
+	endif
 
 	factor=targ%Mtar_struck/(targ%Mtar_struck+vertex%nu-vertex%q*vertex%p%E/vertex%p%P*tcos)
 	s5lab = gtpr*sig*vertex%q*vertex%p%P*factor/pi/1.d+06
@@ -363,6 +381,15 @@ c	davesig = gtpr*sig*jacobian
 
 	davesig = gtpr*sig
 	sigma_eerho = davesig/1.d3	!ub/GeV-sr --> ub/MeV-sr
+c avoid crazy results
+c	write(222,'(20e10.2)') sigma_eerho,
+c     >   gtpr,sig,sigt,brho,tprime,pfer,r
+	if(sigma_eerho.gt.1.E10.or.
+     >    sigma_eerho.lt.0.) then
+	 write(222,'("crazy sigma_rho",8e12.4)') 
+     >    gtpr, sig, sigma_eerho
+	 sigma_eerho = 0.
+	endif
 	peerho = sigma_eerho
 	ntup%sigcm = sig	!sig_cm
 

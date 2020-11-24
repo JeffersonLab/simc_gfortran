@@ -92,7 +92,7 @@ C DJG theta_spec about x-axis (points DOWN) for HMS (SOS).
 
 	if(hadron_arm.eq.1.or.hadron_arm.eq.3) then
 	   pzprime = pzf*cos(spec%p%theta)-pyf*sin(spec%p%theta)
-	elseif (hadron_arm.eq.2.or.hadron_arm.eq.4) then
+	elseif (hadron_arm.eq.2.or.hadron_arm.eq.4.or.hadron_arm.eq.5) then
 	   pzprime = pzf*cos(spec%p%theta)+pyf*sin(spec%p%theta)
 	else
 	   write(6,*) 'Unknown spectrometer setup dude!'

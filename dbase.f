@@ -33,7 +33,7 @@
 !	only (generation well be general, but cross section model will be
 !	a 'shortcut' version to start with.
 ! 6. doing_semi: H(e,e'pi)X (doing_semipi) and H(e,e'k)X (doing_semika) 
-! 7. doing_rho: H(e,e'rho)p
+! 7. doing_rho: H(e,e'rho)p, D(e,e'rho)p, 3He(e,e'rho)p
 
 	implicit none
 	include 'radc.inc'
@@ -297,7 +297,7 @@ C DJG:
 	   endif
 
 	else if(doing_rho) then
-	   targ%Mtar_struck = Mp
+	   targ%Mtar_struck = Mp ! could be either p or n if nucleus, but use p by default
 	   targ%Mrec_struck = Mp
 	   if(doing_hplus) then
 	      sign_hadron=1.0
@@ -306,7 +306,7 @@ C DJG:
 	   endif
 
 
-! ... for normal production, Strike p (n), recoil partile is n(p). 
+! ... for normal production, Strike p (n), recoil particle is n(p). 
 ! ... for bound final state, use targ.Mrec if it appears to be OK (same A
 ! ... A as target, with one n->p or p->n.
 
@@ -771,12 +771,12 @@ C DJG:
 	      endif
 	   else if (doing_deutrho) then
 	      write(6,*) ' ****--------  D(e,e''rho)  --------****'
-	      write(6,*) ' **** ---- Not yet implemented -----****'
-	      stop
+c	      write(6,*) ' **** ---- Not yet implemented -----****'
+c	      stop
 	   else if (doing_herho) then
 	      write(6,*) ' ****--------  A(e,e''rho)  --------****'
-	      write(6,*) ' **** ---- Not yet implemented -----****'
-	      stop
+c	      write(6,*) ' **** ---- Not yet implemented -----****'
+c	      stop
 	   else
 	      stop 'I don''t have ANY idea what (e,e''rho) we''re doing!!!'
 	   endif

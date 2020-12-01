@@ -1435,6 +1435,7 @@ C This ignores the fact that the g*p and g*n cross sections may not be the same
 	elseif (doing_rho) then
 	  main%sigcc = peerho(vertex,main)
 	  main%sigcc_recon = 1.0
+	  tgtweight = targ%Z+targ%N
 
 	elseif (doing_semi) then
 	  main%sigcc = peepiX(vertex,vertex0,main,survivalprob,.FALSE.)

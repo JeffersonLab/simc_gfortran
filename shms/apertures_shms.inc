@@ -6,7 +6,7 @@ C Aperture Limits:
 	real*8 r_D1
 	real*8 r_BP
 
-        parameter       (r_HBx         = 11.5)  !HB vertical radius
+        parameter       (r_HBx         = 11.2)  !HB vertical radius 
 
         parameter       (r_HBfym        = -4.13) !HB entrance -y
         parameter       (r_HBfyp        = 11.75)!HB entrance +y

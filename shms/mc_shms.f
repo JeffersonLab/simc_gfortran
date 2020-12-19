@@ -88,8 +88,8 @@ c collimator
 
 	parameter (h_entr = 8.5)
 	parameter (v_entr = 12.5)
-	parameter (h_exit = 8.5)
-	parameter (v_exit = 12.5)
+	parameter (h_exit = 8.65)
+	parameter (v_exit = 12.85)
 	parameter (x_off=+0.00)
 	parameter (y_off=+0.00)
 
@@ -175,10 +175,10 @@ c        parameter(zd_fp    = 307.95)
 C Distances for 2017 ME's
         parameter(zd_hbin  = 118.39)
 	parameter(zd_hbmen = 17.61) ! shms-2017 ME's
-        parameter(zd_hbmex = 75.134)
+        parameter(zd_hbmex = 80.0)
         parameter(zd_hbout = 17.61)
 c	parameter (z_entr = 52.04) ! 6.35 cm in front of Q1
-	parameter (z_entr = 22.4) ! 80 cm from center of HB
+	parameter (z_entr = 25.189) ! 82.789 cm from center of HB
 	parameter (z_thick =6.35) !6.35 cm thick
         parameter(zd_q1in  = 58.39)
         parameter(zd_q1men = 28.35) !shms-2017 ME's
@@ -496,21 +496,21 @@ c	   call project(xt,yt,zdrift,decay_flag,dflag,m2,p,pathlen) !project
 	      goto 500
 	   endif
 
-!  back of collimator 0.8 cm (80 mrad) flare in all directions
+
 
 	   zdrift = z_thick
            xt=xt + zdrift*dxdzs
            yt=yt + zdrift*dydzs
 c	   call project(xt,yt,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
-	   if (abs(yt-y_off).gt.(h_exit+0.8)) then
+	   if (abs(yt-y_off).gt.(h_exit)) then
 	      shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
 	      goto 500
 	   endif
-	   if (abs(xt-x_off).gt.(v_exit+0.8)) then
+	   if (abs(xt-x_off).gt.(v_exit)) then
 	      shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
 	      goto 500
 	   endif
-	   if (abs(xt-x_off).gt. ((-v_exit-0.8)/(h_exit+0.8)*abs(yt-y_off)+3*(v_exit+0.8)/2)) then
+	   if (abs(xt-x_off).gt. ((-v_exit)/(h_exit)*abs(yt-y_off)+3*(v_exit)/2)) then
 	      shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
 	      goto 500
      	   endif

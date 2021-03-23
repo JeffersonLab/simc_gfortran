@@ -37,7 +37,7 @@ none: make_root_tree
 all: make_root_tree
 
 make_root_tree: $(my_objs) froot.co
-	$(F77) $(LDFLAGS) -o make_root_tree $(my_objs) $(OTHERLIBS) froot.co $(ROOTLIBS) -lImt $(OTHERLIBS) $(CERNLIBS) -L/usr/lib64 -lstdc++
+	$(F77) $(LDFLAGS) -o make_root_tree $(my_objs) $(OTHERLIBS) froot.co $(ROOTLIBS) -lImt -lvdt -ltbb $(OTHERLIBS) $(CERNLIBS) -L/usr/lib64 -lstdc++
 
 %.o: %.f
 	$(FC) -c $(FFLAGS) $<

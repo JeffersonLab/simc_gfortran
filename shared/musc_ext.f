@@ -1,4 +1,4 @@
-	subroutine musc_ext(m2,p,rad_len,x_len,dth,dph,y,x)
+	subroutine musc_ext(m2,p,rad_len,x_len,dph,dth,y,x)
 C+_____________________________________________________________________
 !
 ! MUSC - Simulate multiple scattering of any particle.

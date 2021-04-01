@@ -799,7 +799,7 @@ c           pathlen=tpathlen
 	   xt=xs
 	   yt=ys
 	   call rotate_haxis(6.9,xt,yt)
-	   xt = xt + 8.1
+	   xt = xt + 8.05
 	   x_d_m1=xt
 	   y_d_m1=yt
 	   if ((xt*xt + yt*yt).gt.r_D1*r_D1) then
@@ -904,7 +904,7 @@ c           pathlen=tpathlen
 	   xt=xs
 	   yt=ys
 	   call rotate_haxis(-6.9,xt,yt)
-	   xt = xt + 8.5
+	   xt = xt + 8.05
 	   x_d_m7=xt
 	   y_d_m7=yt
 	   if ((xt*xt + yt*yt).gt.r_D1*r_D1) then
@@ -942,7 +942,7 @@ c           pathlen=tpathlen
            xt=xs
            yt=ys
            call rotate_haxis(-9.20,xt,yt)
-	   xt = xt - 6.9
+	   xt = xt - 6.88
 	   x_d_out=xt
 	   y_d_out=yt
 	   if ((xt*xt + yt*yt).gt.r_D1*r_D1) then

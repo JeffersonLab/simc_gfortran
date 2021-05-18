@@ -46,7 +46,7 @@ C Ntuple ID stuff
 
       call hlimit(PawSize)
 c input filename
-      write(6,*) 'Enter filename to convert (without .bin extesntion)'
+      write(6,*) 'Enter filename to convert (without .bin extension)'
       read(5,*) rawname
       i=index(rawname,' ')
       filename='../../worksim/'//rawname(1:i-1)//'.bin'

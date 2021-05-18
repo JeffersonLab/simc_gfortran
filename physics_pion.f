@@ -34,7 +34,7 @@
         real*8 thetacm,phicm,phiqn,jacobian,jac_old
 	real*8 Wgev, Q2gev, E0, cthcm, sig0, fac1
 
-	real*8 sig_multipole,sig_blok,sig_param04,sig_param_3000
+	real*8 sig_multipole,sig_blok,sig_param04,sig_param_3000,sig_param_2021
 
 	integer final_state, ipi
 	logical first,low_w_flag
@@ -118,24 +118,31 @@ c	ntup%sigcm1 = sig_param04(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main
 c     >		targ%Mtar_struck/1000.,which_pion)
 
 CDG Change default to PARAM3000 - this works better at larger Q2
-	ntup%sigcm1 = sig_param_3000(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
-     >		targ%Mtar_struck/1000.,which_pion)
+c	ntup%sigcm1 = sig_param_3000(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
+c     >		targ%Mtar_struck/1000.,which_pion)
+
+CDG Use Peter Bosted's new fit to world, JLab 6 GeV, and preliminary 12 GeV data 
+	ntup%sigcm1 = sig_param_2021(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
+     >           which_pion)
 
 	sigma_eepi = ntup%sigcm1
 
 CDG For lower W, user Peter Bosted's implementation of the MAID model
-	if(main%wcm.lt.2300) then ! W less than 2.3 GeV
+c	if(main%wcm.lt.2300) then ! W less than 2.3 GeV
+	if(main%wcm.lt.2000) then ! W less than 2.0 GeV
 	   Q2gev = vertex%q2/1.d6 !convert to GeV**2
 	   Wgev = main%wcm/1000.0 ! convert to GeV
 	   cthcm = cos(thetacm)
 	   E0 = vertex%Ein/1000.0  !convert to GeV
 	   ipi = 3 ! pi+ by default
-	   if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3 .or. which_pion.eq.4) ipi=4 ! pi-
+	   if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) ipi=4 ! pi-
 	   call sigmaid(ipi,Q2gev,Wgev,E0,cthcm,phicm,sig0)
 ! convert from mub / dOmega* to mub / dt / dphi*
 	   ntup%sigcm2 = sig0 / ppicm / qstar / 2.
-c       smoothly join between W of 1.7 and 2.3
-	   fac1 = max(0., (Wgev - 1.7) / 0.6)
+cc       smoothly join between W of 1.7 and 2.3
+c	   fac1 = max(0., (Wgev - 1.7) / 0.6)
+c       smoothly join between W of 1.5 and 1.9
+	   fac1 = min(1., max(0.,(Wgev - 1.5) / 0.4))
 	   sigma_eepi = ntup%sigcm1 * fac1 + ntup%sigcm2 * (1 - fac1)
 	endif
 
@@ -579,7 +586,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer i,Ipi,iq,iw,ith,j,k
       real*8 q2,w,e0,costh,phi,sig0,sigz, sigez, sige
-      real*8 maidtbl(4,25,46,6,18)
+      real*8 maidtbl(4,25,46,23,18)
       real*8 wfact, ST, SL, STL, STT, STLZ, STTZ, STLP
       real*8 STLPZ, STTPZ, CSF, SNF, CS2F, SN2F, CST,SNT
       real*8 STLPY,STTPX,SLY,STY,STLX,sthe,pt,pl,pn
@@ -602,7 +609,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
         if(i.eq.4) open(unit=9,file='maidpimp.dat')
         do iq=1,25
          do iw=1,46
-          do ith=1,6
+          do ith=1,23
            read(9,'(f11.6,18f8.4)') 
      >      (maidtbl(i,iq,iw,ith,j),j=1,18)
           enddo
@@ -720,3 +727,111 @@ c W>1.4. Note: this was *not* done for eg1c!
 
       return
       end
+
+       real*8 function sig_param_2021(thcm,phicm,t,q2,wsq,eps,which_pion)
+! April 2021 fit to exclusive pi+ and pi- data from
+! fpi1, fpi2, CT, pt-SIDIS, CSV-SIDIS, and KLT
+! q2, t, and wsq should be in gev**2
+! thcm and phicm should be in radians
+! Peter Bosted, from output of ~bosted/ptc/ptb.f
+      implicit none
+      real*8 thcm,phicm,t,q2,wsq,eps
+      real*8 sigl,sigt,sigttv,sigltv,sigexcl3
+      integer which_pion
+      common/excmn/sigl,sigt,sigttv,sigltv
+      real*8 pp(17)/
+     >     1.60077,
+     >    -0.01523,
+     >    37.08142,
+     >    -4.11060,
+     >    23.26192,
+     >     0.00983,
+     >     0.87073,
+     >    -5.77115,
+     >  -271.08678,
+     >     0.13766,
+     >    -0.00855,
+     >     0.27885,
+     >    -1.13212,
+     >    -1.50415,
+     >    -6.34766,
+     >     0.55769,
+     >    -0.01709/
+      real*8 pm(17)/
+     >     1.75169,
+     >     0.11144,
+     >    47.35877,
+     >    -4.69434,
+     >     1.60552,
+     >     0.00800,
+     >     0.44194,
+     >    -2.29188,
+     >   -41.67194,
+     >     0.69475,
+     >     0.02527,
+     >    -0.50178,
+     >    -1.22825,
+     >    -1.16878,
+     >     5.75825,
+     >    -1.00355,
+     >     0.05055/
+
+      if (which_pion.eq.1.or.which_pion.eq.11.or.which_pion.eq.3) then
+       call exclfit(t,thcm,phicm,q2,
+     >    wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pm)
+      else ! pi+
+       call exclfit(t,thcm,phicm,q2,
+     >    wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pp)
+      endif
+      sig_param_2021 = sigexcl3
+      return 
+      end
+
+      subroutine exclfit(t,thetacm,phicm,q2_gev,
+     >  s_gev,eps,sigl,sigt,sigtt,siglt,sig,p)
+
+      implicit none
+      real*8 p(15),t,thetacm,phicm,q2_gev,s_gev,eps,sigl
+      real*8  sigt,sigtt,siglt,sig,mtar_gev/0.938/
+      real*8 fpi,q2fpi2,sig219
+
+       fpi = 1. / 
+     >  (1.0 + p(1)*q2_gev + p(2)*q2_gev**2)
+
+       q2fpi2 = q2_gev * fpi**2
+
+cxx       sigL = p(3) * abs(t) / 
+       sigL = (p(3) + p(15)/q2_geV) * abs(t) / 
+     >   (abs(t) + 0.02)**2 * q2fpi2 * 
+     >   exp(p(4) * abs(t))
+c       sigL = sigL / s_gev**p(11)
+       sigL = sigL / (s_gev**p(11) + sqrt(s_gev)**p(17))
+
+       sigT = p(5) / q2_gev * exp(p(6) * q2_gev**2)
+c       sigT = sigT / s_gev**p(12)
+       sigT = sigT / (s_gev**p(12) + sqrt(s_gev)**p(16))
+       sigT = sigT * exp(p(14) * abs(t))
+ 
+      sigLT=(p(7) / (1.0 + p(10) * q2_gev)) *
+     >   exp(p(8) * abs(t)) * sin(thetacm)
+       sigLT = sigLT / s_gev**p(13)
+
+       sigTT=(p(9) / (1. + 1.0 * q2_gev)) * 
+     >   exp(-7.0 * abs(t)) * sin(thetacm)**2
+
+
+        sig219 = (sigt + 
+     >   eps * sigl + 
+     >   eps * cos(2.0*phicm) * sigtt + 
+     >   sqrt(2.0 * eps * (1.0+eps)) * 
+     >   cos(phicm) * siglt) / 1.0d0
+
+* GMH: Brauel scaled all his data to W=2.19 GeV, so rescale by 1/(W**2-mp**2)**2
+* HPB: factor 15.333 therefore is value of (W**2-mp**2)**2 at W=2.19
+c BUT, in param_3000, everything got scaled to W=1.96
+
+        sig = sig219 *8.539 / (s_gev - mtar_gev**2)**2
+        sig = sig / 2.0 / 3.1415928 / 1.0d+06  !dsig/dtdphicm in microbarns/MeV**2/rad
+
+        return
+        end

@@ -573,7 +573,8 @@ c	  endif
 	      
 C DJG If doing Deltas final state for pion production, generate Delta mass
 	  if(which_pion.eq.2 .or. which_pion.eq.3) then
-	     targ%Mrec_struck = Mdelta + 0.5*Delta_width*tan((2.*grnd()-1.)*pi/2.)
+c factor of 0.7265 to better match data (PB)
+	     targ%Mrec_struck = Mdelta + 0.5*(0.7265)*Delta_width*tan((2.*grnd()-1.)*pi/2.)
 	  endif
 
 	  vertex%Pm = pfer	!vertex%Em generated at beginning.

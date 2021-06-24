@@ -693,13 +693,13 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  endif
 	else if (doing_semi) then 
 	   if (doing_semipi) then 
-	      if (targ%A .eq. 1) then 
+	      if (targ%A .eq. 1.) then 
 		 if(doing_hplus) then
 		    write(iun,*) ' ****--------  H(e,e''pi+)X  --------****'
 		 else
 		    write(iun,*) ' ****--------  H(e,e''pi-)X  --------****'
 		 endif
-	      elseif (targ%A .eq. 2) then
+	      elseif (targ%A .eq. 2.) then
 		 if(doing_hplus) then
 		    write(iun,*) ' ****--------  D(e,e''pi+)X  --------****'
 		 else
@@ -709,13 +709,13 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 		 stop 'I don''t have ANY idea what A(e,e''pi)X we''re doing!!!'
 	      endif
 	   else if (doing_semika) then  
-	      if (targ%A .eq. 1) then 
+	      if (targ%A .eq. 1.) then 
 		 if(doing_hplus) then
 		    write(iun,*) ' ****--------  H(e,e''k+)X  --------****'
 		 else
 		    write(iun,*) ' ****--------  H(e,e''k-)X  --------****'
 		 endif
-	      elseif (targ%A .eq. 2) then
+	      elseif (targ%A .eq. 2.) then
 		 if(doing_hplus) then
 		    write(iun,*) ' ****--------  D(e,e''k+)X  --------****'
 		 else
@@ -728,17 +728,17 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	      stop 'I don''t have ANY idea what A(e,e''x)X we''re doing!!!'
            endif
      	else if (doing_Xphasespace) then 
-	   if (targ%A .eq. 1) then 
+	   if (targ%A .eq. 1.) then 
 	      write(iun,*) ' ****--------  H(e,e''p)X  --------****'
-	   else if (targ%A .eq. 2) then
+	   else if (targ%A .eq. 2.) then
 	      write(iun,*) ' ****--------  D(e,e''p)X  --------****'
-	   else if (targ%A .eq. 3) then
+	   else if (targ%A .eq. 3.) then
 	      write(iun,*) ' ****--------  A(e,e''p)X  --------****'
 	   else
 	      stop 'I don''t have ANY idea what (e,e''p)X we''re doing!!!'
 	   endif  
 	else if (doing_rho) then
-	   if (targ%A .eq. 1) then
+	   if (targ%A .eq. 1.) then
 	      write(iun,*) '              ****--------  H(e,e''rho)  --------****'
 	   else
 	      write(iun,*) 'I am not set up for anything else yet!'
@@ -814,9 +814,9 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  endif
 	else if (doing_pion) then
 	  if (doing_hydpi) then
-	    if (targ%A .eq. 1) then
+	    if (targ%A .eq. 1.) then
 	      write(iun,*) '              ****--------  H(e,e''pi)  --------****'
-	    else if (targ%A .ge.3) then
+	    else if (targ%A .ge.3.) then
 	      write(iun,*) '              ****--------  A(e,e''pi)  --------****'
 	    endif
 	  else if (doing_deutpi) then
@@ -833,9 +833,9 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  endif
 	else if (doing_kaon) then
 	  if (doing_hydkaon) then
-	    if (targ%A .eq. 1) then
+	    if (targ%A .eq. 1.) then
 	      write(iun,*) '              ****--------  H(e,e''K)  --------****'
-	    else if (targ%A .ge.3) then
+	    else if (targ%A .ge.3.) then
 	      write(iun,*) '              ****--------  A(e,e''K)  --------****'
 	    endif
 	  else if (doing_deutkaon) then
@@ -977,9 +977,9 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
      >          'doing_deutXphase', doing_deutXphase, 'doing_heXphase', doing_heXphase
 	write(iun,'(5x,(2x,a19,''='',l2),2(2x,a19,''='',i2))') 'mc_smear',
      >		mc_smear,'electron_arm',electron_arm,'hadron_arm',hadron_arm
-	write(iun,'(5x,3(2x,a19,''='',l2)))') 'using_Eloss', using_Eloss,
+	write(iun,'(5x,3(2x,a19,''='',l2))') 'using_Eloss', using_Eloss,
      >		'using_Coulomb',using_Coulomb,'deForest_flag',deForest_flag
-	write(iun,'(5x,3(2x,a19,''='',l2)))') 'correct_Eloss', correct_Eloss,
+	write(iun,'(5x,3(2x,a19,''='',l2))') 'correct_Eloss', correct_Eloss,
      >		'correct_raster',correct_raster, 'doing_decay', doing_decay
 	write(iun,'(5x,3(2x,a19,''='',l2))') 
      >		'using_E_arm_montecarlo', using_E_arm_montecarlo,
@@ -1747,9 +1747,11 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
      >		tmpfact, fry, ok_E_arm, pathlen, electron_arm, use_first_cer)
 	  else if (electron_arm.eq.7 .or. electron_arm .eq. 8) then
              if (abs(spec%p%phi-pi/2) .eq. 10.) then
-	     zhadron = -recon%p%z*(cos(spec%p%theta)/tan(spec%p%theta+recon%p%yptar)+sin(spec%p%theta)) ! recon.p.z is really ytgt
+	     zhadron = -recon%p%z*(cos(spec%p%theta)
+     >            /tan(spec%p%theta+recon%p%yptar)+sin(spec%p%theta)) ! recon.p.z is really ytgt
 	     else
-	     zhadron = recon%p%z*(cos(spec%p%theta)/tan(spec%p%theta-recon%p%yptar)+sin(spec%p%theta))
+	     zhadron = recon%p%z*(cos(spec%p%theta)
+     >            /tan(spec%p%theta-recon%p%yptar)+sin(spec%p%theta))
 	     endif
 	    call mc_calo(spec%e%p, spec%e%theta, delta_e_arm, x_e_arm,
      >		y_e_arm, z_e_arm, dx_e_arm, dy_e_arm, xfp, dxfp, yfp, dyfp,

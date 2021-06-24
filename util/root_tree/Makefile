@@ -27,7 +27,7 @@ endif
 CXX=g++
 CXXFLAGS0 = -O3 -std=c++11
 CXXFLAGS=$(CXXFLAGS0) $(DROOT)
-ROOTDIR=/apps/root/PRO/root
+ROOTDIR=$(ROOTSYS)
 DMYROOT= -DMYROOT
 ROOTLIBS     := $(shell /apps/root/PRO/bin/root-config --prefix=$(ROOTDIR)  --libs)
 ROOTINCLUDE     := -I $(shell /apps/root/PRO/bin/root-config --prefix=$(ROOTDIR) --incdir)

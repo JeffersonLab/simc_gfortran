@@ -83,7 +83,9 @@ C Some local kinematic variables
 	real*8 sum_sq, dsigdz, sigsemi, jacobian, fac, sigma_eepiX
 	real*8 sighad, sige
 
-	real*8 F1,F2,W1,W2,sin2th2,cos2th2,W2coeff
+	real*8 q2qe,w2qe
+	integer wfn
+	real*8 F1,F2,FL,W1,W2,sin2th2,cos2th2,W2coeff
 	real*8 Ctq5Pdf	
 c	external Ctq5Pdf
 
@@ -101,7 +103,7 @@ c versus zp
 	real*8 Mpi_gev, Mp_gev, wsq, z8, a8
 	real*8 d1,db,u1,ub, s1, sb, dsigdzn, dsigdzp
 
-	logical first
+	logical first, firstqe
 	logical doing_cent,first_cent! flag for "central" cross section calc.
 
 	parameter (iset=1)
@@ -248,6 +250,16 @@ C DJG convert some stuff to GeV
 	Q2gev = Q2/1.e6
 	Qgev = sqrt(Q2gev)
 	pt2gev = pt2/1.e6
+
+c needed by f1f2in21
+	if(firstqe) then
+	 write(6,'(////''calling sqesub'')')
+	 q2qe=1.
+	 w2qe=1.
+	 wfn=2
+         call sqesub(w2qe,q2qe,wfn,f1,f2,fL,firstqe)
+	 firstqe=.false.
+	endif
 
 C Get the PDFs
 	if(first) then
@@ -485,7 +497,9 @@ c
 	z8=1.
 	a8=1.
 	if(doing_deutsemi) a8=2.
-        call F1F2IN09(z8, a8, Q2gev, Wsq, F1, F2)  
+c        call F1F2IN09(z8, a8, Q2gev, Wsq, F1, F2) 
+c Updated to F1F2IN21 (Eric Christy's 2021 fit)
+	call F1F2IN21(z8, a8, Q2gev, Wsq, F1, F2)
 
 	W1 = F1/(mtar/1000.)
 	W2 = F2/(nu/1000.)

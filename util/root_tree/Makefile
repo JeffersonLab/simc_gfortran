@@ -29,8 +29,8 @@ CXXFLAGS0 = -O3 -std=c++11
 CXXFLAGS=$(CXXFLAGS0) $(DROOT)
 ROOTDIR=$(ROOTSYS)
 DMYROOT= -DMYROOT
-ROOTLIBS     := $(shell /apps/root/PRO/bin/root-config --prefix=$(ROOTDIR)  --libs)
-ROOTINCLUDE     := -I $(shell /apps/root/PRO/bin/root-config --prefix=$(ROOTDIR) --incdir)
+ROOTLIBS     := $(shell $(ROOTDIR)/bin/root-config --prefix=$(ROOTDIR)  --libs)
+ROOTINCLUDE     := -I $(shell $(ROOTDIR)/bin/root-config --prefix=$(ROOTDIR) --incdir)
 
 none: make_root_tree
 

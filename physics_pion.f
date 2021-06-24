@@ -37,6 +37,7 @@
 
 	integer final_state
 	logical first,low_w_flag
+	save first
 
 	data first /.TRUE./
 	data low_w_flag /.FALSE./	!Assume high W kinematics to start
@@ -118,6 +119,7 @@ CDG Change default to PARAM3000 - this works better at larger Q2
 	ntup%sigcm1 = sig_param_3000(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
      >		targ%Mtar_struck/1000.,which_pion)
 
+	write(6,*)' epsilon ',main%epsilon
 	sigma_eepi = ntup%sigcm1
 
 * For low w, use multipole expansion as default cross section model.

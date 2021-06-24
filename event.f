@@ -1398,19 +1398,26 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	  main%sigcc = peepi(vertex,main)
 C Use Clebsch-Gordon coefficients to approximate xsec for Delta final states
 C This ignores the fact that the g*p and g*n cross sections may not be the same
+C 6/24/2021: Coefficients for Delta final states updated from Peter Bosted's
+C empirical check's.
 	  if(which_pion.eq.2) then ! pi+ Delta
 	     if(doing_hydpi) then
-		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
+c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
+		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/(pi+ n)
 	     elseif(doing_deutpi) then
-		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
-     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
+c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
+c     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
+		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/pi+ n)
+     >                      + 1.0**main%sigcc !(pi+ Delta-)/(pi+ n)
 	     endif 
 	  elseif (which_pion.eq.3) then  !pi- Delta
 	     if(doing_hydpi) then
-		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
+		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
 	     elseif(doing_deutpi) then
-		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
-     >                     + 0.25*main%sigcc !(pi- Delta+)/(pi- p)
+c		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
+c     >                     + 0.25*main%sigcc !(pi- Delta+)/(pi- p)
+		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
+     >                     + 0.6*main%sigcc !(pi- Delta+)/(pi- p)
 	     endif
 	  endif
 	  main%sigcc_recon = 1.0

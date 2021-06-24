@@ -13,7 +13,7 @@ my_deps = $(my_objs:.o=.d)
 
 MYOS := $(subst -,,$(shell uname))
 #CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
-CERNLIBS = -Wl,-static -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lkernlib -lmathlib -ljetset74 -Wl,-dy
+CERNLIBS = -Wl,-static -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lkernlib -lmathlib -Wl,-dy
 
 
 #For use with gfortran compiler

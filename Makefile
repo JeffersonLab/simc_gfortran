@@ -29,9 +29,9 @@ OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physi
 #gh: switch between physics_piKmodel and physics_pion,kaon
 #OBJ2	= radc.o init.o dbase.o physics_piKmodel.o physics_delta.o physics_proton.o loren.o sf_lookup.o
 OBJ3	= semi_physics.o rho_physics.o rho_decay.o generate_rho.o trg_track.o semi_dilution.o
-OBJ4	= physics_omega.o physics_Xphasespace.o physics_rho_recoil.o physics_phi.o
-OBJ4b   = physics_eta.o physics_eta_prime.o physics_pizero.o physics_dvcs.o
-OBJ4a	= results_write.o event.o call_ranlux.o jacobians.o F1F209.o
+OBJ3a	= physics_omega.o physics_Xphasespace.o physics_rho_recoil.o physics_phi.o
+OBJ3b   = physics_eta.o physics_eta_prime.o physics_pizero.o physics_dvcs.o
+OBJ4	= results_write.o event.o call_ranlux.o jacobians.o F1F2IN21.o
 OBJ5	= $(A)musc.o $(A)musc_ext.o $(A)project.o $(A)transp.o
 OBJ6	= $(A)rotate_haxis.o $(A)rotate_vaxis.o $(A)locforunt.o
 OBJ7	= $(H)mc_hms.o $(H)mc_hms_hut.o $(H)mc_hms_recon.o $(H)coll_absorb.o $(H)mc_hms_coll.o
@@ -44,7 +44,7 @@ OBJD    = $(C)mc_calo.o $(C)mc_calo_recon.o
 OBJCH   = $(CH)lfit.o $(CH)ranlux.o $(CH)fint.o $(CH)kerset.o $(CH)abend.o
 OBJF   = $(D)fdss.o
 
-my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ4b) $(OBJ4a) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJCH) $(OBJF)
+my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ3a) $(OBJ3b) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJCH) $(OBJF)
 my_deps = $(my_objs:.o=.d)
 
 MYOS := $(subst -,,$(shell uname))

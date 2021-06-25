@@ -14,6 +14,7 @@
        real*8 Momega, Momega2, MomegaW, Md, Md2
        real*8 Metap, Metap2, Mphi, Mphi2, MphiW
        real*8 Mlambda, Msigma0, Msigma_minus
+       real*8 MDelta, Delta_width
        real*8 amu, hbarc, pi, twopi, alpha, alpi, degrad, euler
        parameter (Me=0.51099906)
        parameter (Me2=Me**2)
@@ -43,6 +44,8 @@
        parameter (Mlambda=1115.68)
        parameter (Msigma0=1192.64)
        parameter (Msigma_minus=1197.45)
+       parameter (MDelta = 1232.0)
+       parameter (Delta_width = 117.0)
        parameter (Md=1875.613)
        parameter (Md2=Md**2)
        parameter (amu=931.49432)

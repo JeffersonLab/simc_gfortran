@@ -77,6 +77,7 @@
 	real*8 transparency
 	logical use_benhar_sf
 	character*80 random_state_file
+	character*132 start_random_state_file
 	integer*4 random_seed
 
 
@@ -96,7 +97,8 @@
      >    which_pion, which_eepx, using_cit_generation, using_Coulomb, using_Eloss,
      >    correct_Eloss, correct_raster, do_fermi,using_tgt_field,
      >    electron_arm, hadron_arm, use_first_cer,
-     >    transparency, use_benhar_sf, random_state_file, random_seed
+     >    transparency, use_benhar_sf,start_random_state_file,
+     >    random_state_file, random_seed
 
 ! ........ note: make these first two parameters at least ONE BIGGER than the actual dimensions you want to read in
 	integer*4 ntheorymax,nrhoPmmax

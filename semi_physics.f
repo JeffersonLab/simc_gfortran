@@ -43,6 +43,11 @@
 * April 15, 2004 D. Gaskell
 * Put in Fermi motion effects.  Note that for now, if you use Fermi motion
 * the "central cross section" calculation stuff probably doesn't make much sense.
+*
+*
+* September 2020 D Gaskell
+* Use F1F209 for inclusive contribution
+* Add Peter Bosted's fit for pion fragmenetation functions from Hall C 2018-2019 data
 
 
 
@@ -86,6 +91,16 @@ C Variables for kaon decay stuff
 	real*8 survivalprob  ! this will be included in main.weight
 	real*8 zaero,pathlen,p_kaon,betak,gammak
 
+c parameters for PB fit of 9/11/2020
+c versus zp
+       real*8 pf(8)/   1.2803,   0.0851,   0.8379,   0.1586,
+     >                 0.0140,   0.2133,  -4.4985,   4.1285/
+       real*8 pu(8)/   0.8290,  -0.1416,   0.9869,   0.2559,
+     >                 0.0090,  -1.2306,  -1.5292,   2.4169/
+	real*8 xp,zp,yf,yu
+	real*8 Mpi_gev, Mp_gev, wsq, z8, a8
+	real*8 d1,db,u1,ub, s1, sb, dsigdzn, dsigdzp
+
 	logical first
 	logical doing_cent,first_cent! flag for "central" cross section calc.
 
@@ -103,8 +118,16 @@ c	parameter (b=4.68)   !GeV^-2
 	data first /.TRUE./
 	data first_cent /.TRUE./
 
+c this is for DSS
+        integer IHdss,ICdss,IOdss, fini 
+        real*8  C1, B1, GL1
+        COMMON / FRAGINI / FINI
+
+	if(first) FINI=0
 	b = pt_b_param   ! now parameter in input file
 
+	Mpi_gev = Mpi/1000.0
+	Mp_gev = Mp/1000.0
 C DJG: Setup stuff for doing "central" cross section calculation.  Here, I'm
 C DJG: assuming we want the cross section at some "point" in Q2 and W space.
 C DJG: I allow for binning in either z or pt2 - holding the other constant.
@@ -270,127 +293,182 @@ C Paramaterization from Binneweis et al (PRD 52 p.4947)
 C  sv is their scaling variable = ln( ln(Q2/Lambda^2)/ln(Q2_0/Lambda^2) )
 C  Q_0 sets the scale - for light quarks (u,d,s) they get Q_0 = sqrt(2) GeV
 C  Lambda is 227 MeV in NLO.
-
-	sv = log( log(Q2gev/lambda**2)/log(Q2zero/lambda**2) )
-
+c
+c	sv = log( log(Q2gev/lambda**2)/log(Q2zero/lambda**2) )
+c
 C Form of parameterization is D = N z^a1 (1-z)^a2
-
-	if(doing_semipi) then
-
-	   N = 1.150 - 1.522*sv + 1.378*sv**2 - 0.527*sv**3
-	   a1 = -0.740 - 1.680*sv + 1.546*sv**2 - 0.596*sv**3
-	   a2 = 1.430 + 0.543*sv - 0.023*sv**2
-
-	   Ns = 4.250 - 3.147*sv + 0.755*sv**2
-	   a1s = -0.770 -0.573*sv + 0.117*sv**2
-	   a2s = 4.48 + 0.890*sv - 0.138*sv**2
-
+c
+c	if(doing_semipi) then
+c
+c	   N = 1.150 - 1.522*sv + 1.378*sv**2 - 0.527*sv**3
+c	   a1 = -0.740 - 1.680*sv + 1.546*sv**2 - 0.596*sv**3
+c	   a2 = 1.430 + 0.543*sv - 0.023*sv**2
+c
+c	   Ns = 4.250 - 3.147*sv + 0.755*sv**2
+c	   a1s = -0.770 -0.573*sv + 0.117*sv**2
+c	   a2s = 4.48 + 0.890*sv - 0.138*sv**2
+c
 C This is Du (pi+ + pi-) = = Dd (pi+ + pi-) = D_favored + D_unfavored
-	   D_sum = N*zhad**a1*(1.0-zhad)**a2
+c	   D_sum = N*zhad**a1*(1.0-zhad)**a2
 C This is Ds (pi+ + pi-)
-	   D_sum_s = Ns*zhad**a1s*(1.0-zhad)**a2s
-
-
+c	   D_sum_s = Ns*zhad**a1s*(1.0-zhad)**a2s
+c
+c
 C       Ratio of D-/D+ from P. Geiger's thesis (HERMES)
-
-	   R_D = (1.0-zhad)**0.083583/(1.0+zhad)**1.9838
-	   
-	   D_fav = D_sum/(1.0+R_D)
-	   D_unfav = D_sum/(1.0+1.0/R_D)
-
+c
+c	   R_D = (1.0-zhad)**0.083583/(1.0+zhad)**1.9838
+c	   
+c	   D_fav = D_sum/(1.0+R_D)
+c	   D_unfav = D_sum/(1.0+1.0/R_D)
+c
 C Assume Ds(pi+) = Ds(pi-) = Dsbar(pi+) = Dsbar(pi-)
 C Note that this contrdicted by the HERMES data, but shouldn't make much
 C difference for pions anyway.
-
-	   D_s = D_sum_s/2.0
-	
-
-	   if(sum_sq.gt.0.) then
-	      if(doing_hplus) then
-		 dsigdz = (qu**2*u*D_fav + qu**2*ubar*D_unfav +
-     >  	      qd**2*d*D_unfav + qd**2*dbar*D_fav + 
-     >  	      qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
-	      else
-		 dsigdz = (qu**2*u*D_unfav + qu**2*ubar*D_fav +
-     >  	      qd**2*d*D_fav + qd**2*dbar*D_unfav + 
-     >  	      qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
-	      endif
-	      if(doing_deutsemi) then
-		 if(doing_hplus) then
-		    dsigdz = dsigdz + (qu**2*d*D_fav + qu**2*dbar*D_unfav +
-     >  		 qd**2*u*D_unfav + qd**2*ubar*D_fav + 
-     >  		 qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
-		 else
-		    dsigdz = dsigdz + (qu**2*d*D_unfav + qu**2*dbar*D_fav +
-     >  		 qd**2*u*D_fav + qd**2*ubar*D_unfav + 
-     >  		 qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
-		 endif
-	      endif
-	   else
-	      dsigdz = 0.0
-	   endif
-
-	elseif (doing_semika) then
-
-	   N = 0.310 - 0.038*sv - 0.042*sv**2
-	   a1 = -0.980 - 0.260*sv + 0.008*sv**2
-	   a2 = 0.970 + 0.978*sv - 0.229*sv**2
-
-	   Ns = 1.080 - 0.469*sv + 0.003*sv**2
-	   a1s = -0.820 -0.240*sv - 0.035*sv**2
-	   a2s = 2.550 + 1.026*sv - 0.246*sv**2
-
+c
+c	   D_s = D_sum_s/2.0
+c
+c	   if(sum_sq.gt.0.) then
+c	      if(doing_hplus) then
+c		 dsigdz = (qu**2*u*D_fav + qu**2*ubar*D_unfav +
+c     >  	      qd**2*d*D_unfav + qd**2*dbar*D_fav + 
+c     >  	      qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
+c	      else
+c		 dsigdz = (qu**2*u*D_unfav + qu**2*ubar*D_fav +
+c     >  	      qd**2*d*D_fav + qd**2*dbar*D_unfav + 
+c     >  	      qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
+c	      endif
+c	      if(doing_deutsemi) then
+c		 if(doing_hplus) then
+c		    dsigdz = dsigdz + (qu**2*d*D_fav + qu**2*dbar*D_unfav +
+c     >  		 qd**2*u*D_unfav + qd**2*ubar*D_fav + 
+c     >  		 qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
+c		 else
+c		    dsigdz = dsigdz + (qu**2*d*D_unfav + qu**2*dbar*D_fav +
+c     >  		 qd**2*u*D_fav + qd**2*ubar*D_unfav + 
+c     >  		 qs**2*s*D_s + qs**2*sbar*D_s)/sum_sq
+c		 endif
+c	      endif
+c	   else
+c	      dsigdz = 0.0
+c	   endif
+c	elseif (doing_semika) then
+c
+c	   N = 0.310 - 0.038*sv - 0.042*sv**2
+c	   a1 = -0.980 - 0.260*sv + 0.008*sv**2
+c	   a2 = 0.970 + 0.978*sv - 0.229*sv**2
+c
+c	   Ns = 1.080 - 0.469*sv + 0.003*sv**2
+c	   a1s = -0.820 -0.240*sv - 0.035*sv**2
+c	   a2s = 2.550 + 1.026*sv - 0.246*sv**2
+c
 C This is Du (K+ + K-) = Ds(K+ + K-) = D_favored + D_unfavored (K+ + K-)
-	   D_sum = N*zhad**a1*(1.0-zhad)**a2
+c	   D_sum = N*zhad**a1*(1.0-zhad)**a2
 C This is Dd (K+ + K-) (for convenience, I still call it D_sum_s)
-	   D_sum_s = Ns*zhad**a1s*(1.0-zhad)**a2s
-
-
+c	   D_sum_s = Ns*zhad**a1s*(1.0-zhad)**a2s
+c
+c
 C Here I make the wild assumption that the ratio of unfavored to favored
 C fragmentation functions for Kaons is the same as that for pions.
-
+c
 C       Ratio of D-/D+ from P. Geiger's thesis (HERMES)
-
-	   R_D = (1.0-zhad)**0.083583/(1.0+zhad)**1.9838
-	   
-	   D_fav = D_sum/(1.0+R_D)
-	   D_unfav = D_sum/(1.0+1.0/R_D)
-
+c
+c	   R_D = (1.0-zhad)**0.083583/(1.0+zhad)**1.9838
+c	   
+c	   D_fav = D_sum/(1.0+R_D)
+c	   D_unfav = D_sum/(1.0+1.0/R_D)
+c
 C Assume Dd(K+) = Dd(K-) = Ddbar(K+) = Ddbar(K-)
 C Note that this contrdicted by the HERMES data, but shouldn't make much
 C difference for pions anyway.
+c
+c	   D_s = D_sum_s/2.0
+c	
+c	   if(sum_sq.gt.0.) then
+c	      if(doing_hplus) then
+c		 dsigdz = (qu**2*u*D_fav + qu**2*ubar*D_unfav +
+c    >  	      qd**2*d*D_s + qd**2*dbar*D_s + 
+c    >  	      qs**2*s*D_unfav + qs**2*sbar*D_fav)/sum_sq
+c	      else
+c		 dsigdz = (qu**2*u*D_unfav + qu**2*ubar*D_fav +
+c     >  	      qd**2*d*D_s + qd**2*dbar*D_s + 
+c     >  	      qs**2*s*D_fav + qs**2*sbar*D_unfav)/sum_sq
+c	      endif
+c	      if(doing_deutsemi) then
+c		 if(doing_hplus) then
+c		    dsigdz = dsigdz + (qu**2*d*D_fav + qu**2*dbar*D_unfav +
+c     >  		 qd**2*u*D_s + qd**2*ubar*D_s + 
+c     >  		 qs**2*s*D_unfav + qs**2*sbar*D_fav)/sum_sq
+c		 else
+c		    dsigdz = dsigdz + (qu**2*d*D_unfav + qu**2*dbar*D_fav +
+c     >  		 qd**2*u*D_s + qd**2*ubar*D_s + 
+c     >  		 qs**2*s*D_fav + qs**2*sbar*D_unfav)/sum_sq
+c		 endif
+c	      endif
+c	   else
+c	      dsigdz = 0.0
+c	   endif
+c	endif	
 
-	   D_s = D_sum_s/2.0
-	
-	   if(sum_sq.gt.0.) then
-	      if(doing_hplus) then
-		 dsigdz = (qu**2*u*D_fav + qu**2*ubar*D_unfav +
-     >  	      qd**2*d*D_s + qd**2*dbar*D_s + 
-     >  	      qs**2*s*D_unfav + qs**2+sbar*D_fav)/sum_sq
-	      else
-		 dsigdz = (qu**2*u*D_unfav + qu**2*ubar*D_fav +
-     >  	      qd**2*d*D_s + qd**2*dbar*D_s + 
-     >  	      qs**2*s*D_fav + qs**2*sbar*D_unfav)/sum_sq
-	      endif
-	      if(doing_deutsemi) then
-		 if(doing_hplus) then
-		    dsigdz = dsigdz + (qu**2*d*D_fav + qu**2*dbar*D_unfav +
-     >  		 qd**2*u*D_s + qd**2*ubar*D_s + 
-     >  		 qs**2*s*D_unfav + qs**2*sbar*D_fav)/sum_sq
-		 else
-		    dsigdz = dsigdz + (qu**2*d*D_unfav + qu**2*dbar*D_fav +
-     >  		 qd**2*u*D_s + qd**2*ubar*D_s + 
-     >  		 qs**2*s*D_fav + qs**2*sbar*D_unfav)/sum_sq
-		 endif
-	      endif
+C Peter Bosted's parameterization
+c uses a modified scaling variable (replaces z) for the fragmentation function
+c (see Accardi et al https://arxiv.org/abs/0907.2395)
+c new PB fit using zp for pions. This is z * D
+	if (doing_semipi) then
+	   xp = 2.*xbj / (1. + sqrt(1. + 4. * xbj**2 * Mp_gev**2 / q2gev))
+	   zp = (zhad / 2.) * (xp / xbj) *(1. + 
+     >           sqrt(1 - 4 * xbj**2 * Mp_gev**2 *  
+     >           (Mpi_gev**2 + pt2gev) / zhad**2 / q2gev**2))
+	   sv = log(q2gev/2.)
+	   yf = pf(1) * zp**(pf(2) + pf(4)*sv) * 
+     >          (1.-zp)**(pf(3) + pf(5)*sv) 
+	   yf = yf * (1. + pf(6)*zp + pf(7)*zp**2 + pf(8)*zp**3)
+	   yu = pu(1) * zp**(pu(2) + pu(4)*sv) * 
+     >          (1.-zp)**(pu(3) + pu(5)*sv) 
+	   yu = yu * (1. + pu(6)*zp + pu(7)*zp**2 + pu(8)*zp**3)
+
+	   if(doing_hplus) then
+	      u1 = yf
+	      d1 = yu
 	   else
-	      dsigdz = 0.0
+	      u1 = yu
+	      d1 = yf
 	   endif
+	   ub = d1
+	   db = u1
+	   s1 = yu
+	   sb = s1
+ 	elseif(doing_semika) then
+	   IHdss=2 ! Kaons, 1=Pions
+	   IOdss=1 ! NLO
+	   if(doing_hplus) then
+	      ICdss = 1		! charge +
+	   else
+	      ICdss = -1	! charge -
+	   endif
+	   call fDSS (IHdss,ICdss,IOdss, Zhad, Q2gev, 
+     >       U1, UB, D1, DB, S1, SB, C1, B1, GL1)
+c	   write(6,*) 'cheesy poofs', zhad, u1, ub, d1, db, s1, sb
+	endif
 
-
+	dsigdz = (qu**2 * u    * u1 + 
+     >            qu**2 * ubar * ub +
+     >  	  qd**2 * d    * d1 + 
+     >            qd**2 * dbar * db + 
+     >  	  qs**2 * s    * s1 + 
+     >            qs**2 * sbar * sb)/sum_sq/zhad
+	dsigdzp = dsigdz
+	if(doing_deutsemi) then
+	   dsigdzn =(qu**2 * d    * u1 + 
+     >               qu**2 * dbar * ub +
+     >  	     qd**2 * u    * d1 + 
+     >               qd**2 * ubar * db + 
+     >  	     qs**2 * s    * s1 + 
+     >               qs**2 * sbar * sb)/sum_sq/zhad
+	   dsigdz = dsigdzp + dsigdzn
 	endif
 
 	sighad = dsigdz*b*exp(-b*pt2gev)/2./pi
+c	write(6,*) 'bad kitty', sighad
 
 C DJG: OK - I THINK I've got it right now.
 C DJG: Should be dsig/dOmega dE
@@ -399,19 +477,26 @@ c	sige = 2.*alpha**2*(y**2/2. + 1. - y  - mtar*xbj*y/2./Eb)*
 c	1    (Eprime/1000.)/(Q2gev*y*(mtar/1000.)*(nu/1000.))
 c	2    * sum_sq
 
-	F2 = xbj*sum_sq
-	F1 = F2/2./xbj
+c	F2 = xbj*sum_sq
+c	F1 = F2/2./xbj
+c
+
+	wsq = Mp_gev**2 + q2gev * (1./xbj -1.)
+	z8=1.
+	a8=1.
+	if(doing_deutsemi) a8=2.
+        call F1F2IN09(z8, a8, Q2gev, Wsq, F1, F2)  
 
 	W1 = F1/(mtar/1000.)
 	W2 = F2/(nu/1000.)
 
 	sin2th2 = Q2/4./Eb/Eprime
 	cos2th2 = 1.-sin2th2
-	if(do_fermi) then
-	   W2coeff = (efer-abs(pfer)*pferz)*(efer-abs(pfer)*(pferx*Epx+pfery*Epy+pferz*Epz)/Eprime)/mtar**2 - sin2th2
-	else
+c	if(do_fermi) then
+c	   W2coeff = (efer-abs(pfer)*pferz)*(efer-abs(pfer)*(pferx*Epx+pfery*Epy+pferz*Epz)/Eprime)/mtar**2 - sin2th2
+c	else
 	   W2coeff = cos2th2
-	endif
+c	endif
 
 	sige = 4.*alpha**2*(Eprime/1000)**2/Q2gev**2 * ( W2*W2coeff + 2.*W1*sin2th2)
 

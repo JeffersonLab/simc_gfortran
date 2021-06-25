@@ -3,16 +3,16 @@ C Sets up common block for hbook.
 
 *-sizes of CERNLIB working space
 
-	integer HbookSize,HigzSize,KuipSize,PawSize
-	parameter (HbookSize = 100000)
-	parameter (HigzSize =  50000)
-	parameter (KuipSize =  75000)
-	parameter (PawSize = HigzSize+KuipSize+HbookSize+100000)
+c	integer HbookSize,HigzSize,KuipSize,PawSize
+c	parameter (HbookSize = 100000)
+c	parameter (HigzSize =  50000)
+c	parameter (KuipSize =  75000)
+c	parameter (PawSize = HigzSize+KuipSize+HbookSize+100000)
 
 *-CERNLIB working space
 
-	integer CernMemory(PawSize)
-	common /PAWC/ CernMemory      !special nonstandard name!
+c	integer CernMemory(PawSize)
+c	common /PAWC/ CernMemory      !special nonstandard name!
 
 C Ntuple ID stuff
 

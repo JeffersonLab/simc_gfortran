@@ -28,10 +28,16 @@ endif
 
 include ../Makefile.etc
 
+#ctp_sources = thTest.c thTestParse.c thTestExecute.c thHandlers.c thParm.c \
+#       thUtils.c thLoad.c thGroup.c thHist.c thReport.c thGethit.c \
+#       daVarRegister.c daVarRpcProc.c daVarHandlers.c daVarServ.c \
+#       daVarRpc_svc.c daVarRpc_xdr.c daVarHashLib.c thTree.c
+
 ctp_sources = thTest.c thTestParse.c thTestExecute.c thHandlers.c thParm.c \
-       thUtils.c thLoad.c thGroup.c thHist.c thReport.c thGethit.c \
+       thUtils.c thLoad.c thGroup.c thReport.c \
        daVarRegister.c daVarRpcProc.c daVarHandlers.c daVarServ.c \
        daVarRpc_svc.c daVarRpc_xdr.c daVarHashLib.c thTree.c
+
 ctpclient_sources = daVarRpc_xdr.c daVarRpc_clnt.c thClient.c
 
 lib_targets := $(patsubst %.c, libctp.a(%.o), $(ctp_sources)) \

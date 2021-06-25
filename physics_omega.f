@@ -432,7 +432,6 @@ c gh, 05.02.11.  Modified: 17.12.12
       real*8 a,b,c,d,e,f,fpi,fpi235
 
       real*8 m_pi,m_pisq,m_rho,m_rhosq,m_p,m_psq,m_pi0sq
-      integer iflag
       
 c     Convert masses to GeV
       parameter(m_pi  = Mpi/1.e3)
@@ -442,8 +441,6 @@ c     Convert masses to GeV
       parameter(m_p   = Mp/1.e3)
       parameter(m_psq = Mp2/1.e6)
       parameter(m_pi0sq= Mpi02/1.e6)
-
-      iflag=1             ! flag for t(0) or u(1) channel
 
       tp = abs(tprime_gev)      ! just to make sure it's positive
       if (abs(t_gev)<tp) then
@@ -489,7 +486,7 @@ c     Convert masses to GeV
       d = 6.4562
       e = -9.6199
       f = 5.8319
-      if (iflag.lt.1) then      ! t-channel
+      if (thetacm.gt.pi/2.) then ! t-channel
          sigl = a*exp(-b*tp)+c*exp(-d*(tp**0.5))+e*exp(-f*(tp**0.25))
       else                      ! u-channel
          sigl = a*exp(-b*up)+c*exp(-d*(up**0.5))+e*exp(-f*(up**0.25))
@@ -503,7 +500,7 @@ c     Convert masses to GeV
       d = 2.1988
       e = 0.65170
       f = 18.501
-      if (iflag.lt.1) then      ! t-channel
+      if (thetacm.gt.pi/2.) then ! t-channel
          sigt = a*exp(-b*tp)+c*exp(-d*(tp**0.5))+e*exp(-f*(tp**2))
       else                      ! u-channel
          sigt = a*exp(-b*up)+c*exp(-d*(up**0.5))+e*exp(-f*(up**2))
@@ -515,11 +512,11 @@ c     Convert masses to GeV
       b = 4.9179 
       c = 3.3023
       d = 3.1741
-      if (iflag.lt.1) then      ! t-channel
+      if (thetacm.gt.pi/2.) then ! t-channel
          siglt = a*exp(-b*tp)+c*exp(-d*(tp**0.5))
       else                      ! u-channel
          siglt = a*exp(-b*up)+c*exp(-d*(up**0.5))
-         siglt = siglt/10.        ! back angle peak is ~10% of forward angle peak
+         siglt = siglt/10.      ! back angle peak is ~10% of forward angle peak
       endif
       siglt = siglt*(fpi/fpi235)**2*sin(thetacm)
 * Laget uses -sqrt(e(1+e)) instead of +sqrt(2e(1+e))
@@ -529,11 +526,11 @@ c     Convert masses to GeV
       b = 2.7655 
       c = 2.8034
       d = 3.8586
-      if (iflag.lt.1) then      ! t-channel
+      if (thetacm.gt.pi/2.) then ! t-channel
          sigtt = a*exp(-b*tp)+c*exp(-d*(tp**0.5))
       else                      ! u-channel
          sigtt = a*exp(-b*up)+c*exp(-d*(Up**0.5))
-         sigtt = sigtt/10.        ! back angle peak is ~10% of forward angle peak
+         sigtt = sigtt/10.      ! back angle peak is ~10% of forward angle peak
       endif
       sigtt= sigtt*(fpi/fpi235)**2*(sin(thetacm))**2
 

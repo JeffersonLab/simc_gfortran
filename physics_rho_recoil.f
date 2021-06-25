@@ -164,7 +164,7 @@ c     *     tt/1.e6,t_min/1.e6)
 
 * PYTHIA model with modifications from the HERMES MC
       sig2 = sig_hermes(mass/1.e3,qsq,tt,t_min,uu,u_min,nu,invm/1.e3,
-     *       epsilon)
+     *       epsilon,thetacm)
       
       ntup%sigcm=sig2
 
@@ -287,7 +287,8 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      real*8 function sig_hermes(mass,Q2,t,tmin,u,umin,nu,w_gev,epsi)
+      real*8 function sig_hermes(mass,Q2,t,tmin,u,umin,nu,w_gev,epsi,
+     1     thetacm)
 
 * This routine calculates p(e,e'rho)p cross sections using D. Gaskell's
 * attempt to code in the form used in PYTHIA with modifications
@@ -297,12 +298,8 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       include 'constants.inc'
 
       real*8 t,tmin,tprime,u,umin,uprime
-      real*8 mass,nu,epsi,Q2,w_gev,wfactor,m_pgev
+      real*8 mass,nu,epsi,Q2,w_gev,wfactor,m_pgev,thetacm
       real*8 sig0,sigt,sig219,R,cdeltatau,brho
-
-      integer iflag
-
-      iflag=1                   ! flag for t(0) or u(1) channel
 
       m_pgev = Mp/1.e3
       tprime = abs(t-tmin)/1.e6
@@ -355,18 +352,18 @@ c      endif
       
 c GH: the conventional formula with exponential factor is for forward
 c     diffractive, it might not be appropriate for u-channel production
-
-      if (iflag.lt.1) then      ! t-channel
+      
+      if (thetacm.gt.pi/2.) then ! t-channel
          sig219 = sigt*brho*exp(-brho*tprime)/2.0/pi !ub/GeV**2/rad
-      else
+      else                      ! u-channel
          sig219 = sigt*brho*exp(-brho*uprime)/2.0/pi
          sig219 = sig219/10.    ! back angle peak is ~10% of forward angle peak
       endif
          
       sig_hermes=sig219/1.e+06         !dsig/dtdphicm in microbarns/MeV**2/rad
 
-c GH: check for weird behavior on upper side of rho peak
-      if (iflag.lt.1. .and. mass.gt.1.2 .and. tprime.gt.Q2 .and.
+c GH: check for weird behavior on upper side of rho peak (t-channel)
+      if (thetacm.gt.pi/2. .and. mass.gt.1.2 .and. tprime.gt.Q2 .and.
      *    sig_hermes.gt.1.e-14) then
          write(6,*)' tprime=',tprime,' sig=',sig_hermes
          sig_hermes=sig_hermes*1.e-6

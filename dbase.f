@@ -18,6 +18,9 @@
 !	This sets doing_hydpi true for ALL targets (i.e. treat as
 !	a heavy proton) but with targ.Mtar_struck and targ.Mrec_struck
 !	set appropriately.
+!       Added additional options for which_pion:
+!       which_pion = 2: gamma* p -> pi+ Delta0,  gamma* D -> pi+ Delta0 n, or -> pi+ Delta- p
+!       which_pion = 3: gamma* p -> pi- Delta++, gamma* D -> pi- Delta++ n, or -> pi- Delta+ p
 !
 ! 4. doing_phsp:Generate acceptance with radiation and cross section disabled,
 !	use doing_kaon or doing_pion to set hadron mass, then 
@@ -30,11 +33,10 @@
 !	only (generation well be general, but cross section model will be
 !	a 'shortcut' version to start with.
 ! 6. doing_semi: H(e,e'pi)X (doing_semipi) and H(e,e'k)X (doing_semika) 
-! 7. doing_rho: H(e,e'rho)p
+! 7. doing_rho: H(e,e'rho)p, D(e,e'rho)p, 3He(e,e'rho)p
 ! 8. doing_eepx: H(e,e'p)M, where M=pi0,eta,rho,omega,eta',phi selected
 !       according to the recoil mass
 ! 9. doing_Xphasespace: H(e,e'p)X where X is chosen according to 2pi phasespace	
-
 	
 	implicit none
 	include 'radc.inc'
@@ -68,7 +70,6 @@
 	extra_dbase_file=' '
 	write(6,*) 'Enter the input filename (assumed to be in infiles directory)'
 	read(5,'(a)') dbase_file
-
 	j=index(dbase_file,'/')
 	if (j.eq.0) then					!no path given
 	  write(filename,'(a)') 'infiles/'//dbase_file
@@ -83,6 +84,7 @@
 	endif
 	write(6,'(a10,a69)')'filename=',filename
 	if (i.gt.1) base=filename(j+1:i-1)
+        write(start_random_state_file,'(a)') 'outfiles/'//filename(j+1:i-1)//'_start_random_state.dat'
 
 ! ... load and book input file
 
@@ -107,6 +109,9 @@
 	  ierr = thbook()
 	  if (ierr.ne.0) stop ' Booking problem!  Not going to try again...wouldnt be prudent'
 	endif	!extra dbase input file
+c
+	   if (random_seed .eq. -1) random_seed=time()	   
+	write(*,*) 'Use random seed = ',random_seed
 
 C DJG: Ugly hack! This must come before the test on doing_pion
 	if(doing_pion .and. doing_semi) then
@@ -366,7 +371,7 @@ C DJG:
 	   endif
 
 	else if(doing_rho) then
-	   targ%Mtar_struck = Mp
+	   targ%Mtar_struck = Mp ! could be either p or n if nucleus, but use p by default
 	   targ%Mrec_struck = Mp
 	   if(doing_hplus) then
 	      sign_hadron=1.0
@@ -375,7 +380,7 @@ C DJG:
 	   endif
 
 
-! ... for normal production, Strike p (n), recoil partile is n(p). 
+! ... for normal production, Strike p (n), recoil particle is n(p). 
 ! ... for bound final state, use targ.Mrec if it appears to be OK (same A
 ! ... A as target, with one n->p or p->n.
 
@@ -388,6 +393,14 @@ C DJG:
 	    targ%Mtar_struck = Mn      ! D(e,e'pi-) pp
 	    targ%Mrec_struck = Mp
 	    sign_hadron=-1.0
+	  else if (which_pion .eq. 2 ) then
+	    targ%Mtar_struck = Mp      ! H(e,e'pi+)Delta0, D(e,e'pi+)nDelta0, D(e,e'pi+)pDelta-
+	    targ%Mrec_struck = MDelta
+	    sign_hadron = 1.0
+	  else if (which_pion .eq. 3) then
+	    targ%Mtar_struck = Mp      ! H(e,e'pi-)Delta++, D(e,e'pi-)nDelta++, D(e,e'pi-)pDelta+
+	    targ%Mrec_struck = MDelta
+	    sign_hadron = -1.0
 	  else if (which_pion .eq. 10) then
 	    targ%Mtar_struck = targ%M  ! A(e,e'pi+)A'
 	    targ%Mrec_struck = targ%Mrec
@@ -850,15 +863,17 @@ C DJG:
 	  else
 	    stop 'I don''t have ANY idea what (e,e''pi) we''re doing!!!'
 	  endif
-	  if (which_pion.eq.0 .or. which_pion.eq.10) then
+	  if (which_pion.eq.0 .or. which_pion.eq.10 .or. which_pion.eq.2) then
 	    write(6,*) ' ****-------  pi+ production  -------****'
-	  else if (which_pion.eq.1 .or. which_pion.eq.11) then
+	  else if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then
 	    write(6,*) ' ****-------  pi- production  -------****'
 	  endif
 	  if (which_pion.eq.0 .or. which_pion.eq.1) then
 	    write(6,*) ' ****---- Quasifree Production ----****'
 	  else if (which_pion.eq.10 .or. which_pion.eq.11) then
 	    write(6,*) ' ****----  Coherent Production ----****'
+	  else if (which_pion.eq.2 .or. which_pion.eq.3) then
+	    write(6,*) ' ****---- Quasifree Production - Delta final state ----****'
 	  endif
 	else if (doing_kaon) then
 	  if (doing_hydkaon) then
@@ -900,12 +915,12 @@ C DJG:
 	      endif
 	   else if (doing_deutrho) then
 	      write(6,*) ' ****--------  D(e,e''rho)  --------****'
-	      write(6,*) ' **** ---- Not yet implemented -----****'
-	      stop
+c	      write(6,*) ' **** ---- Not yet implemented -----****'
+c	      stop
 	   else if (doing_herho) then
 	      write(6,*) ' ****--------  A(e,e''rho)  --------****'
-	      write(6,*) ' **** ---- Not yet implemented -----****'
-	      stop
+c	      write(6,*) ' **** ---- Not yet implemented -----****'
+c	      stop
 	   else
 	      stop 'I don''t have ANY idea what (e,e''rho) we''re doing!!!'
 	   endif

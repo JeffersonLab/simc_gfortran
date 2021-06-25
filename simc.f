@@ -52,9 +52,9 @@ c
 
 	
 
+C DJG Remove cernlib requirements July, 2020
 ! ... initialize histogram area for HBOOK
-
-	call hlimit(PawSize)
+c	call hlimit(PawSize)
 
 ! ... read in the data base
 
@@ -67,7 +67,7 @@ c
 
 	i = index(base,' ')
 	if (Nntu.gt.0) then
-	  filename = 'worksim/'//base(1:i-1)//'.rzdat'
+	  filename = 'worksim/'//base(1:i-1)//'.bin'
 	  call NtupleInit(filename)
 	endif
 
@@ -104,23 +104,15 @@ c gh - ranlux init
 	if (debug(4)) write(6,*)'sim: at 3'
 
 ! ... initialize the random number generator and number of attempts
-
-	if(random_state_file.ne.' ') then
-	   if(restorerndstate(random_state_file)) then
-	      write(6,'(1x,''Random state restored from '',a)')
-     >  	   random_state_file(1:index(random_state_file,' ')-1)
-	   else
-	      if(random_seed.ne.0) then
-		 call sgrnd(random_seed)
-	      endif
-	      r = grnd()
-	   endif
-	else
-	   if(random_seed.ne.0) then
-	      call sgrnd(random_seed)
-	   endif
-	   r = grnd()
-	endif
+	
+       if (random_state_file .eq. ' ') then
+         call sgrnd(random_seed)	
+       else
+	 call  start_file_random_state(random_state_file)
+       endif	
+c
+       write(*,*) "Initial random vector save to file: ",start_random_state_file
+	call save_random_state(start_random_state_file)
 	ntried = 0
 
 ! GAW - insert calls to initialize target field for both arms
@@ -457,12 +449,6 @@ c	call time (timestring2(11:23))
 
 900	if (ngen.eq.0) goto 1000
 
-!       Save the random number state, but only if good events were generated.
-	if(random_state_file.ne.' ') then
-	   call saverndstate(random_state_file)
-	   write(6,'(1x,''Random state saved to '',a)')
-     >  	   random_state_file(1:index(random_state_file,' ')-1)
-	endif
 
 ! ... the diagnostic histograms
 
@@ -826,10 +812,12 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	  else
 	    stop 'I don''t have ANY idea what (e,e''pi) we''re doing!!!'
 	  endif
-	  if (which_pion .eq. 0) then
+	  if (which_pion .eq. 0 .or. which_pion .eq. 1) then
 	    write(iun,*) '              ****----  Default Final State ----****'
 	  else if (which_pion .eq. 10) then
-	    write(iun,*) '              ****----  Final State is A+pi ----****'
+	    write(iun,*) '              ****----  Final State is A + pi ----****'
+	  else if (which_pion.eq.2 .or. which_pion.eq.3) then
+	    write(iun,*) '              ****----  Final State is pi + Delta ----****'
 	  endif
 	else if (doing_kaon) then
 	  if (doing_hydkaon) then
@@ -1660,7 +1648,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	endif
 
 	main%SP%e%yptar = orig%e%yptar + dangles(1) + dang_in(1)
-	main%SP%e%xptar = orig%e%xptar + dangles(2) + dang_in(2)*spec%p%cos_th
+	main%SP%e%xptar = orig%e%xptar + dangles(2) + dang_in(2)*spec%e%cos_th
 
 ! CASE 1: Using the spectrometer Monte Carlo
 

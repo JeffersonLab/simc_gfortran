@@ -50,6 +50,10 @@ C     The following two record lines are from SIMC physics_kaon.f
       real*8 sig_pi0gmh
       real*8 sig1,sig2,sig3
 
+      logical first
+      save first
+      data first /.TRUE./
+
       if (debug(2)) write(6,*)' peep_pizero: enter '
 
       call transform_to_cm(vertex,main,
@@ -165,7 +169,7 @@ c      write(6,*)' tt ',tt,t_min,t_max,tprime
 ******************************************************************************
 *
       sig1 = sig_pi0gmh(qsq/1.e6,tt/1.e6,t_min/1.e6,uu/1.e6,u_min/1.e6,
-     1                  invm/1.e3,epsilon,thetacm,phicm)
+     1                  invm/1.e3,epsilon,thetacm,phicm,first)
 
       ntup%sigcm=sig1
 
@@ -221,7 +225,7 @@ C DJG hard-wired proton masses above...
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       real*8 function sig_pi0gmh(Q2_g,t_gev,tmin,u_gev,umin,
-     1       W_gev,eps,thetacm,phicm)
+     1       W_gev,eps,thetacm,phicm,first)
 
 c This routine calculates p(e,e'pi0)p cross sections, based on
 c a parameterization of the Defurne Hall A data and a parameterization
@@ -259,9 +263,9 @@ c sigLT  p1+p2/(-t)
       real*8 p1LT(4)  / 156., 12.57,  5.17,  1.97/
       real*8 p2LT(4)  /-60.0, -2.08, -0.85, -0.32/
       
-      integer iflag,pcount,ndat,Q2count,Q2c
+      integer pcount,ndat,Q2count,Q2c
+      logical first
 
-      iflag=1                   ! flag for t(0) or u(1) channel
       ndat=4
       
       m_p = Mp/1.e3
@@ -312,7 +316,7 @@ c calculate hi,lo cross sections
          enddo                  !Q2
       endif
             
-      if (iflag.lt.1) then      ! t-channel
+      if (thetacm.gt.pi/2.) then ! t-channel
          sigThi = p1T(Q2count+1)+p2T(Q2count+1)/(tprime+abs(tmin))
          sigTlo = p1T(Q2count)  +p2T(Q2count)/(tprime+abs(tmin))
          sigLhi = p1L(Q2count+1)
@@ -321,6 +325,8 @@ c calculate hi,lo cross sections
          sigTTlo = p1TT(Q2count)  +p2TT(Q2count)/(tprime+abs(tmin))
          sigLThi = p1LT(Q2count+1)+p2LT(Q2count+1)/(tprime+abs(tmin))
          sigLTlo = p1LT(Q2count)  +p2LT(Q2count)/(tprime+abs(tmin))
+         if (first) write(6,*)' pi0gmh: t-channel '
+         first=.FALSE.
          
       else                      ! u-channel
 c     christian weiss recommends the following change for u-channel:
@@ -335,6 +341,8 @@ c     is ~10% of forward angle peak (at least for omega electroproduction)
          sigTTlo = (p1TT(Q2count)  +p2TT(Q2count)/(uprime+abs(tmin)))/10.  
          sigLThi = (p1LT(Q2count+1)+p2LT(Q2count+1)/(uprime+abs(tmin)))/10.
          sigLTlo = (p1LT(Q2count)  +p2LT(Q2count)/(uprime+abs(tmin)))/10.  
+         if (first) write(6,*)' pi0gmh: u-channel '
+         first=.FALSE.
       endif
       
 c sighi,lo are at different W.  scale both to the W needed for the event

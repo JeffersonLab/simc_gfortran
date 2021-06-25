@@ -606,51 +606,58 @@ c	     ntup.rhomass=Mh
 c            write(6,*) 'rho mass is', Mh
 c	  endif
 	      
+C DJG If doing Deltas final state for pion production, generate Delta mass
+	  if(doing_delta .and. (which_pion.eq.2 .or. which_pion.eq.3)) then
+c factor of 0.7265 to better match data (PB)
+	     targ%Mrec_struck = Mdelta + 0.5*(0.7265)*Delta_width*tan((2.*grnd()-1.)*pi/2.)
+	  endif
+
 ! DJG If doing_eepx, generate the recoiling particle mass, i.e. for H(e,e'p)omega
 ! DJG for example. For now, check that the width is larger than 0.1 MeV
 
-	  if(doing_eepx) then
+	  if (doing_eepx) then
 	    if (debug(4)) write(6,*)'comp_ev: at 6.5a',which_eepx
-	      if (which_eepx.eq.4) then      !rho
+            if (which_eepx.eq.4) then !rho
 c the rho is very broad and gets a formula with more restricted width
 c even so, masses will be generated down to about 375 MeV
 c ranlux substituted for grnd - gh
-                 call ranlux (rannum4,1)
-                 rannum=dble(rannum4)
-                 targ%Mrec_struck = Mrho +
+               call ranlux (rannum4,1)
+               rannum=dble(rannum4)
+               targ%Mrec_struck = Mrho +
      >           0.5*MrhoW*
      >           tan((2.*rannum-1.)*atan(2.*450./MrhoW))
 c     >           tan((2.*grnd()-1.)*atan(2.*450./MrhoW))
-               else if (which_eepx.eq.5) then ! omega
+            else if (which_eepx.eq.5) then ! omega
 c all other mesons (with width) get the standard formula
-                 call ranlux (rannum4,1)
-                 rannum=dble(rannum4)
-                 targ%Mrec_struck = Momega + 
-     >	         0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
-               else if (which_eepx.eq.7) then ! phi
-                 call ranlux (rannum4,1)
-                 rannum=dble(rannum4)
-                 targ%Mrec_struck = Mphi + 
-     >	         0.5*MphiW*tan((2.*rannum-1.)*pi/2.)
-              endif
+               call ranlux (rannum4,1)
+               rannum=dble(rannum4)
+               targ%Mrec_struck = Momega + 
+     >           0.5*MomegaW*tan((2.*rannum-1.)*pi/2.)
+            else if (which_eepx.eq.7) then ! phi
+               call ranlux (rannum4,1)
+               rannum=dble(rannum4)
+               targ%Mrec_struck = Mphi + 
+     >           0.5*MphiW*tan((2.*rannum-1.)*pi/2.)
+            endif 
+
             if (debug(4)) write(6,*)'comp_ev: at 6.5b',targ%Mrec_struck
-              if(targ%Mrec_struck.le.0.0) return
-            endif
+            if(targ%Mrec_struck.le.0.0) return
+         endif
 
-          vertex%Pm = pfer	!vertex%Em generated at beginning.
-          vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
-          a = -1.*vertex%q*(vertex%uq%x*vertex%up%x+
-     >         vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
-          b = vertex%q**2
-	  c = vertex%nu + targ%M
-
+         vertex%Pm = pfer	!vertex%Em generated at beginning.
+         vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
+         a = -1.*vertex%q*(vertex%uq%x*vertex%up%x+
+     >        vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
+         b = vertex%q**2
+         c = vertex%nu + targ%M
+         
 ! For nuclei, correct for fermi motion and missing energy.  Also, check
 ! second solution to quadratic equation - there are often two valid
 ! solutions, and we always pick the larger one (which is the forward going
 ! one in the center of mass) and HOPE that the smaller one is never in the
 ! acceptance.  If the low momentum solution IS within the acceptance, we
 ! have big problems.
-	  if (doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon.or.
+         if (doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon.or.
      >        doing_deuteepx.or.doing_heeepx.or.doing_deutdelta.or.
      >        doing_hedelta) then
 	    a = a - abs(pfer)*(pferx*vertex%up%x+pfery*vertex%up%y+
@@ -1559,6 +1566,30 @@ c three-momentum transfer (Q)
 
 	elseif (doing_pion) then
 	  main%sigcc = peepi(vertex,main)
+C Use Clebsch-Gordon coefficients to approximate xsec for Delta final states
+C This ignores the fact that the g*p and g*n cross sections may not be the same
+C 6/24/2021: Coefficients for Delta final states updated from Peter Bosted's
+C empirical check's.
+	  if(which_pion.eq.2) then ! pi+ Delta
+	     if(doing_hydpi) then
+c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
+		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/(pi+ n)
+	     elseif(doing_deutpi) then
+c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
+c     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
+		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/pi+ n)
+     >                      + 1.0**main%sigcc !(pi+ Delta-)/(pi+ n)
+	     endif 
+	  elseif (which_pion.eq.3) then  !pi- Delta
+	     if(doing_hydpi) then
+		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
+	     elseif(doing_deutpi) then
+c		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
+c     >                     + 0.25*main%sigcc !(pi- Delta+)/(pi- p)
+		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
+     >                     + 0.6*main%sigcc !(pi- Delta+)/(pi- p)
+	     endif
+	  endif
 	  main%sigcc_recon = 1.0
 	  if (which_pion.eq.1 .or. which_pion.eq.11) then  !OK for coherent???
 	    tgtweight = targ%N
@@ -1613,19 +1644,21 @@ c three-momentum transfer (Q)
 	elseif (doing_rho) then
 	  main%sigcc = peerho(vertex,main)
 	  main%sigcc_recon = 1.0
+	  tgtweight = targ%Z+targ%N
 
 	elseif (doing_semi) then
 	  main%sigcc = peepiX(vertex,vertex0,main,survivalprob,.FALSE.)
 	  main%sigcc_recon = 1.0
 	  main%sigcent = peepiX(vertex,vertex0,main,survivalprob,.TRUE.)
-	  ntup%dilu = semi_dilution(vertex,main) 
+c	  ntup%dilu = semi_dilution(vertex,main) 
+	  ntup%dilu = 1.0
 
 	else
 	  main%sigcc = 1.0
 	  main%sigcc_recon = 1.0
 	endif
 
-C If using Coulomb cirrections, include focusing factor
+C If using Coulomb corrections, include focusing factor
 	if(using_Coulomb) then
 	   main%sigcc = main%sigcc*(1.0+targ%Coulomb%ave/Ebeam)**2
 	endif

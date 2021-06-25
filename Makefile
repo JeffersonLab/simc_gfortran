@@ -3,18 +3,8 @@
 ## These will have to be modified when setting up your own simc.  They
 ## point to the software necessary to run simc.
 
-## ARGONNE DEFAULT SETUP FLAGS:
-#simcdir = .
-#Csoft = /disk1/users/reinhold/Csoft/05Dec1996
-
 ## CEBAF DEFAULT SETUP FLAGS:
 simcdir = .
-#Csoft = /group/hallc/Csoft/Analyzer
-#Csoft = /group/c-gep/jones/Linux_fc8/
-
-## U Regina SETUP FLAGS 
-simcdir = .
-Csoft = /home/huberg/r2d2/simc/
 
 ## THE REST SHOULD BE OK WITHOUT MODIFICATION.
 
@@ -31,14 +21,17 @@ A	= $(simcdir)/shared/
 SH	= $(simcdir)/shms/
 T       = $(simcdir)/cteq5/
 C       = $(simcdir)/calo/
+CH	= $(simcdir)/cern/
+D       = $(simcdir)/fdss/
 
 OBJ1	= target.o brem.o gauss1.o NtupleInit.o NtupleClose.o enerloss_new.o
 OBJ2	= radc.o init.o dbase.o physics_kaon.o physics_pion.o physics_delta.o physics_proton.o loren.o sf_lookup.o
+#gh: switch between physics_piKmodel and physics_pion,kaon
 #OBJ2	= radc.o init.o dbase.o physics_piKmodel.o physics_delta.o physics_proton.o loren.o sf_lookup.o
 OBJ3	= semi_physics.o rho_physics.o rho_decay.o generate_rho.o trg_track.o semi_dilution.o
 OBJ4	= physics_omega.o physics_Xphasespace.o physics_rho_recoil.o physics_phi.o
 OBJ4b   = physics_eta.o physics_eta_prime.o physics_pizero.o physics_dvcs.o
-OBJ4a   = results_write.o event.o mt19937.o jacobians.o
+OBJ4a	= results_write.o event.o call_ranlux.o jacobians.o F1F209.o
 OBJ5	= $(A)musc.o $(A)musc_ext.o $(A)project.o $(A)transp.o
 OBJ6	= $(A)rotate_haxis.o $(A)rotate_vaxis.o $(A)locforunt.o
 OBJ7	= $(H)mc_hms.o $(H)mc_hms_hut.o $(H)mc_hms_recon.o $(H)coll_absorb.o $(H)mc_hms_coll.o
@@ -48,8 +41,10 @@ OBJA	= $(L)mc_hrsl.o $(L)mc_hrsl_hut.o $(L)mc_hrsl_recon.o
 OBJB	= $(SH)mc_shms.o $(SH)mc_shms_hut.o $(SH)mc_shms_recon.o
 OBJC    = $(T)Ctq5Pdf.o
 OBJD    = $(C)mc_calo.o $(C)mc_calo_recon.o
-my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ4b) $(OBJ4a) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD)
+OBJCH   = $(CH)lfit.o $(CH)ranlux.o $(CH)fint.o $(CH)kerset.o $(CH)abend.o
+OBJF   = $(D)fdss.o
 
+my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ4b) $(OBJ4a) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJCH) $(OBJF)
 my_deps = $(my_objs:.o=.d)
 
 MYOS := $(subst -,,$(shell uname))
@@ -67,12 +62,12 @@ ifeq ($(MYOS),Linux)
 #  CERN_ROOT = /usr/lib/cernlib/2006
 # 64 bit, standard Fedora distributuion
 #  CERN_ROOT =  /usr/lib64/cernlib/2006 
-  FFLAGSA=-O -W -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
+  FFLAGSA=-O -w -ffixed-line-length-132 -ff2c -fno-automatic -fdefault-real-8
   INCLUDES=-I.
   FFLAGS= $(INCLUDES) $(FFLAGSA)
   FFLAG1=$(FFLAGS) -c
   OTHERLIBS = -L$(LIBROOT) -lctp \
-        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib64 
+        -L/usr/lib64 
 # 64 vs 32 bit
 #        -L$(CERN_ROOT)/lib $(CERNLIBS) -L/usr/lib
   FC  := gfortran
@@ -116,6 +111,10 @@ $(R)/%.o: $(R)/%.f
 
 $(SH)/%.o: $(SH)/%.f
 	$(F77) $(FFLAGS) -c $< -o $@
+
+$(CH)/%.o: $(SH)/%.f
+	$(F77) $(FFLAGS) -c $< -o $@
+
 
 DEPEND_RULE = ( cat $< |  sed -n -e \
 	"s|^[ 	]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][ 	]*['\"]|$@: $(@D)/|p" | \
@@ -168,7 +167,7 @@ CTP/O.Linux/Linux/lib/libctp.a:
 
 
 clean:
-	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] simc
+	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] $(CH)*.[od] simc
 
 real_clean:
 	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] simc

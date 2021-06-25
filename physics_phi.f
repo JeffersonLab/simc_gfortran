@@ -158,7 +158,7 @@ c      sig1 = sig_phigmh(mass/1.e3,qsq,tt,t_min,uu,u_min,nu,invm/1.e3,
 c     *       epsilon)
 
       sig2 = sig_phiweiss(qsq/1.e6,tt/1.e6,t_min/1.e6,t_max/1.e6,
-     *       uu/1.e6,u_min/1.e6,invm/1.e3,epsilon)
+     *       uu/1.e6,u_min/1.e6,invm/1.e3,epsilon,thetacm)
 
 c      write(6,*)' phi ',sig1,sig2
       
@@ -228,7 +228,7 @@ C DJG hard-wired proton masses above...
       end
 
 C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      real*8 function sig_phigmh(mass,Q2,t,tmin,u,umin,nu,w_gev,epsi)
+      real*8 function sig_phigmh(mass,Q2,t,tmin,u,umin,nu,w_gev,epsi,thcm)
 
 * This routine calculates p(e,e'phi)p cross sections 
 * in the form used in PYTHIA with modifications
@@ -237,14 +237,10 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       include 'constants.inc'
 
-      real*8 t,tmin,tprime,u,umin,uprime
+      real*8 t,tmin,tprime,u,umin,uprime,thcm
       real*8 mass,nu,epsi,Q2,w_gev,wfactor,m_p
       real*8 sig0,sigt,sig219,R,cdeltatau,bphi
 
-      integer iflag
-
-      iflag=1                   ! flag for t(0) or u(1) channel
-      
       m_p = Mp/1.e3
       tprime = abs(t-tmin)/1.e6
       uprime = abs(u-umin)/1.e6
@@ -273,7 +269,7 @@ C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c GH: the conventional formula with exponential factor is for forward
 c     diffractive, it might not be appropriate for u-channel production
 
-      if (iflag.lt.1) then      ! t-channel
+      if (thcm.gt.pi/2.) then   ! t-channel
          sig219 = sigt*bphi*exp(-bphi*tprime)/2.0/pi !ub/GeV**2/rad
       else                      ! u-channel
          sig219 = sigt*bphi*exp(-bphi*uprime)/2.0/pi
@@ -282,8 +278,8 @@ c     diffractive, it might not be appropriate for u-channel production
          
       sig_phigmh=sig219/1.e+06         !dsig/dtdphicm in microbarns/MeV**2/rad
 
-c GH: check for weird behavior on upper side of peak
-      if (iflag.lt.1 .and. mass.gt.1.5 .and. tprime.gt.Q2 .and.
+c GH: check for weird behavior on upper side of peak (t-channel)
+      if (thcm.gt.pi/2. .and. mass.gt.1.5 .and. tprime.gt.Q2 .and.
      *    sig_phigmh.gt.1.e-20) then
           write(6,*)' tprime=',tprime,' sig=',sig_phigmh
           sig_phigmh=sig_phigmh*1.e-6
@@ -296,23 +292,21 @@ c GH: check for weird behavior on upper side of peak
 
 C---------------------------------------------------------------------
       real*8 function sig_phiweiss(q2_gev,t_gev,tmin,tmax,u_gev,umin,
-     *  w_gev,epsi)
+     *  w_gev,epsi,thcm)
 
       implicit none
       include 'constants.inc'
       
-      real*8 q2_gev,t_gev,tmin,tmax,u_gev,umin,w_gev,epsi
+      real*8 q2_gev,t_gev,tmin,tmax,u_gev,umin,w_gev,epsi,thcm
       real*8 sig,sigt,sigl
       real*8 ttmin,ttmax
       integer itdep,itmin
-      integer iflag
 
-      iflag=1                   ! flag for t(0) or u(1) channel
       itdep=1
       itmin=0
 
       call xphi(sigt, sigl, ttmin, ttmax, w_gev, t_gev, u_gev, q2_gev,
-     >     itdep, itmin, iflag)
+     >     itdep, itmin, thcm)
 
 c check tmin, tmax values
       if (abs(ttmin-tmin).lt.1.e-10) then
@@ -332,7 +326,7 @@ c check tmin, tmax values
       
 c---------------------------------------------------------------------
       subroutine xphi(dxt, dxl, tmin,tmax, w, t, u, qq,
-     >    itdep, itmin, iflag)
+     >    itdep, itmin, thcm)
 
 c     subroutine xphi(xt, xl, dxt, dxl, tmin, tmax, b, uug, w, t,
 c     *   qq, itdep, itmin)
@@ -489,7 +483,7 @@ c                2 dipole      profile
 c
       if      (itdep.eq.1) then
 
-         if (iflag.lt.1) then
+         if (thcm.gt.pi/2.) then   ! t-channel
          
             f  = exp(b*ta)
             fi = exp(b*tmin)/b
@@ -498,7 +492,7 @@ c
 c            write(6,*)' tt ',tmin,t,tmax
 c            write(6,*)f,fi,f/fi
 
-         else
+         else                   ! u-channel
 
 c gh - 17.12.27
 c christian recommends the following change for u-channel:

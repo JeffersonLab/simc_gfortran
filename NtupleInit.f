@@ -7,25 +7,27 @@
 
 	character*80 filename,directory
 	character*16 NtupleTag(80),name,title
-	integer*4 m,io,recl,bank,id,status
-	parameter(recl = 1024)
-	parameter(bank = 8000)
+	integer*4 m,io,recl,bank,id,status,i
+c	parameter(recl = 1024)
+c	parameter(bank = 8000)
 	parameter(io = 29)
 	parameter(name = 'SimcNtuple')
 	parameter(title = 'SIMTUPLE')
 
-	NtupleID = defaultID
-	id = NtupleID
+c	NtupleID = defaultID
+c	id = NtupleID
 	NtupleIO = io
-	NtupleName = name
+c	NtupleName = name
 
-	call HCDIR(directory,'R') !CERNLIB read current directory
-	call HROPEN(io,name,filename,'N',recl,status)  !CERNLIB
+c	call HCDIR(directory,'R') !CERNLIB read current directory
+c	call HROPEN(io,name,filename,'N',recl,status)  !CERNLIB
 						!directory set to "//TUPLE"
-	if (status.ne.0)then
-	  write(6,*) 'HROPEN error: istat=',status
-	  stop
-	endif
+c	if (status.ne.0)then
+c	  write(6,*) 'HROPEN error: istat=',status
+c	  stop
+c	endif
+
+	open(NtupleIO,file=filename,form="unformatted",access="sequential")
 
 	m = 0
 	m = m+1
@@ -306,11 +308,17 @@ c	  NtupleTag(m) = 'pdotqhat'	! 50
 
 	NtupleSize = m
 
-	call HBOOKN(id,title,NtupleSize,name,bank,NtupleTag) !create Ntuple
+c	call HBOOKN(id,title,NtupleSize,name,bank,NtupleTag) !create Ntuple
+c
+c	call HCDIR(NtupleDirectory,'R') !record Ntuple directory
+c
+c	call HCDIR(directory,' ')       !reset CERNLIB directory
 
-	call HCDIR(NtupleDirectory,'R') !record Ntuple directory
-
-	call HCDIR(directory,' ')       !reset CERNLIB directory
+c write ntuple size first
+	write(NtupleIO) NtupleSize
+	do i=1,m
+	   write(NtupleIO) NtupleTag(i)
+	enddo
 
 	return
 	end

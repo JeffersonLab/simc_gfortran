@@ -118,6 +118,7 @@ c	parameter (b=4.68)   !GeV^-2
 	parameter (Q2zero=2.0)   !Gev^2 for u,d,s,g
 
 	data first /.TRUE./
+	data firstqe /.TRUE./
 	data first_cent /.TRUE./
 
 c this is for DSS
@@ -253,7 +254,8 @@ C DJG convert some stuff to GeV
 
 c needed by f1f2in21
 	if(firstqe) then
-	 write(6,'(////''calling sqesub'')')
+	 write(6,*) 'Initializing F1F2IN21:'  
+	 write(6,*) 'F1F2IN21: calling sqesub'
 	 q2qe=1.
 	 w2qe=1.
 	 wfn=2

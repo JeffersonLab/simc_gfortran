@@ -1100,14 +1100,14 @@ CCC
       tau = q2/(4*mp2)  !!!  for elastic at this Q^2  !!!
 c      ww = mp2 + 2.d0*mp*nu - q2  !!! Fermi smeared  !!!
       gamma2 = (1. + 4.*mp2*x*x/q2)
-      write(6,'(//''gamma2='',8f8.3)') gamma2,q2,w2,mp2,
+      write(6,'(" F1F2IN21: gamma2=",8f8.3)') gamma2,q2,w2,mp2,
      >  x,tau,q
       if(gamma2.LE.6.and.firsty) then   
        gamma = sqrt(gamma2)
-       write(6,'(//''calling getfy'',l2)') firsty
+       write(6,'('' F1F2IN21: calling getfy'',l2)') firsty
        call getfy(gamma,x,wfn,fy11,fy12,fy2,firsty)
        firsty = .true.
-       write(6,'(//''calling getfyoff'',l2)') firsty
+       write(6,'('' F1F2IN21: calling getfyoff'',l2)') firsty
        call getfyoff(gamma,x,wfn,fy11off,fy12off,fy2off,firsty)
       endif
 
@@ -1183,7 +1183,7 @@ C ***********************************************************************
       logical thend,first,firsty
       data wfnorm / 1.0,1.0,1.05,1.02,1.0,1.0,1.0,1.0,1.0,1.0 /
 
-      write(6,2001) x,q2,gm2,ge2
+cdg      write(6,2001) x,q2,gm2,ge2
 
 c      off = 2
 
@@ -1196,7 +1196,7 @@ c      do i=1,10
 c        wfnorm(i) = 1.0D0
 c      enddo
 
-      write(6,*) w2,q2,wfn
+cdg      write(6,*) w2,q2,wfn
 
       hc = 0.197327D0      !!! convert from GeV -> fm    !!!
       mp = (0.938272+0.939565)/2.0D0    !!! average p,n  !!!
@@ -1230,7 +1230,7 @@ c      enddo
       pvmax = mp*prod*(1.D0+rt)
       pvinc = (pvmax-pvmin)/float(nbins)
 
-      write(6,*) "offshellqe:  ",w2,q2,x,rt
+      write(6,*) "F1F2IN21: offshellqe:  ",w2,q2,x,rt
 
       pv = pvmin-pvinc
 CCC   Loop over initial nucleon 3-momentum, pv  CCC
@@ -1388,8 +1388,8 @@ c      firsty = .true.
 
         enddo
 999     thend = .true. 
-       write(6,'(///''read in '',i6,
-     >    '' points in getfy''///)') i
+       write(6,'('' F1F2IN21: read in '',i6,
+     >    '' points in getfy'')') i
 
       endif
       firsty = .false.
@@ -1504,8 +1504,8 @@ c      firsty = .true.
 
         enddo
 999     thend = .true. 
-       write(6,'(///''read in '',i6,
-     >    '' points in getfyoff''///)') i
+       write(6,'('' F1F2IN21: read in '',i6,
+     >    '' points in getfyoff'')') i
       endif
       firsty = .false.
       close(34)
@@ -2245,7 +2245,7 @@ C **********************************************************************
         IF (init) GO TO 999     ! Data already read
 C...Read data from file
 	OPEN (10, FORM='FORMATTED',
-     &	       FILE='cdbn.qwave',
+     &	       FILE='f1f2tables/cdbn.qwave',
      &	       STATUS='OLD')
 c        READ (10,100)
         READ (10,*)

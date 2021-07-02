@@ -70,7 +70,7 @@
 	real*8 Ns, a1s, a2s !parameters for strange FF param
 
 C Some local kinematic variables
-	real*8 xbj,sx, Q2gev, Qgev, pt2gev !unitless or GeV
+	real*8 xbj,sx, Q2gev, Qgev, pt2gev,mtargev,nugev !unitless or GeV
 	real*8 b  ! pt2 parameter for FFs
 
 	real*8 nu,qx,qy,qz,mtar,Q2,Eb,Eprime,Epx,Epy,Epz  !MeV
@@ -95,12 +95,20 @@ C Variables for kaon decay stuff
 
 c parameters for PB fit of 9/11/2020
 c versus zp
-       real*8 pf(8)/   1.2803,   0.0851,   0.8379,   0.1586,
-     >                 0.0140,   0.2133,  -4.4985,   4.1285/
-       real*8 pu(8)/   0.8290,  -0.1416,   0.9869,   0.2559,
-     >                 0.0090,  -1.2306,  -1.5292,   2.4169/
+c       real*8 pf(8)/   1.2803,   0.0851,   0.8379,   0.1586,
+c     >                 0.0140,   0.2133,  -4.4985,   4.1285/
+c       real*8 pu(8)/   0.8290,  -0.1416,   0.9869,   0.2559,
+c     >                 0.0090,  -1.2306,  -1.5292,   2.4169/
+C parameters for PB fit of 9/20/2021
+	real*8 pf(12)/   1.0424,  -0.1714,   1.8960,  -0.0307,
+     >                 0.1636,  -0.1272,  -4.2093,   5.0103,
+     >                 2.7406,  -0.5778,   3.5292,   7.3910/
+	real*8 pu(12)/   0.7840,   0.2369,   1.4238,   0.1484,
+     >                 0.1518,  -1.2923,  -1.5710,   3.0305,
+     >                 1.1995,   1.3553,   2.5868,   8.0666/
+
 	real*8 xp,zp,yf,yu
-	real*8 Mpi_gev, Mp_gev, wsq, z8, a8
+	real*8 Mpi_gev, Mp_gev, wsq,w, mmpi2,z8, a8
 	real*8 d1,db,u1,ub, s1, sb, dsigdzn, dsigdzp
 
 	logical first, firstqe
@@ -127,7 +135,7 @@ c this is for DSS
         COMMON / FRAGINI / FINI
 
 	if(first) FINI=0
-	b = pt_b_param   ! now parameter in input file
+c	b = pt_b_param   ! now parameter in input file
 
 	Mpi_gev = Mpi/1000.0
 	Mp_gev = Mp/1000.0
@@ -251,6 +259,21 @@ C DJG convert some stuff to GeV
 	Q2gev = Q2/1.e6
 	Qgev = sqrt(Q2gev)
 	pt2gev = pt2/1.e6
+
+	wsq = Mp_gev**2 + q2gev * (1./xbj -1.)
+	w = sqrt(wsq)
+c added that xsection should be zero below 2pi / piK  threshold (PB)
+C this shouldn't be necessary, but include it anyway
+	mtargev = mtar/1000.
+	nugev = nu/1000.
+        mmpi2 = mtargev**2 + 2. * mtargev * nugev * 
+     >        (1-zhad) * (1 - pt2gev)
+	if(mmpi2 .lt. (mtargev + mhad/1000.)**2) then
+         sigma_eepiX = 0.
+	 peepiX = 0.0
+	 return
+	endif
+
 
 c needed by f1f2in21
 	if(firstqe) then
@@ -433,12 +456,14 @@ c new PB fit using zp for pions. This is z * D
      >           sqrt(1 - 4 * xbj**2 * Mp_gev**2 *  
      >           (Mpi_gev**2 + pt2gev) / zhad**2 / q2gev**2))
 	   sv = log(q2gev/2.)
-	   yf = pf(1) * zp**(pf(2) + pf(4)*sv) * 
-     >          (1.-zp)**(pf(3) + pf(5)*sv) 
-	   yf = yf * (1. + pf(6)*zp + pf(7)*zp**2 + pf(8)*zp**3)
-	   yu = pu(1) * zp**(pu(2) + pu(4)*sv) * 
-     >          (1.-zp)**(pu(3) + pu(5)*sv) 
-	   yu = yu * (1. + pu(6)*zp + pu(7)*zp**2 + pu(8)*zp**3)
+	   yf = pf(1) * zp**(pf(2) + pf(4)*sv + pf(9)/w) * 
+     >          (1.-zp)**(pf(3) + pf(5)*sv + pf(10)/w) 
+	   yf = yf * (1. + pf(6)*zp + pf(7)*zp**2 + pf(8)*zp**3) *
+     >               (1. + pf(11)/w + pf(12)/w**2)
+	   yu = pu(1) * zp**(pu(2) + pu(4)*sv + pu(9)/w) * 
+     >          (1.-zp)**(pu(3) + pu(5)*sv + pu(10)/w) 
+	   yu = yu * (1. + pu(6)*zp + pu(7)*zp**2 + pu(8)*zp**3) *
+     >               (1. + pu(11)/w + pu(12)/w**2)
 
 	   if(doing_hplus) then
 	      u1 = yf
@@ -481,6 +506,7 @@ c	   write(6,*) 'cheesy poofs', zhad, u1, ub, d1, db, s1, sb
 	   dsigdz = dsigdzp + dsigdzn
 	endif
 
+	b =  1./ (0.120 * zhad**2 + 0.200)
 	sighad = dsigdz*b*exp(-b*pt2gev)/2./pi
 c	write(6,*) 'bad kitty', sighad
 

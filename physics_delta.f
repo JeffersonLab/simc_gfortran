@@ -71,7 +71,7 @@
 * complete_ev where possible.  WORSE YET, WE CHANGE UNITS OF MAIN.W,... HERE!!!
 
 	tfcos = pferx*vertex%uq%x+pfery*vertex%uq%y+pferz*vertex%uq%z
-	if(tfcos-1..gt.0..and.tfcos-1..lt.1.d-8)tfcos=1.0
+	if(tfcos-1..gt.0..and.tfcos-1..lt.1.e-8)tfcos=1.0
 	tfsin=sqrt(1.-tfcos**2)
 
 	s = (vertex%nu+efer)**2-(vertex%q+pfer*tfcos)**2-(pfer*tfsin)**2
@@ -96,7 +96,7 @@
 * IF low_w_flag is set.
 * NOTE: s, t, mtar, and Q2 must be converted to GeV first.
 
-	ntup%sigcm1 = sig_blok(thetacm,phicm,main%t/1.d6,vertex%q2/1.d6,s/1.d6,main%epsilon,
+	ntup%sigcm1 = sig_blok(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
      >		targ%Mtar_struck/1000.,which_pion)
 	sigma_eepi = ntup%sigcm1
 

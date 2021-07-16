@@ -284,8 +284,8 @@ cdg	endif
 ! ... from scattered particles.  Use sumEgen-vertex.e.E as limit for remaining
 ! ... generated energy available.
 
-	  else if (doing_pion .or. doing_kaon .or. doing_rho .or. 
-     >  	 doing_semi) then
+	  else if (doing_pion .or. doing_kaon .or. doing_eepx .or. doing_rho  
+     >  	 .or. doing_semi  .or. doing_Xphasespace) then
 	    if (debug(5)) write(6,*)'gen_rad: at 2d'
 	    Egamma_min(1) = 0.
 	    Egamma_max(1) = gen%sumEgen%max - vertex%e%E

@@ -1408,7 +1408,7 @@ c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
 c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
 c     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
 		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/pi+ n)
-     >                      + 1.0**main%sigcc !(pi+ Delta-)/(pi+ n)
+     >                      + 1.0*main%sigcc !(pi+ Delta-)/(pi+ n)
 	     endif 
 	  elseif (which_pion.eq.3) then  !pi- Delta
 	     if(doing_hydpi) then

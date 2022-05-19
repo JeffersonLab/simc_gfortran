@@ -335,22 +335,25 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
 	  enddo
 	  VERTEXedge%Em%min = E_Fermi
 	  VERTEXedge%Em%max = 1000.	!Need Egamma_tot_max for good limit.
-	else if (doing_hydpi .or. doing_hydkaon .or. doing_hyddelta .or. doing_hydrho) then
+	else if (doing_hydpi .or. doing_hydkaon .or. doing_hydeepx .or. doing_hyddelta 
+     >           .or. doing_hydrho) then
 	  VERTEXedge%Em%min = 0.0
 	  VERTEXedge%Em%max = 0.0
 	  VERTEXedge%Pm%min = 0.0
 	  VERTEXedge%Pm%max = 0.0
-	else if (doing_deutpi .or. doing_deutkaon .or. doing_deutdelta .or. doing_deutrho) then
+	else if (doing_deutpi .or. doing_deutkaon .or. doing_deuteepx .or. doing_deutdelta 
+     >           .or. doing_deutrho) then
 	  VERTEXedge%Em%min = Mp + Mn - targ%M		!2.2249 MeV, I hope.
 	  VERTEXedge%Em%max = Mp + Mn - targ%M
 	  VERTEXedge%Pm%min = 0.0
 	  VERTEXedge%Pm%max = pval(nump)
-	else if (doing_hepi .or. doing_hekaon .or. doing_hedelta .or. doing_herho) then
+	else if (doing_hepi .or. doing_hekaon .or. doing_heeepx .or. doing_hedelta 
+     >            .or. doing_herho) then
 	  VERTEXedge%Em%min = targ%Mtar_struck + targ%Mrec - targ%M
 	  VERTEXedge%Em%max = Emval(numEm)
 	  VERTEXedge%Pm%min = 0.0
 	  VERTEXedge%Pm%max = pval(nump)
-	else if (doing_semi) then
+	else if (doing_semi.or.doing_Xphasespace) then
 	  VERTEXedge%Em%min = 0.0
 	  VERTEXedge%Em%max = 0.0
 	  VERTEXedge%Pm%min = 0.0
@@ -366,7 +369,8 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
 !    E_rec=sqrt(M_rec**2+P_rec**2), and P_rec = -P_m
 
 	if (doing_hyd_elast .or. doing_hydpi .or. doing_hydkaon .or. 
-     >        doing_hyddelta .or. doing_hydrho .or. doing_semi) then
+     >        doing_hydeepx .or. doing_hyddelta .or. doing_hydrho .or. 
+     >        doing_semi .or. doing_Xphasespace) then
 	  VERTEXedge%Mrec%min = 0.0
 	  VERTEXedge%Mrec%max = 0.0
 	  VERTEXedge%Trec%min = 0.0
@@ -385,7 +389,7 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
 ! upper limit, since the lower limit is determined by the allowed radiation,
 ! which is not calculated yet (and needs Trec to be calculated).
 
-	if (doing_eep .or. doing_semi) then
+	if (doing_eep .or. doing_semi .or. doing_Xphasespace) then
 	  VERTEXedge%Trec_struck%min = 0.
 	  VERTEXedge%Trec_struck%max = 0.
 	else
@@ -441,7 +445,7 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
 	  gen%sumEgen%max = min(gen%sumEgen%max,edge%e%E%max+edge%p%E%max+Egamma_tot_max)
 	  gen%sumEgen%min = max(gen%sumEgen%min,edge%e%E%min+edge%p%E%min)
 
-	else if (doing_semi) then
+	else if (doing_semi.or.doing_Xphasespace) then
 c	   gen%sumEgen%max = Ebeam_max - VERTEXedge%Trec%min - VERTEXedge%Trec_struck%min
 c	   gen%sumEgen%min = Ebeam_min - VERTEXedge%Trec%max - VERTEXedge%Trec_struck%max
 	   gen%sumEgen%max = Ebeam_max + targ%Mtar_struck - targ%Mrec_struck
@@ -469,10 +473,10 @@ c	   gen%sumEgen%min = Ebeam_min - VERTEXedge%Trec%max - VERTEXedge%Trec_struck%
 	  gen%e%E%min = edge%e%E%min
 	  gen%e%E%max = edge%e%E%max + Egamma2_max
 	else if (doing_deuterium .or. doing_pion .or. doing_kaon 
-     >      .or. doing_rho .or. doing_delta) then
+     >      .or. doing_rho .or. doing_eepx .or. doing_delta) then
 	  gen%e%E%min = gen%sumEgen%min
 	  gen%e%E%max = gen%sumEgen%max
-	else if (doing_heavy .or. doing_semi) then
+	else if (doing_heavy .or. doing_semi .or. doing_Xphasespace) then
 	  gen%e%E%min = gen%sumEgen%min - edge%p%E%max - Egamma3_max
 	  gen%e%E%max = gen%sumEgen%max - edge%p%E%min
 	endif
@@ -492,10 +496,10 @@ c	   gen%sumEgen%min = Ebeam_min - VERTEXedge%Trec%max - VERTEXedge%Trec_struck%
 ! ... except doing_heavy, but need to define for code that writes out limits.
 
 	if (doing_hyd_elast.or.doing_deuterium.or.doing_pion.or.doing_kaon .or.
-     >    doing_rho .or. doing_delta) then
+     >    doing_rho .or. doing_eepx .or. doing_delta) then
 	  gen%p%E%min = edge%p%E%min
 	  gen%p%E%max = edge%p%E%max + Egamma3_max
-	else if (doing_heavy .or. doing_semi)then
+	else if (doing_heavy .or. doing_semi .or. doing_Xphasespace)then
 	  gen%p%E%min = gen%sumEgen%min - edge%e%E%max - Egamma2_max
 	  gen%p%E%max = gen%sumEgen%max - edge%e%E%min
 	endif
@@ -876,7 +880,10 @@ c	open(unit=1,file=theory_file,status='old',readonly,shared,iostat=iok)
 	enddo
 
 ! ... are we doing deuterium? (i.e. only using a 1D spectral function)
-	doing_deuterium = nrhoPm.eq.1 .and. E_Fermi.lt.1.0
+c	doing_deuterium = nrhoPm.eq.1 .and. E_Fermi.lt.1.0
+c mod by gh
+	doing_deuterium = nrhoPm.eq.1 .and. E_Fermi.lt.1.0 .and. nint(targ%A).eq.2
+
 
 ! ... renormalize the momentum distributions
 	do m=1, nrhoPm

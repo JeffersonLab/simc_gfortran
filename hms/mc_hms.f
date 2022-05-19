@@ -130,6 +130,11 @@ c	parameter (z_off=+1.50)		!1996 position
 
 	real*8 grnd
 
+CDJG TEMP STUFF
+	real*8 save_collsuccess
+	logical collsuccess, coll_flag
+	common /save_coll/ save_collsuccess
+
 ! Gaby's dipole shape stuff
 	logical hit_dipole
 	external hit_dipole
@@ -193,6 +198,29 @@ C------------------------------------------------------------------------------C
 ! Check front of fixed slit.
 	  zdrift = z_entr
 	  call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project and decay
+
+C------------------------------------------------------
+c SECTION ADDED FOR HMS COLLIMATOR
+c	  write(*,*)'m2=',m2
+c	  write(*,*)'mpi2 =',mpi2
+c	  write(*,*)'-----------------------'
+	  if (m2.gt.100.0**2 .and. m2.lt.350.**2) then
+! check for pions/muons, if yes step through coll.
+
+c	     write(*,*) 'I found a pion',p
+	    call mc_hms_coll(m2,p,p_spec,decay_flag,dflag,collsuccess,coll_flag,pathlen)
+!            save_collsuccess=1.25
+c            write(*,*) 'TH - SANITY CHECK',collsuccess,p
+
+	    if(.not.collsuccess) then
+              save_collsuccess=1.5
+              hSTOP_coll = hSTOP_coll + 1
+	      goto 500
+            endif
+
+          else   !just apertures at front and back
+C------------------------------------------------------
+
 	  if (abs(ys-y_off).gt.h_entr) then
 	    hSTOP_slit_hor = hSTOP_slit_hor + 1
 	    goto 500
@@ -222,6 +250,7 @@ C------------------------------------------------------------------------------C
 	    hSTOP_slit_oct = hSTOP_slit_oct + 1
 	    goto 500
 	  endif
+	endif !check on pions/muons
 
 ! Go to Q1 IN  mag bound.  Drift rather than using COSY matrices
 

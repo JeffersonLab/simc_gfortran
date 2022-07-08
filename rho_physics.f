@@ -238,7 +238,8 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 ! Put in some W dependence from photoproduction data
 ! DJG:  This is my rough fit to some old photoproduction data.	
 
-	sig0 = 41.263/(vertex%nu/1000.0)**0.4765   ! microbarns
+! DJG	sig0 = 41.263/(vertex%nu/1000.0)**0.4765   ! microbarns
+! DJG - replace w/HepGen (from Vardan)
 
 ! DJG:  R is usually fit to the form c_0 (Q2/M2_rho)^c1
 ! DJG:  The c_0 and c_1 are taken from HERMES data.
@@ -246,36 +247,43 @@ c	  mtar_offshell = sqrt(efer**2-pfer**2)
 ! DJG:  should change it in rho_decay also if you want to be self
 ! DJG:  consistent.
 
-	R = 0.33*(vertex%Q2/mrho2)**(0.61)
+c DJG	R = 0.33*(vertex%Q2/mrho2)**(0.61)
 ! PYB added this
-	if(R.lt.0.) write(222,'(''r'',3e12.3)')
-     >    r,vertex%Q2,mrho2
-	if(R.lt.0.) R=0.
+c DJG	if(R.lt.0.) write(222,'(''r'',3e12.3)')
+c DJG     >    r,vertex%Q2,mrho2
+c DJG	if(R.lt.0.) R=0.
 
 ! DJG:  The Q2 dependence is usually given by (M2_rho/(Q2+M2_rho))^2
 ! DJG:  HERMES found that 2.575 works better than 2 in the exponent.
 
-	sigt = sig0*(1.0+epsi*R)*(mrho2/(vertex%Q2+mrho2))**(2.575)
+C DJG	sigt = sig0*(1.0+epsi*R)*(mrho2/(vertex%Q2+mrho2))**(2.575)
 
 ! PYB added this
+c	if(sigt.lt.0.) write(222,'(''sigt'',6e12.3)')
+c     >    sigt, sig0, epsi,r,mrho2,vertex%q2
+c	if(sigt<0.) sigt = 0.
+
+! DJG:  Need to parameterize t-dependence with b parameter as a function of c-tau
+! DJG: March 2022: HepGen uses a fixed value 
+c DJG	cdeltatau = hbarc/(sqrt(vertex%nu**2+vertex%Q2+mrho2)-vertex%nu) !in fm!
+c DJG	if(cdeltatau.lt.2.0) then
+c DJG	   brho = 4.4679 + 8.6106*log10(cdeltatau)
+! PYB added this
+c DJG	   if(brho.lt.1.0) brho = 1.0
+c DJG	else
+c DJG	   brho = 7.0
+c DJG	endif
+
+
+c DJG HepGen model (from Vardan)
+	sig0 = 1.0D-3*27.4*(6.0/(vertex%Q2/1.0E6))**1.96   ! microbarns
+	sigt = sig0*2.33
 	if(sigt.lt.0.) write(222,'(''sigt'',6e12.3)')
      >    sigt, sig0, epsi,r,mrho2,vertex%q2
 	if(sigt<0.) sigt = 0.
-
-
-! DJG:  Need to parameterize t-dependence with b parameter as a function of c-tau
-
-	cdeltatau = hbarc/(sqrt(vertex%nu**2+vertex%Q2+mrho2)-vertex%nu) !in fm!
-	if(cdeltatau.lt.2.0) then
-	   brho = 4.4679 + 8.6106*log10(cdeltatau)
-! PYB added this
-	   if(brho.lt.1.0) brho = 1.0
-	else
-	   brho = 7.0
-	endif
+	brho=5.0
 
 	sig219 = sigt*brho*exp(-brho*tprime)/2.0/pi !ub/GeV**2/rad
-
 	sig=sig219/1.d+06	!dsig/dtdphicm in microbarns/MeV**2/rad
 
 

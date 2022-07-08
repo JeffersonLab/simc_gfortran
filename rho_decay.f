@@ -36,6 +36,10 @@ C Local declarations.
 	real*8 norm,dist
 	real*8 grnd
 
+	real*8 mmu,mt2,ml2,ml,ksi2
+	real*8 pol,rtmp,rtmp2,angle,costh
+	real*8 delta,fracl
+
 	logical success
 
 	parameter (ctaurho=1.31467e-13)
@@ -45,9 +49,29 @@ C Calulate R = sigmaL/sigmaT
 C Warning!  Note that if you change the parameterization of R in
 C rho-physics, do it here as well for self consistency!
 C This parameterization is taken from HERMES data...
+C DJG	R_rho = 0.33*(orig%Q2/mrho2)**(0.61)
+C DJG Update to use HepGen parameterization
+	mmu=105.66
+	mt2 = 0.62*mrho2
+	ml2 = 1.5*mt2
+	ml = sqrt(ml2)
+	ksi2 = 1.0
 
-	R_rho = 0.33*(orig%Q2/mrho2)**(0.61)
-	
+
+
+	R_rho=(1.+orig%Q2/mt2)**2 * ksi2 *
+     >    (pi/2.*ml2/orig%Q2 - ml2*ml/(sqrt(orig%Q2)*(orig%Q2+ml2))
+     >    -ml2/orig%Q2*atan(ml/sqrt(orig%Q2)))**2
+
+	delta = 2.0*mmu**2*(1.0-epsilon)/orig%Q2
+	fracl = (epsilon+delta)*R_rho/(1.0+(epsilon+delta)*R_rho)
+
+	rtmp=grnd()
+	if(rtmp.lt.fracl) then
+	   pol=0.0 ! long.
+	else
+	   pol=1.0 ! transverse
+	endif
 
 	ph = orig%p%P
 	beta = ph/sqrt(ph**2+Mh2)
@@ -56,13 +80,26 @@ C This parameterization is taken from HERMES data...
 
 C Generate center/mass decay angles and momenta.
 	rph = grnd()*2.*pi
- 100	rth1 = grnd()*2.-1.
-	rth = acos(rth1)
 
+	rtmp2 = grnd()
+	if(pol.eq.0.0) then
+	   if(rtmp2.lt.0.5) then
+	      costh=-1.0*abs(2*rtmp2-1.)**(1./3.)
+	   elseif(rtmp2.gt.0.5) then
+	      costh=+1.0*abs(2*rtmp2-1.)**(1./3.)
+	   else
+	      costh=0.0
+	   endif
+	elseif(pol.eq.1.0) then
+	   angle=acos(abs(2*rtmp2-1.))
+	   if(rtmp2.lt.0.5) then
+	      costh=-2.0*cos((pi+angle)/3.)
+	   else
+	      costh=+2.0*cos((pi+angle)/3.)
+	   endif
+	endif
+	rth=acos(costh)
 
-	norm = (1.0+2.0*epsilon*R_rho)*grnd()
-	dist = sin(rth)**2+2.0*epsilon*R_rho*cos(rth)**2
-	if(dist.lt.norm) goto 100
 c       write(6,*) 'now decaying the rho',ctaurho,mh2
 	ntup%rhotheta=rth
 c	er = 384.65
@@ -117,7 +154,7 @@ C DJG If pion's heading for spectrometer, try to calculate xptar and yptar
 	   else
 	      th_inp = spec%p%theta+th_inp
 	   endif
-	elseif(hadron_arm.eq.2.or.hadron_arm.eq.4) then
+	elseif(hadron_arm.eq.2.or.hadron_arm.eq.4.or.hadron_arm.eq.5) then
 	   if(pyf.gt.0.0) then
 	      th_inp = th_inp - spec%p%theta
 	   else

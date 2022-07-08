@@ -117,7 +117,7 @@ C DJG If pion's heading for spectrometer, try to calculate xptar and yptar
 	   else
 	      th_inp = spec%p%theta+th_inp
 	   endif
-	elseif(hadron_arm.eq.2.or.hadron_arm.eq.4) then
+	elseif(hadron_arm.eq.2.or.hadron_arm.eq.4.or.hadron_arm.eq.5) then
 	   if(pyf.gt.0.0) then
 	      th_inp = th_inp - spec%p%theta
 	   else

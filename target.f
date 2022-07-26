@@ -13,6 +13,7 @@
 	real*8 Eloss_target, Eloss_Al,Eloss_air		! energy losses
 	real*8 Eloss_kevlar,Eloss_mylar			! (temporary)
 	real*8 z_can,t,atmp,btmp,ctmp,costmp,th_can	!for the pudding-can target.
+	real*8 ecir,ecor,entec,twall,tal,tliquid,tcm
 	logical liquid
 
 	s_Al = 0.0
@@ -36,6 +37,8 @@
 	    s_Al = s_Al + 0.0028*inch_cm
 	  else if (targ%can .eq. 2) then	!pudding can (5 mil Al, for now)
 	    s_Al = s_Al + 0.0050*inch_cm
+	 else if (targ%can .eq.3) then          !2017 target 10 cm cells
+	    s_Al = s_Al + 0.013                 !avg. of 3 loops
 	  endif
 	endif
 
@@ -91,10 +94,10 @@
 	  s_mylar = 0.010*inch_cm
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	else if (electron_arm.eq.5 .or. electron_arm.eq.6) then	!SHMS
-	  s_Al = 0.008*inch_cm
-	  s_air = 15
- 	  s_kevlar = 0.005*inch_cm
-	  s_mylar = 0.003*inch_cm
+	  s_Al = (0.02+0.01)*inch_cm !20mil scattering chamber window + 10 mil entrance window
+	  s_air = 57.27
+ 	  s_kevlar = 0.0
+	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
 	s_target = forward_path
@@ -133,8 +136,34 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	       stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  endif
 
+	  else if (targ%can .eq. 3) then	!2017 10 cm cryo cells
+C This cell is a cylinder with a round end cap. Wall thickness = 5 mil
+C Some dimensions are hardwired for now (or forever...).
+	     ecir=1.315*2.54	! endcap inner radius (cm)
+	     ecor=(1.315+0.0071)*2.54	! endcap outer radius (cm)
+c      targlen=3.942*2.54        ! target length (cm)
+	     entec=targ%length-ecir ! entrance to end cap (cm)
+	     twall = ecor-ecir
+
+	     tcm=zpos+targ%length/2.0	!length of target already traversed in cm
+
+	     if((tcm+ecir/tan(theta)).lt.entec) then ! e goes through sidewall
+		tliquid=ecir/sin(theta) ! liquid target
+		tal=twall/sin(theta) ! wall material
+	     else
+		tliquid=	! e goes through end cap
+     >   	     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(theta))**2)
+     >              +(targ%length-ecir-tcm)*cos(theta)) ! liquid target
+
+		tal=		! wall
+     >            +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(theta))**2)
+     >            -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(theta))**2))
+     >             *twall/(ecor-ecir)                   ! & end cap
+	     endif
+	     s_Al = s_Al + tal
+	     s_target = tliquid
+	  endif
 	endif		
 
 ! ... compute distance in radiation lengths and energy loss
@@ -185,10 +214,10 @@ c	       stop
 	  s_mylar = 0.010*inch_cm
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	else if (hadron_arm.eq.5 .or. hadron_arm.eq.6) then	!SHMS
-	  s_Al = 0.008*inch_cm
-	  s_air = 15
- 	  s_kevlar = 0.005*inch_cm
-	  s_mylar = 0.003*inch_cm
+	  s_Al = (0.02+0.01)*inch_cm !20mil scattering chamber window + 10 mil entrance window
+	  s_air = 57.27
+ 	  s_kevlar = 0.0
+	  s_mylar = 0.0
 	  forward_path = (targ%length/2.-zpos) / abs(cos(theta-targ%angle))
 	endif
 
@@ -227,8 +256,33 @@ c	      stop 'z_can > can radius in target.f !!!'
 c	      stop
 	    endif
 	    s_Al = s_Al + 0.0050*inch_cm/abs(sin(target_pi/2 - (theta - th_can)))
-	  endif
 
+	 else if (targ%can .eq. 3) then	!2017 10 cm cryo cells
+C This cell is a cylinder with a round end cap. Wall thickness = 5 mil
+C Some dimensions are hardwired for now (or forever...).
+	     ecir=1.315*2.54	! endcap inner radius (cm)
+	     ecor=(1.315+0.0071)*2.54	! endcap outer radius (cm)
+	     entec=targ%length-ecir ! entrance to end cap (cm)
+	     twall = ecor-ecir
+
+	     tcm=zpos+targ%length/2.0	!length of target already traversed in cm
+
+	     if((tcm+ecir/tan(theta)).lt.entec) then ! e goes through sidewall
+		tliquid=ecir/sin(theta) ! liquid target
+		tal=twall/sin(theta) ! wall material
+	     else
+		tliquid=	! e goes through end cap
+     >   	     (sqrt(ecir**2-((targ%length-ecir-tcm)*sin(theta))**2)
+     >              +(targ%length-ecir-tcm)*cos(theta)) ! liquid target
+
+		tal=		! wall
+     >            +(sqrt(ecor**2-((targ%length-ecir-tcm)*sin(theta))**2)
+     >            -sqrt(ecir**2-((targ%length-ecir-tcm)*sin(theta))**2))
+     >             *twall/(ecor-ecir)                   ! & end cap
+	     endif
+	     s_Al = s_Al + tal
+	     s_target = tliquid
+	  endif
 	endif
 
 ! ... compute energy losses

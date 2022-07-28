@@ -1295,7 +1295,7 @@ c	enddo
 
 	real*8 x_E_arm,y_E_arm,z_E_arm,dx_E_arm,dy_E_arm,delta_E_arm
 	real*8 x_P_arm,y_P_arm,z_P_arm,dx_P_arm,dy_P_arm,delta_P_arm
-	real*8 xtar_init
+	real*8 xtar_init_P, xtar_init_E
 	real*8 xfp, yfp, dxfp, dyfp
 	real*8 eloss_E_arm, eloss_P_arm, r, beta, dangles(2), dang_in(2)
 	logical success
@@ -1423,7 +1423,7 @@ C DJG moved this to the last part of generate!!!
 	  x_P_arm = x_P_arm - z_P_arm*dx_P_arm
 	  y_P_arm = y_P_arm - z_P_arm*dy_P_arm
 	  z_P_arm = 0.0
-	  xtar_init=x_P_arm
+	  xtar_init_P=x_P_arm
 
 	  main%SP%p%z=y_P_arm
 
@@ -1449,7 +1449,7 @@ C DJG moved this to the last part of generate!!!
 	    call mc_hms(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,
-     >		ntup%resfac, xtar_init, ok_P_arm, pathlen)
+     >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen)
 	  else if (hadron_arm.eq.2) then
 	    call mc_sos(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
@@ -1469,7 +1469,7 @@ C DJG moved this to the last part of generate!!!
 	    call mc_shms(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,
-     >		ntup%resfac, xtar_init, ok_P_arm, pathlen, hadron_arm)
+     >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen, hadron_arm)
 	  endif
 
 
@@ -1608,7 +1608,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	  x_E_arm = x_E_arm - z_E_arm*dx_E_arm
 	  y_E_arm = y_E_arm - z_E_arm*dy_E_arm
 	  z_E_arm = 0.0
-	  xtar_init = x_E_arm
+	  xtar_init_E = x_E_arm
 
 	  main%SP%e%z=y_E_arm
 
@@ -1633,7 +1633,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	    call mc_hms(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
      >		me2, mc_smear, mc_smear, .false.,
-     >		tmpfact, xtar_init, ok_E_arm, pathlen)
+     >		tmpfact, xtar_init_E, ok_E_arm, pathlen)
 	  else if (electron_arm.eq.2) then
 	    call mc_sos(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
@@ -1653,7 +1653,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	    call mc_shms(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
      >		me2, mc_smear, mc_smear, .false.,
-     >		tmpfact, xtar_init, ok_E_arm, pathlen, electron_arm)
+     >		tmpfact, xtar_init_E, ok_E_arm, pathlen, electron_arm)
 	  else if (electron_arm.eq.7 .or. electron_arm .eq. 8) then
              if (abs(spec%p%phi-pi/2) .eq. 10.) then
 	     zhadron = -recon%p%z*(cos(spec%p%theta)/tan(spec%p%theta+recon%p%yptar)+sin(spec%p%theta)) ! recon.p.z is really ytgt

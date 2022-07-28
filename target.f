@@ -301,7 +301,6 @@ C Some dimensions are hardwired for now (or forever...).
 
 	Eloss=Eloss_target+Eloss_Al+Eloss_air+Eloss_kevlar+Eloss_mylar
 
-
 	return
 	end
 
@@ -398,12 +397,13 @@ C the perfect range, but it's easier than reproducing the generated limits here
 	    endif
 	  enddo
 
-	else if (targ%can .eq. 2) then		!pudding can
+	else if (targ%can .eq. 2 .or. targ%can .eq. 3) then		!pudding can or cryo 17
 
 ! ... for pudding can, max loss occurs at lowest scattering angle, where
 ! ... the outgoing particle leaves the can at z=0.  Therefore, take minimum
 ! ... scattering angle, project back from z=0, x=radius to get z_init.
 ! ... Minimum z_init is -radius.
+! DG note: true for cryo17 can also
 	  zz = -(targ%length/2.)/tan(the%min)
 	  zz = max (zz,(-targ%length/2.))
 	  call trip_thru_target(2, zz, energymax, the%min, targ%Eloss(2)%max,
@@ -490,12 +490,13 @@ C the perfect range, but it's easier than reproducing the generated limits here
 	  enddo
 	  call trip_thru_target (3, zz, energymax, th1, E1, t1, m, 2)
 	  targ%Eloss(3)%min = min(targ%Eloss(3)%min, E1)
-	else if (targ%can .eq. 2) then	!pudding can
+	else if (targ%can .eq. 2 .or. targ%can .eq. 3) then	!pudding can or cryo17
 
 ! ... for pudding can, max loss occurs at lowest scattering angle, where
 ! ... the outgoing particle leaves the can at z=0.  Therefore, take minimum
 ! ... scattering angle, project back from z=0, x=radius to get z_init.
 ! ... Minimum z_init is -radius.
+! DG note: true for cryo17 can as well
 	  zz = -(targ%length/2.)/tan(the%min)
 	  zz = max (zz,(-targ%length/2.))
 

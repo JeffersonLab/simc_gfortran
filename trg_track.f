@@ -59,7 +59,7 @@
    
       SUBROUTINE trgTrack (u,E,dl,l,spect)
       IMPLICIT NONE
-      REAL*8     u(6),E,dl,l
+      REAL*8     u(9),E,dl,l
       INTEGER spect
 * --  track a single particle with given start parameters
 *
@@ -91,7 +91,7 @@
 
       SUBROUTINE trgXTrack (u,E,dl,l,Bdl,Xfun,id,spect)
       IMPLICIT NONE
-      REAL*8    u(6),E,dl,l,Bdl
+      REAL*8    u(9),E,dl,l,Bdl
       INTEGER id,spect
       INTEGER  Xfun 
       EXTERNAL Xfun 
@@ -142,6 +142,9 @@
       DO i=1,6
         u(i) = uu (i)
       ENDDO
+      DO i=7,9 
+        u (i) = 0.
+      ENDDO
 
       ! calculate Bdl  ( B_x^2+B_y^2+B_z^2 )
       Bdl = SQRT(uu(7)**2+uu(8)**2+uu(9)**2)	 
@@ -151,7 +154,7 @@
 
       SUBROUTINE trgTrackToPlane (u,E,dl,a,b,c,d,ok,spect)
       IMPLICIT NONE
-      REAL*8    u(6),E,dl,a,b,c,d
+      REAL*8    u(9),E,dl,a,b,c,d
       INTEGER spect
       LOGICAL ok
 * --  track a single particle with given start parameters
@@ -174,7 +177,7 @@
       REAL*8   factor
       COMMON /trgConversionFactor/factor
 
-      REAL*8    ts,n,an,bn,cn,dn,maxdist,dist0,dist1,u0(6),u1(6)
+      REAL*8    ts,n,an,bn,cn,dn,maxdist,dist0,dist1,u0(9),u1(9)
        
       INTEGER i,steps,max_steps
       
@@ -486,7 +489,7 @@ CGAW              B_field_z(iz,ir) = 0.0
                                                                              
       SUBROUTINE trgRK4(u0,u1,h,spect)
       IMPLICIT NONE
-      REAL*8     u0(6),u1(6),h
+      REAL*8     u0(9),u1(9),h
 * --  Fourth-order Runge-Kutta from Numerical Recipes book
 *     for tracking through the target field 
 *
@@ -499,7 +502,7 @@ CGAW              B_field_z(iz,ir) = 0.0
 *       spect I: -1 for e spectrometer, +1 for p spectrometer
   
       INTEGER i,spect
-      REAL*8    ut(6),dudt(9),dut(9),dum(9),hh,h6
+      REAL*8    ut(9),dudt(9),dut(9),dum(9),hh,h6
 
       hh=h*0.5
       h6=h/6.
@@ -616,7 +619,7 @@ C   vT(4,5,6) are the velocity in the X,Y,Z direction [cm/ns].
       parameter (cc = 29.9792458)
       real*8 vel              ! velocity of particle [cm/ns]
       real*8 eng              ! energy of particle
-      real*8 vT(6)
+      real*8 vT(9)
       
 C      write(*,*) 'from target',spect
 C      write(*,*) mom,mass
@@ -748,7 +751,7 @@ c      include 'simulate.inc'
       integer spect,arm
       logical ok
 
-      real*8  vT(6),vTx(6)
+      real*8  vT(9),vTx(9)
       real*8 xx,delx
       real*8 xxd
       integer*2 i,n
@@ -877,7 +880,7 @@ c        call print_coord3( 'after last track:',vT)
       include 'simulate.inc'
       character*(*) txt
       real*8 y,delta,dxdz,dydz,x,z
-      real*8 vT(6)
+      real*8 vT(9)
 
       vt(1) = -x
       vt(2) = y
@@ -900,7 +903,7 @@ c     >            vt(5),sqrt(vt(4)**2+vt(5)**2+vt(6)**2)
       include 'simulate.inc'
       character*(*) txt
       real*8 y,dxdz,dydz,x,z
-      real*8 vT(6)
+      real*8 vT(9)
 
       vt(1) = x
       vt(2) = y

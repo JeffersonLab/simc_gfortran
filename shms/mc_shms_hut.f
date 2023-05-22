@@ -24,12 +24,10 @@ C Math constants
 	parameter (r_d = 180./pi)
 	parameter (root = 0.707106781)		!square root of 1/2
 
+C These are set in mc_shms
 	logical*4 cer_flag
 	logical*4 vac_flag
-        parameter (cer_flag = .true.) ! TRUE means 1st Cerenkov (Ar/Ne) is in front of chambers
-        parameter (vac_flag = .false.) ! FALSE means helium bag replaces 1st Cerenkov (Ar/Ne) 
-
-c	common /hutflag/ cer_flag,vac_flag
+	common /hutflag/ cer_flag,vac_flag
 
 C all parameters, later to take from .parm files
 C The arguments
@@ -95,56 +93,60 @@ C------------------------------------------------------------------------------C
 
 
         if (cer_flag) then
-	drift = hcer_1_zentrance
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+c this is now taken care of in mc_shms
+c	drift = hcer_1_zentrance
+c	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
 	   radw = hfoil_exit_thick/hfoil_exit_radlen
 	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-	 radw = hcer_entr_thick/hcer_entr_radlen
-	 if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-	 drift = hcer_1_zmirror - hcer_1_zentrance-hcer_mirglass_thick/2
-	 radw = drift/hcer_1_radlen
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	if(ms_flag ) call musc_ext(m2,p,radw,drift,
-     > dydzs,dxdzs,ys,xs)
+	   radw = hcer_entr_thick/hcer_entr_radlen
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	   drift = hcer_1_zmirror - hcer_1_zentrance-hcer_mirglass_thick/2
+	   radw = drift/hcer_1_radlen
+c	   call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	   call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
+	   if(ms_flag ) call musc_ext(m2,p,radw,drift,
+     >        dydzs,dxdzs,ys,xs)
 
 
-	radw = hcer_mirglass_thick/hcer_mirglass_radlen
-	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-c
+	   radw = hcer_mirglass_thick/hcer_mirglass_radlen
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
 
-	drift = hcer_1_zexit - hcer_1_zmirror -hcer_mirglass_thick/2
- 	radw = drift/hcer_1_radlen
-	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
-	if(ms_flag) call musc_ext(m2,p,radw,drift,
-     > dydzs,dxdzs,ys,xs)
-	radw = hcer_exit_thick/hcer_exit_radlen
-	if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	   drift = hcer_1_zexit - hcer_1_zmirror -hcer_mirglass_thick/2
+	   radw = drift/hcer_1_radlen
+	   call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
+	   if(ms_flag) call musc_ext(m2,p,radw,drift,
+     >       dydzs,dxdzs,ys,xs)
+	   radw = hcer_exit_thick/hcer_exit_radlen
+	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
         
        else
 c  if vaccum pipe drift to pipe exit which is at same zpos as the cerenkov exit window. 
           if (vac_flag) then
-   	   drift =  hcer_1_zexit 
- 	   call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	   radw = hfoil_exit_thick/hfoil_exit_radlen
-	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-          else ! helium bag
-   	   drift = hcer_1_zentrance 
- 	   call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	   radw = hfoil_exit_thick/hfoil_exit_radlen
-	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-	   radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
-	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-	   radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
-	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-	   drift = hcer_1_zexit - hcer_1_zentrance
-	   radw = drift/helbag_hel_radlen
-           call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
-	   if(ms_flag) call musc_ext(m2,p,radw,drift,
-     > dydzs,dxdzs,ys,xs)
-	   radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
-	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
-	   radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
-	   if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+c  This is done in mc_shms now
+c	     drift =  hcer_1_zexit 
+c	     call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	     radw = hfoil_exit_thick/hfoil_exit_radlen
+	     if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+          else			! helium bag
+c Now done in mc_shms
+c	     drift = hcer_1_zentrance 
+c	     call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	     radw = hfoil_exit_thick/hfoil_exit_radlen
+	     if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	     radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
+	     if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	     radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
+	     if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	     drift = hcer_1_zexit - hcer_1_zentrance
+	     radw = drift/helbag_hel_radlen
+c	     call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	     call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
+	     if(ms_flag) call musc_ext(m2,p,radw,drift,
+     >         dydzs,dxdzs,ys,xs)
+	     radw = helbag_al_thick/helbag_al_radlen ! assume no distance to Helium bag Al mylar
+	     if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
+	     radw = helbag_mylar_thick/helbag_mylar_radlen ! assume no distance to Helium bag Al mylar
+	     if(ms_flag) call musc(m2,p,radw,dydzs,dxdzs)
           endif
         endif
 
@@ -158,7 +160,8 @@ C instead of 1/2 way through.
 	drift = (hdc_1_zpos - 0.5*hdc_nr_plan*hdc_del_plane) 
      > - hcer_1_zexit
 	radw = drift/hair_radlen
-	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+c	call project(xs,ys,drift,.false.,dflag,m2,p,pathlen)
+	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
 	if (ms_flag) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
 c	if (1 .eq. 1) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
 
@@ -224,8 +227,9 @@ C at last cathode foil of first drift chamber set, drift to next
 	drift = hdc_2_zpos - hdc_1_zpos - hdc_nr_plan*hdc_del_plane
 C       Break this into 2 parts to properly account for decay.
 C       We've already done decay up to the half-way point between the chambers.
-	call project(xs,ys,drift/2.0,.false.,dflag,m2,p,pathlen)
-	call project(xs,ys,drift/2.0,decay_flag,dflag,m2,p,pathlen)
+c	call project(xs,ys,drift/2.0,.false.,dflag,m2,p,pathlen)
+c	call project(xs,ys,drift/2.0,decay_flag,dflag,m2,p,pathlen)
+	call project(xs,ys,drift,decay_flag,dflag,m2,p,pathlen)
 	radw = drift/hair_radlen
 	if(ms_flag) call musc_ext(m2,p,radw,drift,dydzs,dxdzs,ys,xs)
 

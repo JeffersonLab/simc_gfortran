@@ -10,7 +10,7 @@
 
 ! ... some physical constants
 	real*8 Me, Me2, Mp, Mp2, Mn, Mn2, Mpi, Mpi2, Mpi0, Mpi02
-	real*8 Mk, Mk2, Mrho, Mrho2,Md, Md2
+	real*8 Mk, Mk2, Mrho, Mrho2,Md, Md2, Mmu, Mmu2
 	real*8 Mlambda, Msigma0, Msigma_minus
 	real*8 MDelta, Delta_width
 	real*8 amu, hbarc, pi, twopi, alpha, alpi, degrad, euler
@@ -22,6 +22,8 @@
 	parameter (Mn2=Mn**2)
 	parameter (Mpi=139.57018)
 	parameter (Mpi2=Mpi**2)
+	parameter (Mmu=105.6583755)
+	parameter (Mmu2=Mmu**2)
 	parameter (Mpi0=134.9766)
 	parameter (Mpi02=Mpi0**2)
         parameter (Mk=493.677)

@@ -53,7 +53,7 @@ C Arguments.
 	character*(*)	file			!Used in entry point below.
 	logical		decay_flag		!check for decay
 	logical		dflag			!has particle decayed yet?
-	real*8		m2,ph,zd		!decay variables.
+	real*8		m2,ph,zd, m_final		!decay variables.
 	real*8		pathlen
 
 C Parameters.
@@ -146,11 +146,26 @@ C Check for decay.
 	    rth1 = grnd()*2.-1.
 	    rth = acos(rth1)
 
-	    er = 109.787
-	    pr = 29.783
-	    pxr = 29.783*sin(rth)*cos(rph)
-	    pyr = 29.783*sin(rth)*sin(rph)
-	    pzr = 29.783*cos(rth)
+	    pr = 0.
+	    m_final = Mmu ! default
+	    if(abs(sqrt(m2) - Mpi).lt.2) pr = 29.783 ! pion decay
+	    if(abs(sqrt(m2) - Mk).lt.2) then ! kaons
+	       if(grnd().lt.0.7) then ! decay to muon plus neutrino
+		  pr = 235.5 
+	       else		! decay to two pions
+		  pr = sqrt(Mk**2 / 4. - Mpi**2)
+		  m_final = Mk
+	       endif
+	    endif
+	    if(pr.eq.0.) then
+	     write(6,'(''error, cannot decay particle with'',
+     >        '' mass='',f8.2)') sqrt(m2)
+	     stop
+	    endif
+	    er = sqrt(m_final**2 + pr**2)
+	    pxr = pr*sin(rth)*cos(rph)
+	    pyr = pr*sin(rth)*sin(rph)
+	    pzr = pr*cos(rth)
 
 C Boost from pion/kaon center of mass back to lab frame.  Loren wants
 C beta of new frame w.r.t. original frame, so beta is opposite of the
@@ -164,7 +179,7 @@ C initial particle's momentum.
 	    dydzs = pyf/pzf
 	    dpps = 100.*(pf/p_spec-1.)
 	    ph=pf
-	    m2 = 105.67**2     !need mass-squared for multiple scattering.
+	    m2 = m_final**2     !need mass-squared for multiple scattering.
 	    Mh2_final = m2      !for ntuple
 	  endif
 
@@ -223,11 +238,29 @@ C Check for decay in 2nd half of element, which is applied AFTER trasnporting.
 	    rth1 = grnd()*2.-1.
 	    rth = acos(rth1)
 
-	    er = 109.787
-	    pr = 29.783
-	    pxr = 29.783*sin(rth)*cos(rph)
-	    pyr = 29.783*sin(rth)*sin(rph)
-	    pzr = 29.783*cos(rth)
+
+	    pr = 0.
+	    m_final = Mmu ! default
+	    if(abs(sqrt(m2) - Mpi).lt.2) pr = 29.783 ! pion decay
+	    if(abs(sqrt(m2) - Mk).lt.2) then ! kaons
+	       if(grnd().lt.0.7) then ! decay to muon plus neutrino
+		  pr = 235.5 
+	       else		! decay to two pions
+		  pr = sqrt(Mk**2 / 4. - Mpi**2)
+		  m_final = Mpi
+	       endif
+	    endif
+	    if(pr.eq.0.) then
+	     write(6,'(''error, cannot decay particle with'',
+     >        '' mass='',f8.2)') sqrt(m2)
+	     stop
+	    endif
+	    er = sqrt(m_final**2 + pr**2)
+	    pxr = pr*sin(rth)*cos(rph)
+	    pyr = pr*sin(rth)*sin(rph)
+	    pzr = pr*cos(rth)
+
+
 	    bx = -beta * dxdzs / sqrt(1. + dxdzs**2 + dydzs**2)
 	    by = -beta * dydzs / sqrt(1. + dxdzs**2 + dydzs**2)
 	    bz = -beta *   1.  / sqrt(1. + dxdzs**2 + dydzs**2)
@@ -236,7 +269,7 @@ C Check for decay in 2nd half of element, which is applied AFTER trasnporting.
 	    dydzs = pyf/pzf
 	    dpps = 100.*(pf/p_spec-1.)
 	    ph=pf
-	    m2 = 105.67**2     !need mass-squared for multiple scattering.
+	    m2 = m_final**2     !need mass-squared for multiple scattering.
 	    Mh2_final = m2      !for ntuple
 	  endif
 	endif

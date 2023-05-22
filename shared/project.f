@@ -21,7 +21,7 @@ C-______________________________________________________________________________
 	logical dflag			!has particle decayed yet?
 
 C Local declarations.
-	real*8 p_spec,ph,m2
+	real*8 p_spec,ph,m2, m_final
 	real*8 z_decay,pathlen
 	real*8 rph,rth1,rth
 	real*8 beta,gamma,dlen
@@ -71,12 +71,28 @@ C Generate center/mass decay angles and momenta.
 	    rph = grnd()*2.*pi
 	    rth1 = grnd()*2.-1.
 	    rth = acos(rth1)
-	    er = 109.787
-	    pr = 29.783
-	    pxr = 29.783*sin(rth)*cos(rph)
-	    pyr = 29.783*sin(rth)*sin(rph)
-	    pzr = 29.783*cos(rth)
-	    m2 = 105.67 **2	!need mass-squared for multiple scattering.
+
+	    pr = 0.
+	    m_final = Mmu ! default
+	    if(abs(sqrt(m2) - Mpi).lt.2) pr = 29.783 ! pion decay
+	    if(abs(sqrt(m2) - Mk).lt.2) then ! kaons
+	       if(grnd().lt.0.7) then ! decay to muon plus neutrino
+		  pr = 235.5 
+	       else		! decay to two pions
+		  pr = sqrt(Mk**2 / 4. - Mpi**2)
+		  m_final = Mpi
+	       endif
+	    endif
+	    if(pr.eq.0.) then
+	     write(6,'(''error, cannot decay particle with'',
+     >        '' mass='',f8.2)') sqrt(m2)
+	     stop
+	    endif
+	    er = sqrt(m_final**2 + pr**2)
+	    pxr = pr*sin(rth)*cos(rph)
+	    pyr = pr*sin(rth)*sin(rph)
+	    pzr = pr*cos(rth)
+	    m2 = m_final**2	!need mass-squared for multiple scattering.
 	    Mh2_final = m2	!for ntuple
 
 

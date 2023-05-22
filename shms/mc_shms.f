@@ -35,6 +35,7 @@ C-______________________________________________________________________________
 	include '../shms/apertures_shms.inc'
 	include '../constants.inc'
 	include '../spectrometers.inc'
+	include '../shms/hut.inc'
 
 
 C Spectrometer definitions - for double arm monte carlo compatability
@@ -235,11 +236,17 @@ C Local declarations.
 	integer i,j,ij
 ! TH - end sieve
 
+	logical*4 cer_flag
+	logical*4 vac_flag
+	common /hutflag/ cer_flag,vac_flag
+
 
 	save		!Remember it all!
 
 C ================================ Executable Code =============================
 
+	cer_flag=.true.
+	vac_flag=.false.
 
 ! Initialize ok_spec to false
 	stop_id = 0
@@ -401,12 +408,15 @@ c	   ys = y_transp
           spec(58) = dpps
           if (skip_hb) then
            zdrift=zd_hbin+zd_hbmen+zd_hbmex+zd_hbout
-           xs=xs + zdrift*dxdzs
-           ys=ys + zdrift*dydzs
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c           xs=xs + zdrift*dxdzs
+c           ys=ys + zdrift*dydzs
           else
 ! Go to HB Mech entrance.
-	   call transp(spectr,1,decay_flag,dflag,m2,p,
-     >     zd_hbin,pathlen)
+	   zdrift=zd_hbin
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,1,decay_flag,dflag,m2,p,
+c     >     zd_hbin,pathlen)
 	   xt=xs
 	   yt=ys
 	   call rotate_vaxis(1.5,xt,yt)
@@ -423,8 +433,10 @@ c	   ys = y_transp
            spec(2)=yt
 
 ! Go to HB Mag entrance
-	   call transp(spectr,2,decay_flag,dflag,m2,p,
-     >     zd_hbmen,pathlen)
+	   zdrift=zd_hbmen
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,2,decay_flag,dflag,m2,p,
+c     >     zd_hbmen,pathlen)
 	   xt=xs
 	   yt=ys
 	   call rotate_vaxis(1.5,xt,yt)
@@ -459,8 +471,10 @@ c	   ys = y_transp
            spec(6)=yt
 
 ! Go to HB exit
-	   call transp(spectr,4,decay_flag,dflag,m2,p,
-     >     zd_hbout,pathlen)
+	   zdrift=zd_hbout
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,4,decay_flag,dflag,m2,p,
+c     >     zd_hbout,pathlen)
 	   xt=xs
 	   yt=ys
 	   call rotate_vaxis(-1.5,xt,yt)
@@ -478,51 +492,58 @@ c	   ys = y_transp
           endif
 ! simulate collimator -------------------------------------------------
           if (use_coll) then
-c           tpathlen=pathlen
-  	   zdrift = z_entr
-           xt=xs + zdrift*dxdzs
-           yt=ys + zdrift*dydzs
-c	   call project(xt,yt,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
- 	   if (abs(yt-y_off).gt.h_entr) then
-	      shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
-	      goto 500
-	   endif
-	   if (abs(xt-x_off).gt.v_entr) then
-	      shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
-	      goto 500
-	   endif
-	   if (abs(xt-x_off).gt. (-v_entr/h_entr*abs(yt-y_off)+3*v_entr/2)) then
-      	      shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
-	      goto 500
-	   endif
-
-
-
-	   zdrift = z_thick
-           xt=xt + zdrift*dxdzs
-           yt=yt + zdrift*dydzs
-c	   call project(xt,yt,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
-	   if (abs(yt-y_off).gt.(h_exit)) then
-	      shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
-	      goto 500
-	   endif
-	   if (abs(xt-x_off).gt.(v_exit)) then
-	      shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
-	      goto 500
-	   endif
-	   if (abs(xt-x_off).gt. ((-v_exit)/(h_exit)*abs(yt-y_off)+3*(v_exit)/2)) then
-	      shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
-	      goto 500
-     	   endif
-           spec(56)=xt
-           spec(57)=yt
+c            tpathlen=pathlen
+	     zdrift = z_entr
+	     call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
+c            xt=xs + zdrift*dxdzs
+c            yt=ys + zdrift*dydzs
+	     xt=xs
+	     yt=ys
+	     if (abs(yt-y_off).gt.h_entr) then
+		shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
+		goto 500
+	     endif
+	     if (abs(xt-x_off).gt.v_entr) then
+		shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
+		goto 500
+	     endif
+	     if (abs(xt-x_off).gt. (-v_entr/h_entr*abs(yt-y_off)+3*v_entr/2)) then
+		shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
+		goto 500
+	     endif
+	     zdrift = z_thick
+	     call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
+c	     xt=xt + zdrift*dxdzs
+c	     yt=yt + zdrift*dydzs
+	     xt=xs
+	     yt=ys
+	     if (abs(yt-y_off).gt.(h_exit)) then
+		shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
+		goto 500
+	     endif
+	     if (abs(xt-x_off).gt.(v_exit)) then
+		shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
+		goto 500
+	     endif
+	     if (abs(xt-x_off).gt. ((-v_exit)/(h_exit)*abs(yt-y_off)+3*(v_exit)/2)) then
+		shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
+		goto 500
+	     endif
+	     spec(56)=xt
+	     spec(57)=yt
 c           pathlen=tpathlen
           endif
 ! ---------------------------------------------------------------------------
            
 ! Go to Q1 IN  Mech entrance
-	   call transp(spectr,5,decay_flag,dflag,m2,p,
-     >     zd_q1in,pathlen)
+	  if(use_coll) then
+	     zdrift=zd_q1in-z_entr-z_thick
+	  else
+	     zdrift=zd_q1in
+	  endif
+	  call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,5,decay_flag,dflag,m2,p,
+c     >     zd_q1in,pathlen)
            x_q1_in = xs
            y_q1_in = ys
 	   if ((xs*xs + ys*ys).gt.r_Q1*r_Q1) then
@@ -535,8 +556,10 @@ c           pathlen=tpathlen
 
 
 ! Go to Q1 Mag entrance
-	   call transp(spectr,6,decay_flag,dflag,m2,p,
-     >     zd_q1men,pathlen)
+	   zdrift=zd_q1men
+c	   call transp(spectr,6,decay_flag,dflag,m2,p,
+c     >     zd_q1men,pathlen)
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
            x_q1_men = xs
            y_q1_men = ys
 	   if ((xs*xs + ys*ys).gt.r_Q1*r_Q1) then
@@ -568,19 +591,23 @@ c           pathlen=tpathlen
 	   endif
 
 ! Go to Q1 OUT.
-	      call transp(spectr,9,decay_flag,dflag,m2,p,
-     >        zd_q1out,pathlen)
-  	      x_q1_out=xs
-	      y_q1_out=ys
-	      if ((xs*xs + ys*ys).gt.r_Q1*r_Q1) then
-		 shmsSTOP_Q1_out = shmsSTOP_Q1_out + 1
-		 stop_id = 9
-		 goto 500
-	      endif
+	   zdrift=zd_q1out
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	      call transp(spectr,9,decay_flag,dflag,m2,p,
+c     >        zd_q1out,pathlen)
+	   x_q1_out=xs
+	   y_q1_out=ys
+	   if ((xs*xs + ys*ys).gt.r_Q1*r_Q1) then
+	      shmsSTOP_Q1_out = shmsSTOP_Q1_out + 1
+	      stop_id = 9
+	      goto 500
+	   endif
 
 ! Go to Q2 IN  Mech entrance
-	   call transp(spectr,10,decay_flag,dflag,m2,p,
-     >     zd_q2in,pathlen)
+	   zdrift=zd_q2in
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,10,decay_flag,dflag,m2,p,
+c     >     zd_q2in,pathlen)
            x_q2_in = xs
            y_q2_in = ys
 	   if ((xs*xs + ys*ys).gt.r_Q2*r_Q2) then
@@ -592,8 +619,10 @@ c           pathlen=tpathlen
            spec(12)=ys
 
 ! Go to Q2 Mag entrance
-	   call transp(spectr,11,decay_flag,dflag,m2,p,
-     >     zd_q2men,pathlen)
+	   zdrift=zd_q2men
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,11,decay_flag,dflag,m2,p,
+c     >     zd_q2men,pathlen)
            x_q2_men = xs
            y_q2_men = ys
 	   if ((xs*xs + ys*ys).gt.r_Q2*r_Q2) then
@@ -625,19 +654,23 @@ c           pathlen=tpathlen
 	   endif
 
 ! Go to Q2 OUT.
-	      call transp(spectr,14,decay_flag,dflag,m2,p,
-     >        zd_q2out,pathlen)
-  	      x_q2_out=xs
-	      y_q2_out=ys
-	      if ((xs*xs + ys*ys).gt.r_Q2*r_Q2) then
-		 shmsSTOP_Q2_out = shmsSTOP_Q2_out + 1
-		 stop_id = 14
-		 goto 500
-	      endif
+	   zdrift=zd_q2out
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,14,decay_flag,dflag,m2,p,
+c     >        zd_q2out,pathlen)
+	   x_q2_out=xs
+	   y_q2_out=ys
+	   if ((xs*xs + ys*ys).gt.r_Q2*r_Q2) then
+	      shmsSTOP_Q2_out = shmsSTOP_Q2_out + 1
+	      stop_id = 14
+	      goto 500
+	   endif
 
 ! Go to Q3 IN  Mech entrance
-	   call transp(spectr,15,decay_flag,dflag,m2,p,
-     >     zd_q3in,pathlen)
+	   zdrift=zd_q3in
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,15,decay_flag,dflag,m2,p,
+c     >     zd_q3in,pathlen)
            x_q3_in = xs
            y_q3_in = ys
 	   if ((xs*xs + ys*ys).gt.r_Q3*r_Q3) then
@@ -649,8 +682,10 @@ c           pathlen=tpathlen
            spec(14)=ys
 
 ! Go to Q3 Mag entrance
-	   call transp(spectr,16,decay_flag,dflag,m2,p,
-     >     zd_q3men,pathlen)
+	   zdrift=zd_q3men
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,16,decay_flag,dflag,m2,p,
+c     >     zd_q3men,pathlen)
            x_q3_men = xs
            y_q3_men = ys
 	   if ((xs*xs + ys*ys).gt.r_Q3*r_Q3) then
@@ -682,15 +717,17 @@ c           pathlen=tpathlen
 	   endif
 
 ! Go to Q3 OUT.
-	      call transp(spectr,19,decay_flag,dflag,m2,p,
-     >        zd_q3out,pathlen)
-  	      x_q3_out=xs
-	      y_q3_out=ys
-	      if ((xs*xs + ys*ys).gt.r_Q3*r_Q3) then
-		 shmsSTOP_Q3_out = shmsSTOP_Q3_out + 1
-		 stop_id = 19
-		 goto 500
-	      endif
+	   zdrift=zd_q3out
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,19,decay_flag,dflag,m2,p,
+c     >        zd_q3out,pathlen)
+	   x_q3_out=xs
+	   y_q3_out=ys
+	   if ((xs*xs + ys*ys).gt.r_Q3*r_Q3) then
+	      shmsSTOP_Q3_out = shmsSTOP_Q3_out + 1
+	      stop_id = 19
+	      goto 500
+	   endif
 
 
 
@@ -741,23 +778,27 @@ c           pathlen=tpathlen
 
 
 ! Go to D1 Mech entrance
-	      call transp(spectr,20,decay_flag,dflag,m2,p,
-     >        zd_q3d1trans,pathlen)
-  	      x_d_in=xs
-	      y_d_in=ys
-	      if ((xs*xs + ys*ys).gt.r_D1*r_D1) then
-		 shmsSTOP_D1_in = shmsSTOP_D1_in + 1
-		 stop_id = 20
-		 goto 500
-	      endif
-	      spec(15)=xs
-	      spec(16)=ys
+	   zdrift=zd_q3d1trans
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,20,decay_flag,dflag,m2,p,
+c     >        zd_q3d1trans,pathlen)
+	   x_d_in=xs
+	   y_d_in=ys
+	   if ((xs*xs + ys*ys).gt.r_D1*r_D1) then
+	      shmsSTOP_D1_in = shmsSTOP_D1_in + 1
+	      stop_id = 20
+	      goto 500
+	   endif
+	   spec(15)=xs
+	   spec(16)=ys
 
 ! Go to D1 entrance flare
 ! Find intersection with rotated aperture plane.
 ! Aperture has elliptical form.
-	   call transp(spectr,21,decay_flag,dflag,m2,p,
-     >     zd_d1flare,pathlen)
+	   zdrift=zd_d1flare
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,21,decay_flag,dflag,m2,p,
+c     >     zd_d1flare,pathlen)
 	   xt=xs
 	   yt=ys
 	   call rotate_haxis(9.200,xt,yt)
@@ -775,8 +816,10 @@ c           pathlen=tpathlen
 ! Go to D1 magnetic entrance
 ! Find intersection with rotated aperture plane.
 ! Aperture has elliptical form.
-	   call transp(spectr,22,decay_flag,dflag,m2,p,
-     >     zd_d1men,pathlen)
+	   zdrift=zd_d1men
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,22,decay_flag,dflag,m2,p,
+c     >     zd_d1men,pathlen)
 	   xt=xs
 	   yt=ys
 	   call rotate_haxis(9.200,xt,yt)
@@ -881,7 +924,7 @@ c           pathlen=tpathlen
 	   spec(29)=xt
 	   spec(30)=yt
 
-! Go to diple interior 6
+! Go to dipole interior 6
 	   call transp(spectr,28,decay_flag,dflag,m2,p,
      >     zd_d1mid6,pathlen)
 	   xt=xs
@@ -898,7 +941,7 @@ c           pathlen=tpathlen
 	   spec(31)=xt
 	   spec(32)=yt
 
-! Go to diple interior 7
+! Go to dipole interior 7
 	   call transp(spectr,29,decay_flag,dflag,m2,p,
      >     zd_d1mid7,pathlen)
 	   xt=xs
@@ -937,8 +980,10 @@ c           pathlen=tpathlen
 
 ! Go to D1 OUT mechanical boundary.
 ! Find intersection with rotated aperture plane.
-	   call transp(spectr,31,decay_flag,dflag,m2,p,
-     >     zd_d1out,pathlen)
+	   zdrift=zd_d1out
+	   call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+c	   call transp(spectr,31,decay_flag,dflag,m2,p,
+c     >     zd_d1out,pathlen)
            xt=xs
            yt=ys
            call rotate_haxis(-9.20,xt,yt)
@@ -954,9 +999,21 @@ c           pathlen=tpathlen
            spec(38)=yt
 
 
-! Transport to focal plane.
-	   call transp(spectr,n_classes,decay_flag,dflag,m2,p,
-     >zd_fp,pathlen)
+! Transport to the hut (not all the way to the focal plane)
+	   if (cer_flag) then
+	      zdrift=zd_fp+hcer_1_zentrance  ! 307.95 cm to fp - 291.7 cm to Cer entrance
+	   else
+	      if(vac_flag) then
+		 zdrift=zd_fp+hcer_1_zexit ! 307.95 cm to fp - 61.7 cm to Cer/vacuum pipe exit
+	      else
+		 zdrift=zd_fp+hcer_1_zentrance ! 307.95 cm to fp - 291.7 cm to helium bag
+	      endif
+	   endif
+
+	      call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen)
+
+c	   call transp(spectr,n_classes,decay_flag,dflag,m2,p,
+c     >zd_fp,pathlen)
 
 
 C If we get this far, the particle is in the hut.

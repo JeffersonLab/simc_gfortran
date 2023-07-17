@@ -425,15 +425,16 @@ C DJG spectrometer
 	real*8 oop_x,oop_y
 	real*8 krel,krelx,krely,krelz
 	real*8 MM
-
+	real*8 diffmin
+	real*8 w,w2,prob,probtot,probsum(1000),mass_save(1000)
 	real*8 Ehad2,E_rec
-	real*8 W2
-	real*8 grnd		!random # generator.
+	real*8 grnd,rn		!random # generator.
+	integer i
 
 	logical success
 	type(event_main):: main
 	type(event)::	vertex
-
+	logical first/.true./
 !-----------------------------------------------------------------------
 ! Calculate everything left in the /event/ structure, given all necessary
 !  GENERATION values (some set of xptar,yptar,delta for both arms and p_fermi,
@@ -448,6 +449,30 @@ C DJG spectrometer
 !-----------------------------------------------------------------------
 
 ! Initialize
+
+! PB: generate Delta(1232) shape using mss 1.2298, width 0.135
+! PB: made width narrower 0.105 9/5/2022
+! PB: distribution is truncated on low mass side at P + pi mass
+c PB: 9/5/22 changed to use actual Breit-Wigner shape generated
+c PB: from resmod507 in first call to semi_physics.f
+	if((which_pion.eq.2 .or. which_pion.eq.3).and.first) then
+	   open(unit=55,file='delta_relativistic_bw.inp')
+	   probtot = 0. 
+	   do i=1,1000
+	      w = sqrt(1.055) + 0.6 * float(i) / 1000
+	      w2 = w**2
+	      read(55,'(f8.3,f12.5)') w,prob
+	      mass_save(i) = w
+	      probtot = probtot + prob
+	      probsum(i) = probtot
+	   enddo
+	   do i=1,1000
+	      probsum(i) = probsum(i) / probtot
+	      if((i/50)*50.eq.i) write(6,'(''Delta'',i5,2f8.3)')
+     >   	   i,mass_save(i),probsum(i)
+	   enddo
+	   first = .false.
+	endif
 
 	success = .false.
 	main%jacobian = 1.0
@@ -574,7 +599,16 @@ c	  endif
 C DJG If doing Deltas final state for pion production, generate Delta mass
 	  if(which_pion.eq.2 .or. which_pion.eq.3) then
 c factor of 0.7265 to better match data (PB)
-	     targ%Mrec_struck = Mdelta + 0.5*(0.7265)*Delta_width*tan((2.*grnd()-1.)*pi/2.)
+c	     targ%Mrec_struck = Mdelta + 0.5*(0.7265)*Delta_width*tan((2.*grnd()-1.)*pi/2.)
+C switch to relativistic BW for Delta
+	     rn = grnd()
+	     diffmin = 10000.
+	     do i=1,1000
+		if(abs(rn - probsum(i)).lt.diffmin) then
+		   diffmin = abs(rn - probsum(i))
+		   targ%Mrec_struck = mass_save(i) * 1000. ! in MeV
+		endif
+	     enddo
 	  endif
 
 	  vertex%Pm = pfer	!vertex%Em generated at beginning.
@@ -1403,21 +1437,27 @@ C empirical check's.
 	  if(which_pion.eq.2) then ! pi+ Delta
 	     if(doing_hydpi) then
 c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
-		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/(pi+ n)
+c		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/(pi+ n)
+		main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/(pi+ n) updated 17july2023
 	     elseif(doing_deutpi) then
 c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
 c     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
-		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/pi+ n)
-     >                      + 1.0*main%sigcc !(pi+ Delta-)/(pi+ n)
+c		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/pi+ n)
+c     >                      + 1.0*main%sigcc !(pi+ Delta-)/(pi+ n)
+		main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/pi+ n)   updated 17july2023
+     >                      + 0.8*main%sigcc !(pi+ Delta-)/(pi+ n)
 	     endif 
 	  elseif (which_pion.eq.3) then  !pi- Delta
 	     if(doing_hydpi) then
-		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
+c		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
+		main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
 	     elseif(doing_deutpi) then
 c		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
 c     >                     + 0.25*main%sigcc !(pi- Delta+)/(pi- p)
-		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
-     >                     + 0.6*main%sigcc !(pi- Delta+)/(pi- p)
+c		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
+c     >                     + 0.6*main%sigcc !(pi- Delta+)/(pi- p)
+		main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
+     >                     + 0.99*main%sigcc !(pi- Delta+)/(pi- p)
 	     endif
 	  endif
 	  main%sigcc_recon = 1.0

@@ -329,10 +329,14 @@ c	  targ%Coulomb%max = targ%Coulomb_constant * 3.0
 	else if (doing_heavy) then
 	  VERTEXedge%Pm%min=0.0
 	  VERTEXedge%Pm%max=0.0
-	  do i = 1, nrhoPm
-	    t1=max(abs(Pm_theory(i)%min),abs(Pm_theory(i)%max))
-	    VERTEXedge%Pm%max = max(VERTEXedge%Pm%max,t1)
-	  enddo
+	  if(use_benhar_sf) then
+	     VERTEXedge%Pm%max=790.0
+	  else
+	     do i = 1, nrhoPm
+		t1=max(abs(Pm_theory(i)%min),abs(Pm_theory(i)%max))
+		VERTEXedge%Pm%max = max(VERTEXedge%Pm%max,t1)
+	     enddo
+	  endif
 	  VERTEXedge%Em%min = E_Fermi
 	  VERTEXedge%Em%max = 1000.	!Need Egamma_tot_max for good limit.
 	else if (doing_hydpi .or. doing_hydkaon .or. doing_hyddelta .or. doing_hydrho) then

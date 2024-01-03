@@ -39,6 +39,7 @@ OBJC    = $(T)Ctq5Pdf.o
 OBJD    = $(C)mc_calo.o $(C)mc_calo_recon.o
 OBJCH   = $(CH)lfit.o $(CH)ranlux.o $(CH)fint.o $(CH)kerset.o $(CH)abend.o
 OBJF   = $(D)fdss.o
+MODULES	= modules.f histograms_module.f
  
 my_objs	=  $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) $(OBJ9) $(OBJA) $(OBJB) $(OBJC) $(OBJD) $(OBJCH) $(OBJF)
 
@@ -121,11 +122,14 @@ DEPEND_RULE = ( cat $< |  sed -n -e \
 %.d: %.f
 	$(DEPEND_RULE)
 
-none: simc $(my_deps)
+none: mods simc $(my_deps)
 
-all: simc  $(my_deps)
+all: mods simc  $(my_deps)
 
 include $(my_deps)
+
+mods: 
+	$(F77) -c -ffixed-line-length-132 $(MODULES)
 
 simc: simc.o $(my_objs) Makefile CTP/O.Linux/Linux/lib/libctp.a
 	$(F77) $(OSF_SHARED) -o $@ $(FFLAGS) $(my_objs) simc.o $(OTHERLIBS)
@@ -164,7 +168,7 @@ CTP/O.Linux/Linux/lib/libctp.a:
 
 
 clean:
-	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] $(CH)*.[od] simc
+	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] $(CH)*.[od] *.mod simc
 
 real_clean:
 	$(RM) *.[od] $(H)*.[od] $(S)*.[od] $(L)*.[od] $(R)*.[od] $(SH)*.[od] $(A)*.[od] $(T)*.[od] $(C)*.[od] simc

@@ -50,7 +50,7 @@
 * Add Peter Bosted's fit for pion fragmenetation functions from Hall C 2018-2019 data
 
 
-
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

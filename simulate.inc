@@ -7,8 +7,7 @@
 !	All densities (thicknesses) are in g/cm3 (g/cm2)
 
 ! Define some record structures, and constants
-
-	include 'structures.inc'
+!	include 'structures.inc'
 	include 'constants.inc'
 
 ! Now for the actual variables
@@ -78,7 +77,13 @@
 	character*80 random_state_file
 	character*132 start_random_state_file
 	integer*4 random_seed
-
+c variables that need to be translated from integer to logical
+  	integer*4 mc_smear_int, use_benhar_sf_int,doing_kaon_int, doing_pion_int,doing_delta_int,doing_phsp_int
+	integer*4 doing_semi_int,doing_hplus_int,doing_rho_int,doing_decay_int,do_fermi_int
+	integer*4 debug_int(6)
+	integer*4 hard_cuts_int,using_rad_int,use_offshell_rad_int
+	integer*4 using_Eloss_int,correct_eloss_int,correct_raster_int,using_cit_generation_int
+	integer*4 using_Coulomb_int, using_tgt_field_int
 
 	common /gnrl/   Mh, Mh2, Mh2_final, Ebeam, dEbeam, Ebeam_vertex_ave,
      >    genvol, genvol_inclusive, luminosity, targetfac,
@@ -97,7 +102,12 @@
      >    correct_Eloss, correct_raster, do_fermi,using_tgt_field,
      >    electron_arm, hadron_arm, use_first_cer,
      >    transparency, use_benhar_sf,start_random_state_file,
-     >    random_state_file, random_seed
+     >    random_state_file, random_seed,
+     >    mc_smear_int, use_benhar_sf_int,doing_kaon_int, doing_pion_int,doing_delta_int,doing_phsp_int,
+     >    doing_semi_int,doing_hplus_int,doing_rho_int,doing_decay_int,do_fermi_int,
+     >    debug_int,hard_cuts_int,using_rad_int,use_offshell_rad_int,
+     >    using_Eloss_int,correct_eloss_int,correct_raster_int,using_cit_generation_int,
+     >    using_Coulomb_int, using_tgt_field_int
 
 ! ........ note: make these first two parameters at least ONE BIGGER than the actual dimensions you want to read in
 	integer*4 ntheorymax,nrhoPmmax

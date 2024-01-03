@@ -1,7 +1,7 @@
 	real*8 function sigep(vertex)
 
 ! elastic cross section, units are set by sigMott.f (microbarn/sr)
-
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 
@@ -24,6 +24,7 @@
 
 	real*8 function deForest(ev)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 
@@ -139,6 +140,7 @@
 *	Peter Bosted's fit to world data (Phys. Rev. C 51, 409, Eqs. 4
 *	and 5 or, alternatively, Eqs. 6)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

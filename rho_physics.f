@@ -16,6 +16,7 @@
 *   output:
 *	sigma_eerho	!d3sigma/dEe'dOmegae'Omegapi	(microbarn/MeV/sr^2)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

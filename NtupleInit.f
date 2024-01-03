@@ -1,4 +1,6 @@
 	subroutine NtupleInit(filename)
+
+	USE structureModule
 	implicit none
 	save
 

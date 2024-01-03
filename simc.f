@@ -7,10 +7,12 @@
 !		T. G. O'Neill (Argonne National Lab), and
 !		Seemingly Countless Others (Virtually Everywhere).
 !
+	USE structureModule
+	USE histoModule
 	implicit none
 !	include 'simulate_init.inc'
 	include 'simulate.inc'
-	include 'histograms_init.inc'
+!	include 'histograms_init.inc'
 	include 'radc.inc'
 	include 'hbook.inc'
 	include 'sos/struct_sos.inc'
@@ -621,8 +623,9 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 
 	subroutine inc(hist,val,weight)
 
+	USE histoModule
 	implicit none
-	include 'histograms.inc'
+c	include 'histograms.inc'
 
 	integer*4		ibin
 	real*8			val, weight
@@ -641,6 +644,7 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 	subroutine report(iun,timestring1,timestring2,central,contrib,
      >		sum_sigcc,aveerr,resol)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 	include 'radc.inc'
@@ -1132,6 +1136,7 @@ c	  write(7,*) 'BP thingie in/out     ',shmsSTOP_BP_in,shmsSTOP_BP_out
 
 	subroutine calculate_central(central,vertex0)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 	include 'radc.inc'
@@ -1288,6 +1293,7 @@ c	enddo
 
 	subroutine montecarlo(orig,main,recon,success)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

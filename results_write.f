@@ -1,5 +1,6 @@
 	subroutine results_ntu_write(main,vertex,orig,recon,success)
 
+	USE structureModule
 	implicit none
 	include 'radc.inc'
 	include 'hbook.inc'
@@ -238,6 +239,7 @@ c	call HFN(NtupleID,ntu)
 
 	subroutine results_ntu_write1(vertex,recon,main,success)
 
+	USE structureModule
 	implicit none
 	include 'hbook.inc'
 	include 'simulate.inc'

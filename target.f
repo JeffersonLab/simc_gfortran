@@ -1,6 +1,7 @@
 	subroutine trip_thru_target (narm, zpos, energy, theta, Eloss, radlen,
      &                               mass, typeflag)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

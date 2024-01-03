@@ -1,9 +1,10 @@
 	subroutine limits_update(main,vertex,orig,recon,doing_deuterium,
      >		doing_pion,doing_kaon,doing_delta,doing_rho,contrib,slop)
 
+	USE structureModule
 	implicit none
 
-	include 'structures.inc'
+c	include 'structures.inc'
 	include 'radc.inc'
 	type(event_main):: main
 	type(event):: vertex, orig, recon
@@ -71,19 +72,19 @@
 
 ! Update the "slop limits" records
 ! ... MC slops
-	call update_range(main%RECON%e%delta-main%SP%e%delta,slop%MC%e%delta)
-	call update_range(main%RECON%e%yptar-main%SP%e%yptar,slop%MC%e%yptar)
-	call update_range(main%RECON%e%xptar-main%SP%e%xptar,slop%MC%e%xptar)
-	call update_range(main%RECON%p%delta-main%SP%p%delta,slop%MC%p%delta)
-	call update_range(main%RECON%p%yptar-main%SP%p%yptar,slop%MC%p%yptar)
-	call update_range(main%RECON%p%xptar-main%SP%p%xptar,slop%MC%p%xptar)
+cc	call update_range(main%RECON%e%delta-main%SP%e%delta,slop%MC%e%delta)
+cc	call update_range(main%RECON%e%yptar-main%SP%e%yptar,slop%MC%e%yptar)
+cc	call update_range(main%RECON%e%xptar-main%SP%e%xptar,slop%MC%e%xptar)
+cc	call update_range(main%RECON%p%delta-main%SP%p%delta,slop%MC%p%delta)
+cc	call update_range(main%RECON%p%yptar-main%SP%p%yptar,slop%MC%p%yptar)
+cc	call update_range(main%RECON%p%xptar-main%SP%p%xptar,slop%MC%p%xptar)
 
 ! %.. total slops
 ! ........ that tricky shift again, slops accounted for by the shift not
 ! ........ included in slop.total.Em.
-	call update_range(recon%Em-(orig%Em-main%Ein_shift+main%Ee_shift),
-     >		slop%total%Em)
-	call update_range(abs(recon%Pm)-abs(orig%Pm), slop%total%Pm)
+cc	call update_range(recon%Em-(orig%Em-main%Ein_shift+main%Ee_shift),
+cc     >		slop%total%Em)
+cc	call update_range(abs(recon%Pm)-abs(orig%Pm), slop%total%Pm)
 
 	return
 	end
@@ -92,7 +93,8 @@
 
 	subroutine update_range(val,range)
 
-	include 'structures.inc'
+	use structureModule
+c	include 'structures.inc'
 	type(rangetype):: range
 	real*8	val
 
@@ -108,6 +110,7 @@
 
 	subroutine generate(main,vertex,orig,success)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 
@@ -413,6 +416,7 @@ C DJG spectrometer
 
 	subroutine complete_ev(main,vertex,success)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 
@@ -1031,6 +1035,7 @@ C DJG stinkin' Jacobian!
 
 	subroutine complete_recon_ev(recon,success)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 
@@ -1337,6 +1342,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 	subroutine complete_main(force_sigcc,main,vertex,vertex0,recon,success)
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

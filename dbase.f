@@ -559,7 +559,7 @@ C DJG:
 ! ... Em_max,Pm_max.
 !      Also load spectral function for deuterium of heavy so we have the choice later
 !      to use it for (e,e'p)
-	if(doing_hepi.or.doing_hekaon .or. (doing_heavy.and.(.not.use_benhar_sf))) then
+	if(doing_hepi.or.doing_hekaon .or. (doing_heavy.and.use_benhar_sf)) then
 	  if (nint(targ%A).eq.3) then
 	    write(6,*) 'Using the mod version of 3He S.F. rather than Paris.'
 	    tmpfile='benharsf_3mod.dat'

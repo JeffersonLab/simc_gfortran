@@ -72,19 +72,19 @@ c	include 'structures.inc'
 
 ! Update the "slop limits" records
 ! ... MC slops
-cc	call update_range(main%RECON%e%delta-main%SP%e%delta,slop%MC%e%delta)
-cc	call update_range(main%RECON%e%yptar-main%SP%e%yptar,slop%MC%e%yptar)
-cc	call update_range(main%RECON%e%xptar-main%SP%e%xptar,slop%MC%e%xptar)
-cc	call update_range(main%RECON%p%delta-main%SP%p%delta,slop%MC%p%delta)
-cc	call update_range(main%RECON%p%yptar-main%SP%p%yptar,slop%MC%p%yptar)
-cc	call update_range(main%RECON%p%xptar-main%SP%p%xptar,slop%MC%p%xptar)
+	call update_slop_range(main%RECON%e%delta-main%SP%e%delta,slop%MC%e%delta)
+	call update_slop_range(main%RECON%e%yptar-main%SP%e%yptar,slop%MC%e%yptar)
+	call update_slop_range(main%RECON%e%xptar-main%SP%e%xptar,slop%MC%e%xptar)
+	call update_slop_range(main%RECON%p%delta-main%SP%p%delta,slop%MC%p%delta)
+	call update_slop_range(main%RECON%p%yptar-main%SP%p%yptar,slop%MC%p%yptar)
+	call update_slop_range(main%RECON%p%xptar-main%SP%p%xptar,slop%MC%p%xptar)
 
 ! %.. total slops
 ! ........ that tricky shift again, slops accounted for by the shift not
 ! ........ included in slop.total.Em.
-cc	call update_range(recon%Em-(orig%Em-main%Ein_shift+main%Ee_shift),
-cc     >		slop%total%Em)
-cc	call update_range(abs(recon%Pm)-abs(orig%Pm), slop%total%Pm)
+	call update_slop_range(recon%Em-(orig%Em-main%Ein_shift+main%Ee_shift),
+     >		slop%total%Em)
+	call update_slop_range(abs(recon%Pm)-abs(orig%Pm), slop%total%Pm)
 
 	return
 	end
@@ -100,6 +100,21 @@ c	include 'structures.inc'
 
 	range%lo = min(range%lo, val)
 	range%hi = max(range%hi, val)
+
+	return
+	end
+
+!-------------------------------------------------------------------
+
+	subroutine update_slop_range(val,sloprange)
+
+	use structureModule
+c	include 'structures.inc'
+	type(slop_item):: sloprange
+	real*8	val
+
+	sloprange%lo = min(sloprange%lo, val)
+	sloprange%hi = max(sloprange%hi, val)
 
 	return
 	end

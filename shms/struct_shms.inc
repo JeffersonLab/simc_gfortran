@@ -21,6 +21,7 @@
 	integer*4 shmsSTOP_s1,shmsSTOP_s2,shmsSTOP_s3,shmsSTOP_cal
 	integer*4 shmsSTOP_cer1,shmsSTOP_cer2
 	integer*4 stop_id
+        integer*4 sSTOP_coll       ! SHMS COLLIMATOR
 
 	common/spectrometer_shms/ shmsSTOP_trials,shmsSTOP_successes,
      >		shmsSTOP_targ_hor,shmsSTOP_targ_vert,shmsSTOP_targ_oct,
@@ -39,4 +40,5 @@
      >		shmsSTOP_BP_in,shmsSTOP_BP_out,
      >		shmsSTOP_hut,shmsSTOP_dc1,shmsSTOP_dc2,
      >		shmsSTOP_cer1,shmsSTOP_cer2,
-     >		shmsSTOP_s1,shmsSTOP_s2,shmsSTOP_s3,shmsSTOP_cal,stop_id
+     >		shmsSTOP_s1,shmsSTOP_s2,shmsSTOP_s3,shmsSTOP_cal,stop_id,
+     >          sSTOP_coll

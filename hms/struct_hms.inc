@@ -29,6 +29,7 @@
 	integer*4 hSTOP_D1_in,hSTOP_D1_out
 	integer*4 hSTOP_hut,hSTOP_dc1,hSTOP_dc2
 	integer*4 hSTOP_scin,hSTOP_cal,hSTOP_successes
+        integer*4 hSTOP_coll       ! HMS COLLIMATOR
 
 	common/spectrometer1/ 	hSTOP_trials,
      >		hSTOP_slit_hor,hSTOP_slit_vert,hSTOP_slit_oct,
@@ -37,4 +38,5 @@
      >		hSTOP_Q3_in,hSTOP_Q3_mid,hSTOP_Q3_out,
      >		hSTOP_D1_in,hSTOP_D1_out,
      >		hSTOP_hut,hSTOP_dc1,hSTOP_dc2,
-     >		hSTOP_scin,hSTOP_cal,hSTOP_successes
+     >		hSTOP_scin,hSTOP_cal,hSTOP_successes,
+     >          hSTOP_coll

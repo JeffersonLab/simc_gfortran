@@ -1,6 +1,7 @@
 	subroutine mc_hms (p_spec, th_spec, dpp, x, y, z, dxdz, dydz,
      >		x_fp, dx_fp, y_fp, dy_fp, m2,
-     >		ms_flag, wcs_flag, decay_flag, resmult, fry, ok_spec, pathlen)
+     >		ms_flag, wcs_flag, decay_flag, resmult, fry, ok_spec, pathlen,
+     >          using_HMScoll)
 
 C+______________________________________________________________________________
 !
@@ -130,6 +131,12 @@ c	parameter (z_off=+1.50)		!1996 position
 
 	real*8 grnd
 
+C DJG stuff for HMS collimator
+	real*8 save_Hcollsuccess, save_Scollsuccess
+	logical Hcollsuccess, Hcoll_flag
+	logical using_HMScoll
+	common /save_coll/ save_Hcollsuccess, save_Scollsuccess
+
 ! Gaby's dipole shape stuff
 	logical hit_dipole
 	external hit_dipole
@@ -193,35 +200,58 @@ C------------------------------------------------------------------------------C
 ! Check front of fixed slit.
 	  zdrift = z_entr
 	  call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project and decay
-	  if (abs(ys-y_off).gt.h_entr) then
-	    hSTOP_slit_hor = hSTOP_slit_hor + 1
-	    goto 500
-	  endif
-	  if (abs(xs-x_off).gt.v_entr) then
-	    hSTOP_slit_vert = hSTOP_slit_vert + 1
-	    goto 500
-	  endif
-	  if (abs(xs-x_off).gt. (-v_entr/h_entr*abs(ys-y_off)+3*v_entr/2)) then
-	    hSTOP_slit_oct = hSTOP_slit_oct + 1
-	    goto 500
-	  endif
+
+*------------------------------------------------------
+c SECTION ADDED FOR HMS COLLIMATOR
+	  if (using_HMScoll .and. (m2.gt.100.0**2) .and.(m2.lt.200.0**2)) then ! check for pions/muons, if yes step through coll.
+
+c	     write(*,*)'m2=',m2
+c	     write(*,*)'mpi2 =',mpi2
+c	     write(*,*)'-----------------------'
+c	     write(*,*) 'I found a pion',p
+	     call mc_hms_coll(m2,p,p_spec,decay_flag,dflag,Hcollsuccess,Hcoll_flag,pathlen)
+!            save_Hcollsuccess=1.25
+c            write(*,*) 'TH - SANITY CHECK',Hcollsuccess,p
+
+	     if(.not.Hcollsuccess) then
+		save_Hcollsuccess=1.5
+		hSTOP_coll = hSTOP_coll + 1
+		goto 500
+	     endif
+
+          else			!just apertures at front and back
+*------------------------------------------------------
+
+	     if (abs(ys-y_off).gt.h_entr) then
+		hSTOP_slit_hor = hSTOP_slit_hor + 1
+		goto 500
+	     endif
+	     if (abs(xs-x_off).gt.v_entr) then
+		hSTOP_slit_vert = hSTOP_slit_vert + 1
+		goto 500
+	     endif
+	     if (abs(xs-x_off).gt. (-v_entr/h_entr*abs(ys-y_off)+3*v_entr/2)) then
+		hSTOP_slit_oct = hSTOP_slit_oct + 1
+		goto 500
+	     endif
 
 !Check back of fixed slit.
 
-	  zdrift = z_exit-z_entr
-	  call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project and decay
-	  if (abs(ys-y_off).gt.h_exit) then
-	    hSTOP_slit_hor = hSTOP_slit_hor + 1
-	    goto 500
-	  endif
-	  if (abs(xs-x_off).gt.v_exit) then
-	    hSTOP_slit_vert = hSTOP_slit_vert + 1
-	    goto 500
-	  endif
-	  if (abs(xs-x_off).gt. (-v_exit/h_exit*abs(ys-y_off)+3*v_exit/2)) then
-	    hSTOP_slit_oct = hSTOP_slit_oct + 1
-	    goto 500
-	  endif
+	     zdrift = z_exit-z_entr
+	     call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project and decay
+	     if (abs(ys-y_off).gt.h_exit) then
+		hSTOP_slit_hor = hSTOP_slit_hor + 1
+		goto 500
+	     endif
+	     if (abs(xs-x_off).gt.v_exit) then
+		hSTOP_slit_vert = hSTOP_slit_vert + 1
+		goto 500
+	     endif
+	     if (abs(xs-x_off).gt. (-v_exit/h_exit*abs(ys-y_off)+3*v_exit/2)) then
+		hSTOP_slit_oct = hSTOP_slit_oct + 1
+		goto 500
+	     endif
+	  endif			!check on collimator simulation
 
 ! Go to Q1 IN  mag bound.  Drift rather than using COSY matrices
 

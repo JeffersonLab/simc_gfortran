@@ -73,6 +73,7 @@
 	logical correct_Eloss, correct_raster,do_fermi
 	logical using_tgt_field
 	integer*4 electron_arm, hadron_arm, use_first_cer
+	logical using_HMScoll, using_SHMScoll
 	real*8 transparency
 	logical use_benhar_sf
 	character*80 random_state_file
@@ -95,7 +96,7 @@
      >    doing_semipi, doing_semika, doing_hplus, which_kaon,
      >    which_pion, using_cit_generation, using_Coulomb, using_Eloss,
      >    correct_Eloss, correct_raster, do_fermi,using_tgt_field,
-     >    electron_arm, hadron_arm, use_first_cer,
+     >    electron_arm, hadron_arm, use_first_cer, using_HMScoll, using_SHMScoll,
      >    transparency, use_benhar_sf,start_random_state_file,
      >    random_state_file, random_seed
 

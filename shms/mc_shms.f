@@ -565,7 +565,7 @@ c               pathlen=tpathlen
 	     endif
 ! ---------------------------------------------------------------------------
 
-	  endif   ! GH check on pions/muons in collimator
+	  endif! GH check on pions/muons in collimator
 
 *------------------------------------------------------
            

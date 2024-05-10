@@ -829,12 +829,12 @@ c	      stop
 	if (hadron_arm.eq.electron_arm) then
 	  write(6,*) '**WARNING: SIMC works best with two DIFFERENT spectrometers!!!'
 	else if ((hadron_arm+electron_arm).eq.3) then
-	  write(6,*) 'Rolf welcomes you to Hall C at Jefferson Lab - Get to work!'
+	  write(6,*) 'Welcome time traveler to Hall C at 6 GeV - Get to work!'
 	else if (electron_arm.eq.5 .or. hadron_arm.eq.5 .or.
      >		 electron_arm.eq.6 .or. hadron_arm.eq.6) then
-	  write(6,*) 'Grumpy Dutch Giant welcomes you to Hall C++ at JLab12 - Get to work!'
+	  write(6,*) 'Welcome to Hall C++ at JLab12 - Get to work!'
 	else if ((hadron_arm+electron_arm).eq.7) then
-	  write(6,*) 'Kees welcomes you to Hall A at Jefferson Lab - Enjoy your stay!'
+	  write(6,*) 'Welcomes to Hall A at Jefferson Lab - Enjoy your stay!'
 	else if ( electron_arm.eq.7 .and. hadron_arm .eq. 5) then
 	  write(6,*) ' Bigcal and SHMS'
 	else if ( electron_arm.eq.8 .and. hadron_arm .eq. 1) then
@@ -856,6 +856,8 @@ c	      stop
      >             Implmemented for beam and scattered electron only!'
 	if (.not.correct_Eloss) write(6,*) 'NOTE: Will NOT correct reconstructed data for energy loss'
 	if (.not.correct_raster) write(6,*) 'NOTE: Will NOT use raster terms in reconstruction'
+	if (using_HMScoll) write(6,*) 'NOTE: including pion scattering in HMS collimator'
+	if (using_SHMScoll) write(6,*) 'NOTE: including pion scattering in SHMS collimator'
 
 	return
 	end
@@ -976,6 +978,8 @@ c	      stop
 	ierr = regparmint('using_Eloss',using_Eloss_int,0)
 	ierr = regparmint('correct_Eloss',correct_eloss_int,0)
 	ierr = regparmint('correct_raster',correct_raster_int,0)
+	ierr = regparmint('using_HMScoll',using_HMScoll_int,0)
+	ierr = regparmint('using_SHMScoll',using_SHMScoll_int,0)
 	ierr = regparmint('deForest_flag',deForest_flag,0)
 	ierr = regparmint('rad_flag',rad_flag,0)
 	ierr = regparmint('extrad_flag',extrad_flag,0)
@@ -1051,6 +1055,8 @@ ccc
         if(using_cit_generation_int.gt.0) using_cit_generation=.true.
 	if(using_Coulomb_int.gt.0) using_Coulomb=.true.
         if(using_tgt_field_int.gt.0) using_tgt_field=.true.
+        if(using_HMScoll_int.gt.0) using_HMScoll=.true.
+        if(using_SHMScoll_int.gt.0) using_SHMScoll=.true.
 
 	return
 	end

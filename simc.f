@@ -1455,7 +1455,7 @@ C DJG moved this to the last part of generate!!!
 	    call mc_hms(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,
-     >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen)
+     >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen,using_HMScoll)
 	  else if (hadron_arm.eq.2) then
 	    call mc_sos(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
@@ -1475,7 +1475,8 @@ C DJG moved this to the last part of generate!!!
 	    call mc_shms(spec%p%P, spec%p%theta, delta_P_arm, x_P_arm,
      >		y_P_arm, z_P_arm, dx_P_arm, dy_P_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,
-     >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen, hadron_arm)
+     >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen, hadron_arm,
+     >          using_SHMScoll)
 	  endif
 
 

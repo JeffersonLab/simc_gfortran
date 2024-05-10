@@ -1,7 +1,7 @@
 	subroutine mc_shms(p_spec, th_spec, dpp, x, y, z, dxdz, dydz,
      >			x_fp,dx_fp,y_fp,dy_fp,m2,
      >		ms_flag, wcs_flag, decay_flag, resmult, fry, ok_spec, 
-     >         pathlen, spectr)
+     >         pathlen, spectr, using_SHMScoll)
 
 C+______________________________________________________________________________
 !
@@ -47,7 +47,6 @@ C Math constants
 	parameter (d_r = pi/180.)
 	parameter (r_d = 180./pi)
 	parameter (root = 0.707106781)		!square root of 1/2
-
 
 ! Option for mock sieve slit.  Just take particles and forces trajectory
 ! to put the event in the nearest hole.  Must choose the "No collimator"
@@ -227,6 +226,16 @@ C Local declarations.
 
 	logical	ok_hut
 
+C GH stuff for SHMS collimator
+	real*8 save_Hcollsuccess, save_Scollsuccess
+	logical Scollsuccess, Scoll_flag
+	logical using_SHMScoll
+	common /save_coll/ save_Hcollsuccess, save_Scollsuccess
+
+! Gaby's dipole shape stuff
+	logical hit_dipole
+	external hit_dipole
+
 ! TH - start sieve 
 	logical check_sieve 
 	real*8 xlocal,ylocal
@@ -322,7 +331,6 @@ C ================================ Executable Code =============================
 	x_transp =xs
 	y_transp =ys
 
-
 C Read in transport coefficients.  Choose tune-dependent parameters.
 	if (first_time_here) then
 	  if (spectr.eq.5) then
@@ -344,9 +352,7 @@ C------------------------------------------------------------------------------C
 
 C Begin transporting particle.
 
-
 C Do transformations, checking against apertures.
-
 
 !----------------------------------------------------------------------------
 ! TH - START COLLIMATOR APERTURE TESTS
@@ -490,50 +496,78 @@ c     >     zd_hbout,pathlen)
            spec(7)=xt
            spec(8)=yt
           endif
-! simulate collimator -------------------------------------------------
-          if (use_coll) then
-c            tpathlen=pathlen
+
+*------------------------------------------------------
+c GH collimator routine including pion/muon scattering based on Fpi-2 code
+
+	  if (using_SHMScoll .and. (m2.gt.100.0**2).and.(m2.lt.200.0**2)) then ! check for pions/muons, if yes step through coll.
+
 	     zdrift = z_entr
-	     call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
-c            xt=xs + zdrift*dxdzs
-c            yt=ys + zdrift*dydzs
-	     xt=xs
-	     yt=ys
-	     if (abs(yt-y_off).gt.h_entr) then
-		shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
+	     call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project and decay
+
+c	     write(*,*)'m2=',m2
+c	     write(*,*)'mpi2 =',mpi2
+c	     write(*,*)'-----------------------'
+c	     write(*,*) 'I found a pion',p
+	     call mc_shms_coll(m2,p,p_spec,decay_flag,dflag,Scollsuccess,Scoll_flag,pathlen)
+!            save_Scollsuccess=1.25
+c            write(*,*) 'TH - SANITY CHECK',Scollsuccess,p
+
+	     if(.not.Scollsuccess) then
+		save_Scollsuccess=1.5
+		sSTOP_coll = sSTOP_coll + 1
 		goto 500
 	     endif
-	     if (abs(xt-x_off).gt.v_entr) then
-		shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
-		goto 500
+
+          else   !just apertures at front and back
+
+! collimator aperture check -------------------------------------------------
+	     if (use_coll) then
+		zdrift = z_entr
+		call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
+c               xt=xs + zdrift*dxdzs
+c               yt=ys + zdrift*dydzs
+		xt=xs
+		yt=ys
+		if (abs(yt-y_off).gt.h_entr) then
+		   shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
+		   goto 500
+		endif
+		if (abs(xt-x_off).gt.v_entr) then
+		   shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
+		   goto 500
+		endif
+		if (abs(xt-x_off).gt. (-v_entr/h_entr*abs(yt-y_off)+3*v_entr/2)) then
+		   shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
+		   goto 500
+		endif
+		zdrift = z_thick
+		call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
+c	        xt=xt + zdrift*dxdzs
+c	        yt=yt + zdrift*dydzs
+	        xt=xs
+		yt=ys
+		if (abs(yt-y_off).gt.(h_exit)) then
+		   shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
+		   goto 500
+		endif
+		if (abs(xt-x_off).gt.(v_exit)) then
+		   shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
+		   goto 500
+		endif
+		if (abs(xt-x_off).gt. ((-v_exit)/(h_exit)*abs(yt-y_off)+3*(v_exit)/2)) then
+		   shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
+		   goto 500
+		endif
+		spec(56)=xt
+		spec(57)=yt
+c               pathlen=tpathlen
 	     endif
-	     if (abs(xt-x_off).gt. (-v_entr/h_entr*abs(yt-y_off)+3*v_entr/2)) then
-		shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
-		goto 500
-	     endif
-	     zdrift = z_thick
-	     call project(xs,ys,zdrift,decay_flag,dflag,m2,p,pathlen) !project 
-c	     xt=xt + zdrift*dxdzs
-c	     yt=yt + zdrift*dydzs
-	     xt=xs
-	     yt=ys
-	     if (abs(yt-y_off).gt.(h_exit)) then
-		shmsSTOP_slit_hor = shmsSTOP_slit_hor + 1
-		goto 500
-	     endif
-	     if (abs(xt-x_off).gt.(v_exit)) then
-		shmsSTOP_slit_vert = shmsSTOP_slit_vert + 1
-		goto 500
-	     endif
-	     if (abs(xt-x_off).gt. ((-v_exit)/(h_exit)*abs(yt-y_off)+3*(v_exit)/2)) then
-		shmsSTOP_slit_oct = shmsSTOP_slit_oct + 1
-		goto 500
-	     endif
-	     spec(56)=xt
-	     spec(57)=yt
-c           pathlen=tpathlen
-          endif
 ! ---------------------------------------------------------------------------
+
+	  endif! GH check on pions/muons in collimator
+
+*------------------------------------------------------
            
 ! Go to Q1 IN  Mech entrance
 	  if(use_coll) then

@@ -11,6 +11,7 @@
 * the PHOTON-NUCLEON CENTER-OF-MASS frame, and returns the center-of-mass
 * four-vectors for the q-vector, beam, and produced hadron (pion or kaon).
 
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

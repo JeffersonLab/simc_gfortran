@@ -9,6 +9,7 @@
 *   output:
 *	peeK	!d5sigma/(dE_e'*dOmega_e'*Omega_K) - fm^2/MeV/sr^2 ???
 *
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 
@@ -88,8 +89,7 @@
 
 * Factorization model (CURRENTLY SET UP FOR HYDROGEN ONLY!!!)
 
-	ntup%sigcm2 = sig_factorized(vertex%q2,main%wcm,main%t,
-     1  pkcm,targ%Mrec_struck,main%epsilon)
+	ntup%sigcm2 = sig_factorized(vertex%q2,main%wcm,main%t,pkcm,targ%Mrec_struck)
 	
 * Choose the cross section model to use by default.
 !	sigma_eek = ntup.sigcm1		!Saghai
@@ -240,6 +240,7 @@ C momentum.  Get particle momentum from main%SP%p%delta
 
 	subroutine eekeek(ss,q22,angl,theta,phi,epsi,sigma_eep)
 
+	USE structureModule
 	implicit none
 
 	include 'simulate.inc'
@@ -355,6 +356,7 @@ c	write(21,*) dsigp0,dsigi0,sigma_eep
 
 	subroutine eekeeks(ss,q22,angl,theta,phi,epsi,sigma_eep)
 
+	USE structureModule
 	include 'simulate.inc'
 
 	real*8 ss,q22,angl,theta,phi,epsi
@@ -476,6 +478,7 @@ c
 
 	subroutine phspwght(delta,theta,phi,weight)
 
+	USE structureModule
 	include 'simulate.inc'
 
 	real*8 delta,theta,phi

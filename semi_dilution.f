@@ -1,9 +1,8 @@
 	real*8 function semi_dilution(vertex,main)
 
-
 * Sept. 2003 D. Gaskell
 * Purpose:
-* This routine calculates p(e,e'pi+)X semi-iinclusive cross sections from
+* This routine calculates p(e,e'pi+)X semi-inclusive cross sections from
 * the CTEQ5M parton distribution functions and a simple parameterization
 * of the favored and unfavored fragmentation functions.
 *   output:
@@ -35,8 +34,7 @@
 *
 * October 14 - Now adapted to get the dilution factor.
 
-
-
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

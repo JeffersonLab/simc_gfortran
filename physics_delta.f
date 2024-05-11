@@ -7,7 +7,7 @@
 *
 *   output:
 *	peepi		!d5sigma/dEe'dOmegae'Omegapi	(microbarn/MeV/sr^2)
-
+	USE structureModule
 	implicit none
 	include 'simulate.inc'
 

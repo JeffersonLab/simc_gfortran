@@ -13,9 +13,8 @@ C+_____________________________________________________________________________
 !
 !   Note that this routine depends on R = sigma_L/sigma_T (and epsilon).
 C-_____________________________________________________________________________
-
+	USE structureModule
 	implicit none
-
 	include 'simulate.inc'
 
 	type(event):: orig

@@ -876,6 +876,7 @@ c        call print_coord3( 'after last track:',vT)
 ! routines to print coordinates given different input - GAW
 
       subroutine print_coord1(txt,y,delta,dxdz,dydz,x,z)
+      USE structureModule
       implicit none
       include 'simulate.inc'
       character*(*) txt
@@ -899,6 +900,7 @@ c     >            vt(5),sqrt(vt(4)**2+vt(5)**2+vt(6)**2)
       end
 
       subroutine print_coord2(txt,x,y,z,dxdz,dydz)
+      USE structureModule
       implicit none
       include 'simulate.inc'
       character*(*) txt
@@ -920,6 +922,7 @@ c     >       vt(5),sqrt(vt(4)**2+vt(5)**2+vt(6)**2)
       end
 
       subroutine print_coord3(txt,vt)
+      USE structureModule
       implicit none
       include 'simulate.inc'
       character*(*) txt

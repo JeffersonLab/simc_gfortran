@@ -101,7 +101,7 @@ c variables that need to be translated from integer to logical
      >    doing_semipi, doing_semika, doing_hplus, which_kaon,
      >    which_pion, using_cit_generation, using_Coulomb, using_Eloss,
      >    correct_Eloss, correct_raster, do_fermi,using_tgt_field,
-     >    electron_arm, hadron_arm, use_first_cer,
+     >    electron_arm, hadron_arm, use_first_cer, using_HMScoll, using_SHMScoll,
      >    transparency, use_benhar_sf,start_random_state_file,
      >    random_state_file, random_seed,
      >    mc_smear_int, use_benhar_sf_int,doing_kaon_int, doing_pion_int,doing_delta_int,doing_phsp_int,

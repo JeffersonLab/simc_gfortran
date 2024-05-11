@@ -834,7 +834,7 @@ c	      stop
      >		 electron_arm.eq.6 .or. hadron_arm.eq.6) then
 	  write(6,*) 'Welcome to Hall C++ at JLab12 - Get to work!'
 	else if ((hadron_arm+electron_arm).eq.7) then
-	  write(6,*) 'Welcomes to Hall A at Jefferson Lab - Enjoy your stay!'
+	  write(6,*) 'Welcome to Hall A at Jefferson Lab - Enjoy your stay!'
 	else if ( electron_arm.eq.7 .and. hadron_arm .eq. 5) then
 	  write(6,*) ' Bigcal and SHMS'
 	else if ( electron_arm.eq.8 .and. hadron_arm .eq. 1) then

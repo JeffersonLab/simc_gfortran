@@ -1640,7 +1640,7 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	    call mc_hms(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
      >		me2, mc_smear, mc_smear, .false.,
-     >		tmpfact, xtar_init_E, ok_E_arm, pathlen)
+     >		tmpfact, xtar_init_E, ok_E_arm, pathlen,using_HMScoll)
 	  else if (electron_arm.eq.2) then
 	    call mc_sos(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
@@ -1660,7 +1660,8 @@ C	  recon%p%delta = (recon%p%P-spec%p%P)/spec%p%P*100.
 	    call mc_shms(spec%e%P, spec%e%theta, delta_E_arm, x_E_arm,
      >		y_E_arm, z_E_arm, dx_E_arm, dy_E_arm, xfp, dxfp, yfp, dyfp,
      >		me2, mc_smear, mc_smear, .false.,
-     >		tmpfact, xtar_init_E, ok_E_arm, pathlen, electron_arm)
+     >		tmpfact, xtar_init_E, ok_E_arm, pathlen, electron_arm, 
+     >          using_SHMScoll)
 	  else if (electron_arm.eq.7 .or. electron_arm .eq. 8) then
              if (abs(spec%p%phi-pi/2) .eq. 10.) then
 	     zhadron = -recon%p%z*(cos(spec%p%theta)/tan(spec%p%theta+recon%p%yptar)+sin(spec%p%theta)) ! recon.p.z is really ytgt

@@ -7,7 +7,7 @@ g77flags = -Wimplicit
 export #export all variables
 unexport getversion gccversion g77flags message #except these ones
 
-CFLAGS = -Wall -W -O -ggdb #-pg #-pedantic
+CFLAGS = -Wall -W -O -ggdb -I/usr/include/tirpc #-pg #-pedantic
 #CFLAGS = -Wall -W
 CXXFLAGS := $(CFLAGS)
 #FFLAGS = -O -ffixed-line-length-132 -ggdb -Wall -W -fbounds-check #-pg #-pedantic

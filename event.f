@@ -697,9 +697,6 @@ C switch to relativistic BW for Delta
 	  vertex%p%delta = (vertex%p%P - spec%p%P)*100./spec%p%P
 !	write(6,*) 'p,e=',vertex%p%P,vertex%p%E
 
-	  if(doing_pizero) then ! now need to decay the pizero into 2 photons
-	     call pizero_decay(vertex,success,ntup%gamma1,ntup%gamma2)
-	   endif
 	elseif (doing_rho) then
 	   call generate_rho(vertex,success)  !generate rho in 4pi in CM
 	   if(.not.success) then
@@ -898,6 +895,9 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 	  endif !polarized-target specific azimuthal angles
 
+	  if(doing_pizero) then ! now need to decay the pizero into 2 photons
+	     call pizero_decay(vertex,success,ntup%gamma1,ntup%gamma2)
+	  endif
 
 	endif		!end of pion/kaon specific stuff.
 
@@ -1459,30 +1459,35 @@ C Use Clebsch-Gordon coefficients to approximate xsec for Delta final states
 C This ignores the fact that the g*p and g*n cross sections may not be the same
 C 6/24/2021: Coefficients for Delta final states updated from Peter Bosted's
 C empirical check's.
-	  if(which_pion.eq.2) then ! pi+ Delta
+	  if(which_pion.eq.2) then ! g* p -> pi+ Delta0, g* n  -> pi+ Delta-, or g* p -> pi0 Delta+ 
 	     if(doing_hydpi) then
-c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/(pi+ n)
-c		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/(pi+ n)
-		main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/(pi+ n) updated 17july2023
+		if (doing_pizero) then
+		   main%sigcc = 0.55*main%sigcc ! g* p -> pi0 Delta+
+		else
+		   main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/(pi+ n) updated 17july2023
+		endif
 	     elseif(doing_deutpi) then
-c		main%sigcc = main%sigcc/4.0 !(pi+ Delta0)/pi+ n)
-c     >                      + 0.75*main%sigcc !(pi+ Delta-)/(pi+ n)
-c		main%sigcc = 0.6*main%sigcc !(pi+ Delta0)/pi+ n)
-c     >                      + 1.0*main%sigcc !(pi+ Delta-)/(pi+ n)
-		main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/pi+ n)   updated 17july2023
+		if (doing_pizero) then
+		   main%sigcc = 0.55*main%sigcc ! g* p -> pi0 Delta+
+		else
+		   main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/pi+ n)   updated 17july2023
      >                      + 0.8*main%sigcc !(pi+ Delta-)/(pi+ n)
+		endif
 	     endif 
-	  elseif (which_pion.eq.3) then  !pi- Delta
+	  elseif (which_pion.eq.3) then  !g* p->pi- Delta++, g* n-> pi- Delta+, or g* n -> pi0 Delta0
 	     if(doing_hydpi) then
-c		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
-		main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
+		if(doing_pizero) then
+		   main%sigcc = 0 ! can't do gamma* n -> pi0 Delta0 for hydpi
+		else
+		   main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
+		endif
 	     elseif(doing_deutpi) then
-c		main%sigcc = 3.0*main%sigcc/5.0 ! (pi- Delta++)/(pi- p)
-c     >                     + 0.25*main%sigcc !(pi- Delta+)/(pi- p)
-c		main%sigcc = 0.6*main%sigcc ! (pi- Delta++)/(pi- p)
-c     >                     + 0.6*main%sigcc !(pi- Delta+)/(pi- p)
-		main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
+		if(doing_pizero) then
+		   main%sigcc = 0.99*main%sigcc !g* n -> pi0 Delta0
+		else
+		   main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
      >                     + 0.99*main%sigcc !(pi- Delta+)/(pi- p)
+		endif
 	     endif
 	  endif
 	  main%sigcc_recon = 1.0

@@ -144,7 +144,7 @@ c positions, angles at front
 	  dy_fp=dydzs
 
 C       skip all this fow, after checking that we hit calorimeter, just fill output
-C       with inlut
+C       with input-maybe add some smearing later.
 	  
 c no difference between recon angle and "focal plane" angles
 c use the z position determined by the hadron arm to

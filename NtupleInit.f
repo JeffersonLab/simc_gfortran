@@ -263,6 +263,10 @@ c	endif
 
 	  if(doing_pizero) then
 	     m = m+1
+	     NtupleTag(m) = 'xcal_gamma1'
+	     m = m+1
+	     NtupleTag(m) = 'ycal_gamma1'
+	     m = m+1
 	     NtupleTag(m) = 'Egamma1'
 	     m = m+1
 	     NtupleTag(m) = 'Pgamma1x'
@@ -270,6 +274,10 @@ c	endif
 	     NtupleTag(m) = 'Pgamma1y'
 	     m = m+1
 	     NtupleTag(m) = 'Pgamma1z'
+	     m = m+1
+	     NtupleTag(m) = 'xcal_gamma2'
+	     m = m+1
+	     NtupleTag(m) = 'ycal_gamma2'
 	     m = m+1
 	     NtupleTag(m) = 'Egamma2'
 	     m = m+1

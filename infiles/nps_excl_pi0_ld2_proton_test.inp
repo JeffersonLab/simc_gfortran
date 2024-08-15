@@ -26,7 +26,7 @@ begin parm kinematics_main
 end parm kinematics_main
 
 begin parm target
-  targ%A = 1.			;  target A
+  targ%A = 2.			;  target A
   targ%Z = 1.			;  target Z
   targ%mass_amu = 2.013550	;  target mass in amu
   targ%mrec_amu = 0.		;  recoil mass in amu (eep=A-1 system,pion=A-2)

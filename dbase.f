@@ -884,9 +884,13 @@ c	      stop
 	else if ((hadron_arm+electron_arm).eq.7) then
 	  write(6,*) 'Welcome to Hall A at Jefferson Lab - Enjoy your stay!'
 	else if ( electron_arm.eq.7 .and. hadron_arm .eq. 5) then
-	  write(6,*) ' Bigcal and SHMS'
+	  write(6,*) ' Bigcal detecting electrons and SHMS detecting hadrons'
 	else if ( electron_arm.eq.8 .and. hadron_arm .eq. 1) then
-	  write(6,*) ' Bigcal and HMS'
+	   write(6,*) ' Bigcal detecting electrons and HMS detecting hadrons'
+	else if ( electron_arm.eq.1 .and. hadron_arm .eq. 8) then
+	  write(6,*) ' HMS detecting electrons and NPS detecting pi0/gammas'
+	else if ( electron_arm.eq.5 .and. hadron_arm .eq. 7) then
+	  write(6,*) ' SHMS detecting electrons and NPS detecting pi0/gammas'
 	else
 	  write(6,*) '**WARNING: SIMC works best when both spectrometers are in the same hall!!'
 	endif

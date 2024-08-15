@@ -1416,14 +1416,6 @@ c	   write(*,*) 'sign_hms_part =' ,sign_hms_part
           endif 
 ! GAW - end 99/11/3
 
-C DJG need to decay the rho here before we begin transporting through the
-C DJG spectrometer
-c	  m2 = Mh2
-c	  if(doing_rho) then
-c	     call rho_decay(dx_P_arm,dy_P_arm,delta_P_arm,spec.p.P,m2,
-c	1	  main.epsilon,orig.Q2)
-c	  endif
-C DJG moved this to the last part of generate!!!
 
 ! ........ drift this position back to z=0, the plane through the target center
 
@@ -1490,7 +1482,7 @@ c first photon
 	       else
 		  dy_p_arm = ntup%gamma1(2)/ntup%gamma1(4)-spec%p%theta
 	       endif
-	       
+
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
      >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,
@@ -1526,7 +1518,7 @@ c second photon
 	       endif
 	       
 	       if(ok_gamma1 .or. ok_gamma2) ok_P_arm=.true.
-	    else
+	    else ! if not doing pizero, just need to call once
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
      >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,

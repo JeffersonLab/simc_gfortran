@@ -656,26 +656,27 @@ C switch to relativistic BW for Delta
 	  QA = 4.*(a**2 - c**2)
 	  QB = 4.*c*t
 	  QC = -4.*a**2*Mh2 - t**2
-
+	  
 !	write(6,*) '    '
 !	write(6,*) '    '
-!	write(6,*) 'E0=',vertex.Ein
-!	write(6,*) 'P_elec,P_prot=',vertex.e.P/1000.,vertex.p.P/1000.
-!	write(6,*) 'thetae,phie=',vertex.e.theta*180./pi,vertex.e.phi*180./pi
-!	write(6,*) 'thetap,phip=',vertex.p.theta*180./pi,vertex.p.phi*180./pi
-!	write(6,*) 'q,nu,costhetapq=',vertex.q,vertex.nu,(vertex.uq.x*vertex.up.x+vertex.uq.y*vertex.up.y+vertex.uq.z*vertex.up.z)
+!	write(6,*) 'E0=',vertex%Ein
+!	write(6,*) 'P_elec,P_prot=',vertex%e%P/1000.,vertex%p%P/1000.
+!	write(6,*) 'thetae,phie=',vertex%e%theta*180./pi,vertex%e%phi*180./pi
+!	write(6,*) 'thetap,phip=',vertex%p%theta*180./pi,vertex%p%phi*180./pi
+!	write(6,*) 'q,nu,costhetapq=',vertex%q,vertex%nu,(vertex%uq%x*vertex%up%x+vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
 !	write(6,*) 'a,b,c=',a/1000.,b/1000000.,c/1000.
 !	write(6,*) 't=',t/1000000.
 !	write(6,*) 'A,B,C=',QA/1.d6,QB/1.d9,QC/1.d12
 !	write(6,*) 'rad=',QB**2 - 4.*QA*QC
 !	write(6,*) 'e1,e2=',(-QB-sqrt(radical))/2000./QA,(-QB+sqrt(radical))/2000./QA
-!	write(6,*) 'E_pi1,2=',vertex.nu+targ.M-(-QB-sqrt(radical))/2./QA,
-!     >				vertex.nu+targ.M-(-QB+sqrt(radical))/2./QA
+!	write(6,*) 'E_pi1,2=',(-QB-sqrt(radical))/2./QA,
+!     >		              (-QB+sqrt(radical))/2./QA
 
 
 	  radical = QB**2 - 4.*QA*QC
 	  if (radical.lt.0) return
 	  vertex%p%E = (-QB - sqrt(radical))/2./QA
+	  if(vertex%p%E.lt.0.0) return
 	  Ehad2 = (-QB + sqrt(radical))/2./QA
 
 	  if (doing_delta) then		!choose one of the two solutions.

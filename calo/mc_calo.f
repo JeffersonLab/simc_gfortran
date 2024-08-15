@@ -177,10 +177,10 @@ c	  dxdz = dph_recon
 c	  dydz = dth_recon
 c	  y = y_recon
 
-	  dpp = dpps
-	  dxdz = dxdzs
-	  dydz = dydzs
-	  y = ys	  
+c	  dpp = dpps
+c	  dxdz = dxdzs
+c	  dydz = dydzs
+c	  y = ys	  
 	  ok_spec = .true.
 	  caloSTOP_successes = caloSTOP_successes + 1
 

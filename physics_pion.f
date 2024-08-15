@@ -736,7 +736,7 @@ c W>1.4. Note: this was *not* done for eg1c!
       end
 
       real*8 function sig_param_2021(thcm,phicm,t,q2,wsq,eps,
-     >       which_pion,doing_pizero)
+     >      which_pion,doing_pizero)
 ! April 2021 fit to exclusive pi+ and pi- data from
 ! fpi1, fpi2, CT, pt-SIDIS, CSV-SIDIS, and KLT
 ! q2, t, and wsq should be in gev**2
@@ -799,8 +799,8 @@ c W>1.4. Note: this was *not* done for eg1c!
 	      call exclfit(t,thcm,phicm,q2,
      >          wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pp,1.0)
 	   endif
-	   sig_param_2021 = sigexcl3
 	endif
+	sig_param_2021 = sigexcl3
       return 
       end
 

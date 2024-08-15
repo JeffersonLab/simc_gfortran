@@ -251,10 +251,10 @@ C DJG:
 	  stop 'I dont know what phi should be for the electron arm'
 	endif
 
-	if (hadron_arm.eq.1 .or. hadron_arm.eq.3) then
+	if (hadron_arm.eq.1 .or. hadron_arm.eq.3 .or. hadron_arm.eq.7) then
 	  spec%p%phi = 3*pi/2.
 	else if (hadron_arm.eq.2 .or. hadron_arm.eq.4 .or.
-     >		 hadron_arm.eq.5 .or. hadron_arm.eq.6) then
+     >		 hadron_arm.eq.5 .or. hadron_arm.eq.6 .or. hadron_arm.eq.8) then
 	  spec%p%phi = pi/2.
 	else
 	  stop 'I dont know what phi should be for the hadron arm'
@@ -872,8 +872,6 @@ c	      stop
 	   write(6,*) '   CALORIMETER is detecting hadrons (HMS side of beam)'
 	else if (hadron_arm.eq.8) then
 	   write(6,*) '   CALORIMETER is detecting hadrons (SHMS side of beam)'
-
-	  stop
 	endif
 
 	if (hadron_arm.eq.electron_arm) then

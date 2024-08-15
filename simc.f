@@ -1306,6 +1306,7 @@ c	enddo
 	real*8 eloss_E_arm, eloss_P_arm, r, beta, dangles(2), dang_in(2)
 	logical success
 	logical ok_E_arm, ok_P_arm
+	logical ok_gamma1, ok_gamma2
 	type(event):: orig, recon
 	type (event_main)::	main
 
@@ -1477,8 +1478,62 @@ C DJG moved this to the last part of generate!!!
      >		m2, mc_smear, mc_smear, doing_decay,
      >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen, hadron_arm, 
      >    using_SHMScoll)
-	  endif
+	 else if (hadron_arm.eq.7 .or. hadron_arm.eq.8) then
+	    if (doing_pizero) then ! call mc_calo twice - once for each photon
+	       ok_gamma1=.false.
+	       ok_gamma2=.false.
 
+c first photon	       
+	       dx_p_arm = -ntup%gamma1(3)/ntup%gamma1(4)
+	       if(hadron_arm.eq.8) then
+		  dy_p_arm = ntup%gamma1(2)/ntup%gamma1(4)+spec%p%theta
+	       else
+		  dy_p_arm = ntup%gamma1(2)/ntup%gamma1(4)-spec%p%theta
+	       endif
+	       
+	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
+     >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
+     >		m2, mc_smear, mc_smear, doing_decay,
+     >		ntup%resfac, frx, fry, ok_gamma1, pathlen, using_tgt_field,
+     >          zhadron,hadron_arm,drift_to_cal)
+
+	       ntup%xcal_gamma1=-1.0d10
+	       ntup%ycal_gamma1=-1.0d10
+	       if(ok_gamma1) then
+		  ntup%xcal_gamma1=xfp
+		  ntup%ycal_gamma1=yfp
+	       endif
+
+c second photon	       
+               dx_p_arm = -ntup%gamma2(3)/ntup%gamma2(4)
+	       if(hadron_arm.eq.8) then
+		  dy_p_arm = ntup%gamma2(2)/ntup%gamma2(4)+spec%p%theta
+	       else
+		  dy_p_arm = ntup%gamma2(2)/ntup%gamma2(4)-spec%p%theta
+	       endif
+
+	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
+     >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
+     >		m2, mc_smear, mc_smear, doing_decay,
+     >		ntup%resfac, frx, fry, ok_gamma2, pathlen, using_tgt_field,
+     >          zhadron,hadron_arm,drift_to_cal)
+
+	       ntup%xcal_gamma2=-1.0d10
+	       ntup%ycal_gamma2=-1.0d10
+	       if(ok_gamma1) then
+		  ntup%xcal_gamma2=xfp
+		  ntup%ycal_gamma2=yfp
+	       endif
+	       
+	       if(ok_gamma1 .or. ok_gamma2) ok_P_arm=.true.
+	    else
+	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
+     >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
+     >		m2, mc_smear, mc_smear, doing_decay,
+     >		ntup%resfac, frx, fry, ok_P_arm, pathlen, using_tgt_field,
+     >          zhadron,hadron_arm,drift_to_cal)
+	    endif
+	 endif
 
 C DJG Do polarized target field stuff if needed
 C DJG Note that the call to track_to_tgt is with -fry: for some reason that routine then
@@ -1518,6 +1573,13 @@ C DJG For spectrometers to the left of the beamline, need to pass ctheta,-stheta
 	  main%FP%p%y = yfp
 	  main%FP%p%dy = dyfp
 	  main%FP%p%path = pathlen
+
+	  if(doing_pizero) then ! no pi0 reconstruction yet, but now complete_recon_ev will work
+	     main%RECON%p%delta = main%SP%p%delta
+	     main%RECON%p%yptar = main%SP%p%yptar
+	     main%RECON%p%xptar = main%SP%p%xptar
+	  endif
+	  
 
 ! CASE 2: Not using the detailed Monte Carlo, just copy the IN event to the
 ! OUT record

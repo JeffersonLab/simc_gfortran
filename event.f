@@ -448,6 +448,7 @@ C DJG spectrometer
 	real*8 w,w2,prob,probtot,probsum(1000),mass_save(1000)
 	real*8 Ehad2,E_rec
 	real*8 grnd,rn		!random # generator.
+	real*8 v1(4), Mgamma, costh, phi,mchk
 	integer i
 
 	logical success
@@ -696,11 +697,14 @@ C switch to relativistic BW for Delta
 	  vertex%p%delta = (vertex%p%P - spec%p%P)*100./spec%p%P
 !	write(6,*) 'p,e=',vertex%p%P,vertex%p%E
 
+	  if(doing_pizero) then ! now need to decay the pizero into 2 photons
+	     call pizero_decay(vertex,success,ntup%gamma1,ntup%gamma2)
+	   endif
 	elseif (doing_rho) then
 	   call generate_rho(vertex,success)  !generate rho in 4pi in CM
 	   if(.not.success) then
 	      return
-	   else  ! we have a success, but set back to false for rest of complete_ev
+	   else  ! we have a success, but set back to false for rest of complete_ev until rho_decay is called
 	      success=.false.
 	   endif
 
@@ -1635,3 +1639,84 @@ C If using Coulomb corrections, include focusing factor
 
 	return
 	end
+
+C SUBROUTINE TO DECAY A PARTICLE INTO TWO OTHER PARTICLES
+C AT angle COSTH in THE C.M. FRAME WHERE THE DIRECTION OF THE
+C INITIAL PARTICLE NEED NOT BE ALONG THE Z-AXIS. PHI SHOULD BE 0 TO 2 PI
+C vectors are (E, px, py, pz)
+      SUBROUTINE DECAY (V1,V2,V3,M1,M2,M3,COSTH,PHI)
+      IMPLICIT NONE
+      REAL*8 V1(4),V2(4),V3(4),KV(4),M1,M2,M3,V1P,G,K,COSTH,SINTH,PHI
+      REAL*8 CHK,CHK1,CHK2,KCHK,BETA,VT(4),VTT(4),VDM
+! Find magnitude of momentum of initial particle
+      V1P=SQRT(V1(2)**2+V1(3)**2+V1(4)**2)
+      G=V1(1)/M1
+      BETA=V1P/V1(1)
+
+! Find c.m. momentum and pick decay isotropically
+      K=SQRT(( ((M1**2-M2**2-M3**2)/2.)**2 - (M2*M3)**2 )/M1**2)
+      KCHK=SQRT((M1**2-(M2+M3)**2)*(M1**2-(M2-M3)**2))/2./M1
+      IF(ABS(K-KCHK).GT.0.001) WRITE(6,'(1X,''ERROR,K,KCHK='',2F10.4)')
+     >  K,KCHK
+      IF(ABS(SQRT(K*K+M2*M2)+SQRT(K*K+M3*M3)-M1).GT.0.001)
+     >  WRITE(6,'(1X,''ERROR IN CM ENERGY'')')
+      SINTH=SQRT(1.-COSTH**2)
+! Put k into vector for first decay particle
+      KV(1)=SQRT(K*K+M2*M2)
+      KV(2)=K*SINTH*COS(PHI)
+      KV(3)=K*SINTH*SIN(PHI)
+      KV(4)=K*COSTH
+! Transform k to lab frame for first decay particle
+! First find vector as though decay were along Z axis
+      V2(1)=G*(KV(1)+BETA*KV(4))
+      VT(2)=KV(2)
+      VT(3)=KV(3)
+      VT(4)=G*(BETA*KV(1)+KV(4))
+! Now rotate vector in xz plane
+      VDM=SQRT(V1(2)**2+V1(4)**2)
+      VTT(2)= VT(2)*V1(4)/VDM+VT(4)*V1(2)/VDM
+      VTT(3)= VT(3)
+      VTT(4)=-VT(2)*V1(2)/VDM+VT(4)*V1(4)/VDM
+! Now rotate vector in yz plane
+      VDM=SQRT(V1(3)**2+V1(4)**2)
+      V2(2)= VTT(2)
+      V2(3)= VTT(3)*V1(4)/VDM + VTT(4)*V1(3)/VDM
+      V2(4)=-VTT(3)*V1(3)/VDM + VTT(4)*V1(4)/VDM
+! Transform k to lab frame for first  decay particle
+      CHK=V2(1)**2-V2(2)**2-V2(3)**2-V2(4)**2-M2**2
+      IF(ABS(CHK).GT.0.005) WRITE(6,'(1X,''ERROR, CHK='',E9.2)') CHK
+! Put k into vector for second decay particle
+      KV(1)=SQRT(K*K+M3*M3)
+      KV(2)=-K*SINTH*COS(PHI)
+      KV(3)=-K*SINTH*SIN(PHI)
+      KV(4)=-K*COSTH
+! Transform k to lab frame for second decay particle
+! First find vector as though decay were along Z axis
+      V3(1)=G*(KV(1)+BETA*KV(4))
+      VT(2)=KV(2)
+      VT(3)=KV(3)
+      VT(4)=G*(BETA*KV(1)+KV(4))
+! Now rotate vector in xz plane
+      VDM=SQRT(V1(2)**2+V1(4)**2)
+      VTT(2)= VT(2)*V1(4)/VDM+VT(4)*V1(2)/VDM
+      VTT(3)= VT(3)
+      VTT(4)=-VT(2)*V1(2)/VDM+VT(4)*V1(4)/VDM
+! Now rotate vector in yz plane
+      VDM=SQRT(V1(3)**2+V1(4)**2)
+      V3(2)= VTT(2)
+      V3(3)= VTT(3)*V1(4)/VDM + VTT(4)*V1(3)/VDM
+      V3(4)=-VTT(3)*V1(3)/VDM + VTT(4)*V1(4)/VDM
+      CHK=V3(1)**2-V3(2)**2-V3(3)**2-V3(4)**2-M3**2
+      IF(ABS(CHK).GT.0.005) WRITE(6,'(1X,''ERROR, CHK='',E9.2)') CHK
+      CHK1=V1(1)-V2(1)-V3(1)
+      CHK2=V1(2)-V2(2)-V3(2)+V1(3)-V2(3)-V3(3)+V1(4)-V2(4)-V3(4)
+	IF(ABS(CHK1).GT.0.005.OR.ABS(CHK2).GT.0.05) then
+c	WRITE(6,
+c       >  '(1X,''E12='',14F5.2)') CHK1,CHK2,V1,V2,V3
+	   write(6,*) 'total energy: ',V1(1), chk1
+	   write(6,*) 'Px: ',V1(2)-V2(2)-V3(2)
+	   write(6,*) 'Py: ',V1(3)-V2(3)-V3(3)
+	   write(6,*) 'Pz: ',V1(4)-V2(4)-V3(4)
+	endif
+      RETURN
+      END

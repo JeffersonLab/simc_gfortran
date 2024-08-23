@@ -42,10 +42,10 @@ c	parameter (h_exit = 64.0)
 c	parameter (v_exit = 109.0)
 
 c Use size of NPS	
-	parameter (h_entr = 60.0)
-	parameter (v_entr = 72.0)
-	parameter (h_exit = 60.0)
-	parameter (v_exit = 72.0)
+	parameter (h_entr = 30.75) ! calorimeter 1/2 width: (30 blocks * 2.05 cm)/2.0
+	parameter (v_entr = 36.9) ! calorimeter 1/2 height: (36 blocks * 2.05 cm)/2.0
+	parameter (h_exit = 30.75)
+	parameter (v_exit = 36.9)
 
 ! Math constants
 

@@ -1476,11 +1476,11 @@ c	   write(*,*) 'sign_hms_part =' ,sign_hms_part
 	       ok_gamma2=.false.
 
 c first photon	       
-	       dx_p_arm = -ntup%gamma1(3)/ntup%gamma1(4)
+	       dx_p_arm = ntup%gamma1(2)/ntup%gamma1(4)
 	       if(hadron_arm.eq.8) then
-		  dy_p_arm = ntup%gamma1(2)/ntup%gamma1(4)+spec%p%theta
+		  dy_p_arm = ntup%gamma1(3)/ntup%gamma1(4)-spec%p%theta
 	       else
-		  dy_p_arm = ntup%gamma1(2)/ntup%gamma1(4)-spec%p%theta
+		  dy_p_arm = ntup%gamma1(3)/ntup%gamma1(4)+spec%p%theta
 	       endif
 
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
@@ -1497,11 +1497,11 @@ c first photon
 	       endif
 
 c second photon	       
-               dx_p_arm = -ntup%gamma2(3)/ntup%gamma2(4)
+               dx_p_arm = ntup%gamma2(2)/ntup%gamma2(4)
 	       if(hadron_arm.eq.8) then
-		  dy_p_arm = ntup%gamma2(2)/ntup%gamma2(4)+spec%p%theta
+		  dy_p_arm = ntup%gamma2(3)/ntup%gamma2(4)-spec%p%theta
 	       else
-		  dy_p_arm = ntup%gamma2(2)/ntup%gamma2(4)-spec%p%theta
+		  dy_p_arm = ntup%gamma2(3)/ntup%gamma2(4)+spec%p%theta
 	       endif
 
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
@@ -1512,12 +1512,14 @@ c second photon
 
 	       ntup%xcal_gamma2=-1.0d10
 	       ntup%ycal_gamma2=-1.0d10
-	       if(ok_gamma1) then
+	       if(ok_gamma2) then
 		  ntup%xcal_gamma2=xfp
 		  ntup%ycal_gamma2=yfp
 	       endif
-	       
-	       if(ok_gamma1 .or. ok_gamma2) ok_P_arm=.true.
+
+c needs to initialize here since not initialized in mc_calo (like in other single arm MC's)	       
+	       ok_P_arm=.false.
+	       if(ok_gamma1 .and. ok_gamma2) ok_P_arm=.true. !require both photons
 	    else ! if not doing pizero, just need to call once
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
      >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,

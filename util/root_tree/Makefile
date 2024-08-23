@@ -24,8 +24,7 @@ ifeq ($(MYOS),Linux)
   F77 := gfortran
 endif
 
-#ROOTSYS=/cvmfs/oasis.opensciencegrid.org/jlab/scicomp/sw/el9/root/6.30.04-gcc11.4.0
-ROOTSYS=/home/gaskelld/root
+ROOTSYS=/cvmfs/oasis.opensciencegrid.org/jlab/scicomp/sw/el9/root/6.30.04-gcc11.4.0
 CXX=g++
 CXXFLAGS0 = -O3 -std=c++17
 CXXFLAGS=$(CXXFLAGS0) $(DROOT)
@@ -39,7 +38,7 @@ none: make_root_tree
 all: make_root_tree
 
 make_root_tree: $(my_objs) froot.co
-	$(F77) $(LDFLAGS) -o make_root_tree $(my_objs) $(OTHERLIBS) froot.co $(ROOTLIBS) -lImt -lvdt $(OTHERLIBS) $(CERNLIBS) -L/usr/lib64 -lstdc++
+	$(F77) $(LDFLAGS) -o make_root_tree $(my_objs) $(OTHERLIBS) froot.co $(ROOTLIBS) -lImt -lvdt -ltbb $(OTHERLIBS) $(CERNLIBS) -L/usr/lib64 -lstdc++
 
 %.o: %.f
 	$(FC) -c $(FFLAGS) $<

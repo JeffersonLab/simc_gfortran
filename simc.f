@@ -1321,7 +1321,7 @@ c	enddo
 	real*8 dx_tmp,dy_tmp
 
 	real*8 ctheta,stheta,phad,pelec
-	real*8 zhadron
+	real*8 zhadron,exrot1,eyrot1,ezrot1,exrot2,eyrot2,ezrot2
 
 	real*8 zero
 	parameter (zero=0.0e0)	!double precision zero for subroutine calls
@@ -1475,13 +1475,29 @@ c	   write(*,*) 'sign_hms_part =' ,sign_hms_part
 	       ok_gamma1=.false.
 	       ok_gamma2=.false.
 
-c first photon	       
-	       dx_p_arm = ntup%gamma1(2)/ntup%gamma1(4)
-	       if(hadron_arm.eq.8) then
-		  dy_p_arm = ntup%gamma1(3)/ntup%gamma1(4)-spec%p%theta
+c rotate from lab w/z along beam to frame w/z point to calorimeter
+
+	       if (hadron_arm.eq.8) then
+		  exrot1=ntup%gamma1(2)
+		  eyrot1=ntup%gamma1(3)*cos(spec%p%theta)-ntup%gamma1(4)*sin(spec%p%theta)
+		  ezrot1=ntup%gamma1(3)*sin(spec%p%theta)+ntup%gamma1(4)*cos(spec%p%theta)
+		  
+		  exrot2=ntup%gamma2(2)
+		  eyrot2=ntup%gamma2(3)*cos(spec%p%theta)-ntup%gamma2(4)*sin(spec%p%theta)
+		  ezrot2=ntup%gamma2(3)*sin(spec%p%theta)+ntup%gamma2(4)*cos(spec%p%theta)
 	       else
-		  dy_p_arm = ntup%gamma1(3)/ntup%gamma1(4)+spec%p%theta
+		  exrot1=ntup%gamma1(2)
+		  eyrot1=ntup%gamma1(3)*cos(spec%p%theta)+ntup%gamma1(4)*sin(spec%p%theta)
+		  ezrot1=ntup%gamma1(3)*sin(spec%p%theta)+ntup%gamma1(4)*cos(spec%p%theta)
+
+		  exrot2=ntup%gamma2(2)
+		  eyrot2=ntup%gamma2(3)*cos(spec%p%theta)+ntup%gamma2(4)*sin(spec%p%theta)
+		  ezrot2=ntup%gamma2(3)*sin(spec%p%theta)+ntup%gamma2(4)*cos(spec%p%theta)
 	       endif
+	       
+c first photon	       
+	       dx_p_arm = exrot1/ezrot1
+	       dy_p_arm = eyrot1/ezrot1
 
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
      >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
@@ -1497,13 +1513,9 @@ c first photon
 	       endif
 
 c second photon	       
-               dx_p_arm = ntup%gamma2(2)/ntup%gamma2(4)
-	       if(hadron_arm.eq.8) then
-		  dy_p_arm = ntup%gamma2(3)/ntup%gamma2(4)-spec%p%theta
-	       else
-		  dy_p_arm = ntup%gamma2(3)/ntup%gamma2(4)+spec%p%theta
-	       endif
-
+	       dx_p_arm = exrot2/ezrot2
+	       dy_p_arm = eyrot2/ezrot2
+	       
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
      >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
      >		m2, mc_smear, mc_smear, doing_decay,

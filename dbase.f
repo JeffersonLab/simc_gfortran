@@ -25,7 +25,8 @@
 !       set "doing_pizero =1" in input file, then
 !       which_pion= 0( 1) gives pi0 production from proton (neutron)
 !       which_pion= 2: gamma* p -> pi0 Delta+
-!       which_pion= 3: gamma* n -> pi0 Delta0	
+!       which_pion= 3: gamma* n -> pi0 Delta0
+!       set "pizero_ngamma" to 1 or 2 whether you want to detect a minimum of 1 or 2 photons	
 
 	
 ! 4. doing_phsp:Generate acceptance with radiation and cross section disabled,
@@ -700,6 +701,13 @@ C DJG:
 	      if(doing_hydsemi) then
 		 if(doing_pizero) then
 		    write(6,*) ' ****--------  H(e,e''pi0)X  --------****'
+		    if(pizero_ngamma.eq.1) then
+		       write(6,*) 'Requiring only one photon from decaying pi0'
+		    elseif(pizero_ngamma.eq.2) then
+		       write(6,*) 'Requiring both photons from decaying pi0'
+		    else
+		       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
+		    endif			  
 		 else
 		    if(doing_hplus) then
 		       write(6,*) ' ****--------  H(e,e''pi+)X  --------****'
@@ -710,6 +718,13 @@ C DJG:
 	      elseif (doing_deutsemi) then
 		 if(doing_pizero) then
 		    write(6,*) ' ****--------  D(e,e''pi0)X  --------****'
+		    if(pizero_ngamma.eq.1) then
+		       write(6,*) 'Requiring only one photon from decaying pi0'
+		    elseif(pizero_ngamma.eq.2) then
+		       write(6,*) 'Requiring both photons from decaying pi0'
+		    else
+		       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
+		    endif
 		 else
 		    if(doing_hplus) then
 		       write(6,*) ' ****--------  D(e,e''pi+)X  --------****'
@@ -763,6 +778,13 @@ C DJG:
 	   endif
 	 if (doing_pizero) then
 	    write(6,*) ' ****-------  pi0 production  -------****'
+	    if(pizero_ngamma.eq.1) then
+	       write(6,*) 'Requiring only one photon from decaying pi0'
+	    elseif(pizero_ngamma.eq.2) then
+	       write(6,*) 'Requiring both photons from decaying pi0'
+	    else
+	       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
+	    endif
 	 else
 	    if (which_pion.eq.0 .or. which_pion.eq.10 .or. which_pion.eq.2) then
 	       write(6,*) ' ****-------  pi+ production  -------****'
@@ -956,6 +978,7 @@ c	      stop
 	ierr = regparmint('doing_semi', doing_semi_int,0)
 	ierr = regparmint('doing_hplus', doing_hplus_int,1)
 	ierr = regparmint('doing_pizero', doing_pizero_int,0)
+	ierr = regparmint('pizero_ngamma', pizero_ngamma,0)
 	ierr = regparmint('doing_rho',doing_rho_int,0)
 	ierr = regparmint('doing_decay',doing_decay_int,0)
 	ierr = regparmdouble('ctau',ctau,0.0)

@@ -870,12 +870,12 @@ c	include 'histograms.inc'
      >		'doing_kaon', doing_kaon, 'doing_pion', doing_pion
 	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_semi', doing_semi,
      >		'doing_rho', doing_rho, 'doing_hplus', doing_hplus
-	write(iun,'(5x,2(2x,a19,''='',l2))') 'doing_semipi',doing_semipi,
-     >		'doing_semika', doing_semika
+	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_semipi',doing_semipi,
+     >		'doing_semika', doing_semika, 'doing_pizero',doing_pizero
 	write(iun,'(5x,2(2x,a19,''='',l2))') 'doing_delta',doing_delta,
      >		'doing_phsp', doing_phsp
-	write(iun,'(5x,2(2x,a19,''='',i2))') 'which_pion', which_pion,
-     >		'which_kaon', which_kaon
+	write(iun,'(5x,3(2x,a19,''='',i2))') 'which_pion', which_pion,
+     >		'which_kaon', which_kaon, 'pizero_ngamma',pizero_ngamma
 	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_hyd_elast', doing_hyd_elast,
      >		'doing_deuterium', doing_deuterium, 'doing_heavy', doing_heavy
 	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_hydpi', doing_hydpi,
@@ -1475,7 +1475,7 @@ c	   write(*,*) 'sign_hms_part =' ,sign_hms_part
 	       ok_gamma1=.false.
 	       ok_gamma2=.false.
 
-c rotate from lab w/z along beam to frame w/z point to calorimeter
+c rotate from lab w/z along beam to frame w/z pointing to center of calorimeter
 
 	       if (hadron_arm.eq.8) then
 		  exrot1=ntup%gamma1(2)
@@ -1488,11 +1488,11 @@ c rotate from lab w/z along beam to frame w/z point to calorimeter
 	       else
 		  exrot1=ntup%gamma1(2)
 		  eyrot1=ntup%gamma1(3)*cos(spec%p%theta)+ntup%gamma1(4)*sin(spec%p%theta)
-		  ezrot1=ntup%gamma1(3)*sin(spec%p%theta)+ntup%gamma1(4)*cos(spec%p%theta)
+		  ezrot1=-ntup%gamma1(3)*sin(spec%p%theta)+ntup%gamma1(4)*cos(spec%p%theta)
 
 		  exrot2=ntup%gamma2(2)
 		  eyrot2=ntup%gamma2(3)*cos(spec%p%theta)+ntup%gamma2(4)*sin(spec%p%theta)
-		  ezrot2=ntup%gamma2(3)*sin(spec%p%theta)+ntup%gamma2(4)*cos(spec%p%theta)
+		  ezrot2=-ntup%gamma2(3)*sin(spec%p%theta)+ntup%gamma2(4)*cos(spec%p%theta)
 	       endif
 	       
 c first photon	       
@@ -1531,7 +1531,13 @@ c second photon
 
 c needs to initialize here since not initialized in mc_calo (like in other single arm MC's)	       
 	       ok_P_arm=.false.
-	       if(ok_gamma1 .and. ok_gamma2) ok_P_arm=.true. !require both photons
+	       if(pizero_ngamma.eq.2) then
+		  if(ok_gamma1 .and. ok_gamma2) ok_P_arm=.true. !require both photons
+	       elseif(pizero_ngamma.eq.1) then
+		  if(ok_gamma1 .or. ok_gamma2) ok_P_arm=.true. !require only one photon
+	       else
+		  stop 'pizero_ngamma not set correctly (should be 1 or 2), stopping'
+	       endif
 	    else ! if not doing pizero, just need to call once
 	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
      >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,

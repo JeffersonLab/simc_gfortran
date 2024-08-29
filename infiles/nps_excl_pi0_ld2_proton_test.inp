@@ -12,6 +12,7 @@ begin parm experiment
   doing_semi = 0
   doing_hplus = 0
   doing_pizero = 1
+  pizero_ngamma=2               ; 1=require at least 1 photon, 2=require both photons
 end parm experiment
 
 begin parm kinematics_main

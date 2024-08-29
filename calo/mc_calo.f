@@ -36,10 +36,16 @@ C-______________________________________________________________________________
 
 
 ! No collimator, but use collimator dimensions to define calo
-	parameter (h_entr = 64.0)
-	parameter (v_entr = 109.0)
-	parameter (h_exit = 64.0)
-	parameter (v_exit = 109.0)
+c	parameter (h_entr = 64.0)
+c	parameter (v_entr = 109.0)
+c	parameter (h_exit = 64.0)
+c	parameter (v_exit = 109.0)
+
+c Use size of NPS	
+	parameter (h_entr = 30.75) ! calorimeter 1/2 width: (30 blocks * 2.05 cm)/2.0
+	parameter (v_entr = 36.9) ! calorimeter 1/2 height: (36 blocks * 2.05 cm)/2.0
+	parameter (h_exit = 30.75)
+	parameter (v_exit = 36.9)
 
 ! Math constants
 
@@ -131,47 +137,50 @@ C-______________________________________________________________________________
 	    goto 500
 	  endif
 
-c Assume a position resolution of 0.5cm and energy resolution of 10%
-c
-	  x_fp = xs + 0.5 * gauss1(99.0)
-	  y_fp = ys + 0.5 * gauss1(99.0)
-	  ps = p*(1.0 + 0.10/sqrt(p/1000.0)*gauss1(99.0))
-	  write(*,*) ' elect mom = ',p,ps,(p-ps)/p
-	  dpps = (ps/p_spec-1.0)*100.0
+c positions, angles at front
+	  x_fp = xs
+	  y_fp = ys
+	  dx_fp=dxdzs
+	  dy_fp=dydzs
 
-
-
-
+C       skip all this fow, after checking that we hit calorimeter, just fill output
+C       with input-maybe add some smearing later.
+	  
 c no difference between recon angle and "focal plane" angles
 c use the z position determined by the hadron arm to
 c correct the distance from the beam interaction point to the hit in the calo
 c
-	   delta_y = -prot_zbeam*stheta
-	   delta_z =  prot_zbeam*ctheta
+c	   delta_y = -prot_zbeam*stheta
+c	   delta_z =  prot_zbeam*ctheta
 c   
-	  dx_fp = (x_fp-fry)/(drift_to_cal-delta_z)
-	  dy_fp = (y_fp-delta_y)/(drift_to_cal-delta_z)
+c	  dx_fp = (x_fp-fry)/(drift_to_cal-delta_z)
+c	  dy_fp = (y_fp-delta_y)/(drift_to_cal-delta_z)
 
 ! replace xs,ys,... with 'tracked' quantities.
-	  xs=x_fp
-	  ys=y_fp
-	  dxdzs=dx_fp
-	  dydzs=dy_fp
+c	  xs=x_fp
+c	  ys=y_fp
+c	  dxdzs=dx_fp
+c	  dydzs=dy_fp
 
 
 ! Reconstruct target quantities.
-	  call mc_calo_recon(dpp_recon,dth_recon,dph_recon,y_recon,fry,delta_y,delta_z,drift_to_cal)
-
-          if (using_tgt_field) then
-	     ok = .TRUE.
-	     call track_to_tgt(dpp_recon,y_recon,dph_recon,dth_recon,-frx,-fry,
-     >  	  -p,sqrt(m2),ctheta,-stheta,prot_zbeam,-1,ok)
-         endif
+c	  call mc_calo_recon(dpp_recon,dth_recon,dph_recon,y_recon,fry,delta_y,delta_z,drift_to_cal)
+c
+c          if (using_tgt_field) then
+c	     ok = .TRUE.
+c	     call track_to_tgt(dpp_recon,y_recon,dph_recon,dth_recon,-frx,-fry,
+c     >  	  -p,sqrt(m2),ctheta,-stheta,prot_zbeam,-1,ok)
+c         endif
 ! Fill output to return to main code
-	  dpp = dpp_recon
-	  dxdz = dph_recon
-	  dydz = dth_recon
-	  y = y_recon	  
+c	  dpp = dpp_recon
+c	  dxdz = dph_recon
+c	  dydz = dth_recon
+c	  y = y_recon
+
+c	  dpp = dpps
+c	  dxdz = dxdzs
+c	  dydz = dydzs
+c	  y = ys	  
 	  ok_spec = .true.
 	  caloSTOP_successes = caloSTOP_successes + 1
 

@@ -870,12 +870,12 @@ c	include 'histograms.inc'
      >		'doing_kaon', doing_kaon, 'doing_pion', doing_pion
 	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_semi', doing_semi,
      >		'doing_rho', doing_rho, 'doing_hplus', doing_hplus
-	write(iun,'(5x,2(2x,a19,''='',l2))') 'doing_semipi',doing_semipi,
-     >		'doing_semika', doing_semika
+	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_semipi',doing_semipi,
+     >		'doing_semika', doing_semika, 'doing_pizero',doing_pizero
 	write(iun,'(5x,2(2x,a19,''='',l2))') 'doing_delta',doing_delta,
      >		'doing_phsp', doing_phsp
-	write(iun,'(5x,2(2x,a19,''='',i2))') 'which_pion', which_pion,
-     >		'which_kaon', which_kaon
+	write(iun,'(5x,3(2x,a19,''='',i2))') 'which_pion', which_pion,
+     >		'which_kaon', which_kaon, 'pizero_ngamma',pizero_ngamma
 	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_hyd_elast', doing_hyd_elast,
      >		'doing_deuterium', doing_deuterium, 'doing_heavy', doing_heavy
 	write(iun,'(5x,3(2x,a19,''='',l2))') 'doing_hydpi', doing_hydpi,
@@ -1306,6 +1306,7 @@ c	enddo
 	real*8 eloss_E_arm, eloss_P_arm, r, beta, dangles(2), dang_in(2)
 	logical success
 	logical ok_E_arm, ok_P_arm
+	logical ok_gamma1, ok_gamma2
 	type(event):: orig, recon
 	type (event_main)::	main
 
@@ -1320,7 +1321,7 @@ c	enddo
 	real*8 dx_tmp,dy_tmp
 
 	real*8 ctheta,stheta,phad,pelec
-	real*8 zhadron
+	real*8 zhadron,exrot1,eyrot1,ezrot1,exrot2,eyrot2,ezrot2
 
 	real*8 zero
 	parameter (zero=0.0e0)	!double precision zero for subroutine calls
@@ -1415,14 +1416,6 @@ c	   write(*,*) 'sign_hms_part =' ,sign_hms_part
           endif 
 ! GAW - end 99/11/3
 
-C DJG need to decay the rho here before we begin transporting through the
-C DJG spectrometer
-c	  m2 = Mh2
-c	  if(doing_rho) then
-c	     call rho_decay(dx_P_arm,dy_P_arm,delta_P_arm,spec.p.P,m2,
-c	1	  main.epsilon,orig.Q2)
-c	  endif
-C DJG moved this to the last part of generate!!!
 
 ! ........ drift this position back to z=0, the plane through the target center
 
@@ -1477,8 +1470,82 @@ C DJG moved this to the last part of generate!!!
      >		m2, mc_smear, mc_smear, doing_decay,
      >		ntup%resfac, xtar_init_P, ok_P_arm, pathlen, hadron_arm, 
      >    using_SHMScoll)
-	  endif
+	 else if (hadron_arm.eq.7 .or. hadron_arm.eq.8) then
+	    if (doing_pizero) then ! call mc_calo twice - once for each photon
+	       ok_gamma1=.false.
+	       ok_gamma2=.false.
 
+c rotate from lab w/z along beam to frame w/z pointing to center of calorimeter
+
+	       if (hadron_arm.eq.8) then
+		  exrot1=ntup%gamma1(2)
+		  eyrot1=ntup%gamma1(3)*cos(spec%p%theta)-ntup%gamma1(4)*sin(spec%p%theta)
+		  ezrot1=ntup%gamma1(3)*sin(spec%p%theta)+ntup%gamma1(4)*cos(spec%p%theta)
+		  
+		  exrot2=ntup%gamma2(2)
+		  eyrot2=ntup%gamma2(3)*cos(spec%p%theta)-ntup%gamma2(4)*sin(spec%p%theta)
+		  ezrot2=ntup%gamma2(3)*sin(spec%p%theta)+ntup%gamma2(4)*cos(spec%p%theta)
+	       else
+		  exrot1=ntup%gamma1(2)
+		  eyrot1=ntup%gamma1(3)*cos(spec%p%theta)+ntup%gamma1(4)*sin(spec%p%theta)
+		  ezrot1=-ntup%gamma1(3)*sin(spec%p%theta)+ntup%gamma1(4)*cos(spec%p%theta)
+
+		  exrot2=ntup%gamma2(2)
+		  eyrot2=ntup%gamma2(3)*cos(spec%p%theta)+ntup%gamma2(4)*sin(spec%p%theta)
+		  ezrot2=-ntup%gamma2(3)*sin(spec%p%theta)+ntup%gamma2(4)*cos(spec%p%theta)
+	       endif
+	       
+c first photon	       
+	       dx_p_arm = exrot1/ezrot1
+	       dy_p_arm = eyrot1/ezrot1
+
+	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
+     >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
+     >		m2, mc_smear, mc_smear, doing_decay,
+     >		ntup%resfac, frx, fry, ok_gamma1, pathlen, using_tgt_field,
+     >          zhadron,hadron_arm,drift_to_cal)
+
+	       ntup%xcal_gamma1=-1.0d10
+	       ntup%ycal_gamma1=-1.0d10
+	       if(ok_gamma1) then
+		  ntup%xcal_gamma1=xfp
+		  ntup%ycal_gamma1=yfp
+	       endif
+
+c second photon	       
+	       dx_p_arm = exrot2/ezrot2
+	       dy_p_arm = eyrot2/ezrot2
+	       
+	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
+     >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
+     >		m2, mc_smear, mc_smear, doing_decay,
+     >		ntup%resfac, frx, fry, ok_gamma2, pathlen, using_tgt_field,
+     >          zhadron,hadron_arm,drift_to_cal)
+
+	       ntup%xcal_gamma2=-1.0d10
+	       ntup%ycal_gamma2=-1.0d10
+	       if(ok_gamma2) then
+		  ntup%xcal_gamma2=xfp
+		  ntup%ycal_gamma2=yfp
+	       endif
+
+c needs to initialize here since not initialized in mc_calo (like in other single arm MC's)	       
+	       ok_P_arm=.false.
+	       if(pizero_ngamma.eq.2) then
+		  if(ok_gamma1 .and. ok_gamma2) ok_P_arm=.true. !require both photons
+	       elseif(pizero_ngamma.eq.1) then
+		  if(ok_gamma1 .or. ok_gamma2) ok_P_arm=.true. !require only one photon
+	       else
+		  stop 'pizero_ngamma not set correctly (should be 1 or 2), stopping'
+	       endif
+	    else ! if not doing pizero, just need to call once
+	       call mc_calo(spec%p%p, spec%p%theta, delta_p_arm, x_p_arm,
+     >		y_p_arm, z_p_arm, dx_p_arm, dy_p_arm, xfp, dxfp, yfp, dyfp,
+     >		m2, mc_smear, mc_smear, doing_decay,
+     >		ntup%resfac, frx, fry, ok_P_arm, pathlen, using_tgt_field,
+     >          zhadron,hadron_arm,drift_to_cal)
+	    endif
+	 endif
 
 C DJG Do polarized target field stuff if needed
 C DJG Note that the call to track_to_tgt is with -fry: for some reason that routine then
@@ -1518,6 +1585,13 @@ C DJG For spectrometers to the left of the beamline, need to pass ctheta,-stheta
 	  main%FP%p%y = yfp
 	  main%FP%p%dy = dyfp
 	  main%FP%p%path = pathlen
+
+	  if(doing_pizero) then ! no pi0 reconstruction yet, but now complete_recon_ev will work
+	     main%RECON%p%delta = main%SP%p%delta
+	     main%RECON%p%yptar = main%SP%p%yptar
+	     main%RECON%p%xptar = main%SP%p%xptar
+	  endif
+	  
 
 ! CASE 2: Not using the detailed Monte Carlo, just copy the IN event to the
 ! OUT record

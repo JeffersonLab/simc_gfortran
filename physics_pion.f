@@ -124,7 +124,7 @@ c     >		targ%Mtar_struck/1000.,which_pion)
 
 CDG Use Peter Bosted's new fit to world, JLab 6 GeV, and preliminary 12 GeV data 
 	ntup%sigcm1 = sig_param_2021(thetacm,phicm,main%t/1.e6,vertex%q2/1.e6,s/1.e6,main%epsilon,
-     >           which_pion)
+     >           which_pion,doing_pizero)
 
 	sigma_eepi = ntup%sigcm1
 
@@ -134,9 +134,15 @@ c	if(main%wcm.lt.2300) then ! W less than 2.3 GeV
 	   Q2gev = vertex%q2/1.d6 !convert to GeV**2
 	   Wgev = main%wcm/1000.0 ! convert to GeV
 	   cthcm = cos(thetacm)
-	   E0 = vertex%Ein/1000.0  !convert to GeV
-	   ipi = 3 ! pi+ by default
-	   if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) ipi=4 ! pi-
+	   E0 = vertex%Ein/1000.0 !convert to GeV
+	   if(doing_pizero) then
+	      ipi=1		!pi0 from proton by default
+	      if (which_pion.eq.1 .or. which_pion.eq. 3) ipi=2 !pi0 from neutron
+	   else   
+	      ipi = 3		! pi+ by default
+	      if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) ipi=4 ! pi-
+	   endif
+
 	   call sigmaid(ipi,Q2gev,Wgev,E0,cthcm,phicm,sig0)
 ! convert from mub / dOmega* to mub / dt / dphi*
 	   ntup%sigcm2 = sig0 / ppicm / qstar / 2.
@@ -729,7 +735,8 @@ c W>1.4. Note: this was *not* done for eg1c!
       return
       end
 
-       real*8 function sig_param_2021(thcm,phicm,t,q2,wsq,eps,which_pion)
+      real*8 function sig_param_2021(thcm,phicm,t,q2,wsq,eps,
+     >      which_pion,doing_pizero)
 ! April 2021 fit to exclusive pi+ and pi- data from
 ! fpi1, fpi2, CT, pt-SIDIS, CSV-SIDIS, and KLT
 ! q2, t, and wsq should be in gev**2
@@ -737,8 +744,9 @@ c W>1.4. Note: this was *not* done for eg1c!
 ! Peter Bosted, from output of ~bosted/ptc/ptb.f
       implicit none
       real*8 thcm,phicm,t,q2,wsq,eps
-      real*8 sigl,sigt,sigttv,sigltv,sigexcl3
+      real*8 sigl,sigt,sigttv,sigltv,sigexcl3,sigexcl3p,sigexcl3m
       integer which_pion
+      logical doing_pizero	
       common/excmn/sigl,sigt,sigttv,sigltv
       real*8 pp(17)/
      >     1.60077,
@@ -777,26 +785,34 @@ c W>1.4. Note: this was *not* done for eg1c!
      >    -1.00355,
      >     0.05055/
 
-      if (which_pion.eq.1.or.which_pion.eq.11.or.which_pion.eq.3) then
-       call exclfit(t,thcm,phicm,q2,
-     >    wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pm)
-      else ! pi+
-       call exclfit(t,thcm,phicm,q2,
-     >    wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pp)
-      endif
-      sig_param_2021 = sigexcl3
+	if(doing_pizero) then
+	   call exclfit(t,thcm,phicm,q2,
+     >        wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3p,pp,0.0)
+	   call exclfit(t,thcm,phicm,q2,
+     >        wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3m,pm,0.0)
+	   sigexcl3 = (sigexcl3m + sigexcl3p)/2.0 ! first pass, average of pi+ and pi-
+	else
+	   if (which_pion.eq.1.or.which_pion.eq.11.or.which_pion.eq.3) then
+	      call exclfit(t,thcm,phicm,q2,
+     >           wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pm,1.0)
+	   else			! pi+
+	      call exclfit(t,thcm,phicm,q2,
+     >          wsq,eps,sigl,sigt,sigttv,sigltv,sigexcl3,pp,1.0)
+	   endif
+	endif
+	sig_param_2021 = sigexcl3
       return 
       end
 
       subroutine exclfit(t,thetacm,phicm,q2_gev,
-     >  s_gev,eps,sigl,sigt,sigtt,siglt,sig,p)
+     >  s_gev,eps,sigl,sigt,sigtt,siglt,sig,p,fpifact)
 
       implicit none
       real*8 p(15),t,thetacm,phicm,q2_gev,s_gev,eps,sigl
       real*8  sigt,sigtt,siglt,sig,mtar_gev/0.938/
-      real*8 fpi,q2fpi2,sig219
+      real*8 fpi,q2fpi2,sig219,fpifact
 
-       fpi = 1. / 
+       fpi = fpifact / 
      >  (1.0 + p(1)*q2_gev + p(2)*q2_gev**2)
 
        q2fpi2 = q2_gev * fpi**2

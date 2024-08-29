@@ -138,6 +138,7 @@ c this is for DSS
 c	b = pt_b_param   ! now parameter in input file
 
 	Mpi_gev = Mpi/1000.0
+	if(doing_pizero) Mpi_gev = Mpi0/1000.0
 	Mp_gev = Mp/1000.0
 C DJG: Setup stuff for doing "central" cross section calculation.  Here, I'm
 C DJG: assuming we want the cross section at some "point" in Q2 and W space.
@@ -476,6 +477,12 @@ c new PB fit using zp for pions. This is z * D
 	   db = u1
 	   s1 = yu
 	   sb = s1
+	   if(doing_pizero) then ! just get averge of pi+ and pi-
+	      u1 = (yf + yu) / 2.
+	      d1 = (yf + yu) / 2.
+	      ub = (yf + yu) / 2.
+	      d1 = (yf + yu) / 2.
+	   endif
  	elseif(doing_semika) then
 	   IHdss=2 ! Kaons, 1=Pions
 	   IOdss=1 ! NLO

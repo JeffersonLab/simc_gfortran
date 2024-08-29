@@ -170,6 +170,20 @@ c	  ntu(11) = vertex%p%xptar			!mr
 		ntu(55) = ntup%sigcm2 !sigcm - factorized.
 	     endif
 	  endif
+	  if(doing_pizero) then
+	     ntu(54) = ntup%xcal_gamma1
+	     ntu(55) = ntup%ycal_gamma1
+	     ntu(56) = ntup%gamma1(1)
+	     ntu(57) = ntup%gamma1(2)
+	     ntu(58) = ntup%gamma1(3)
+	     ntu(59) = ntup%gamma1(4)
+	     ntu(60) = ntup%xcal_gamma2
+	     ntu(61) = ntup%ycal_gamma2
+	     ntu(62) = ntup%gamma2(1)
+	     ntu(63) = ntup%gamma2(2)
+	     ntu(64) = ntup%gamma2(3)
+	     ntu(65) = ntup%gamma2(4)
+	  endif
 	else if (doing_semi.or.doing_rho) then
 	  ntu(34) = ntup%mm/1000.			!missmass (nucleon)
 	  ntu(35) = recon%p%P/1000.			!ppi - GeV/c
@@ -213,6 +227,20 @@ c	  ntu(11) = vertex%p%xptar			!mr
 		ntu(57) = ntup%rhomass
 		ntu(58) = ntup%rhotheta
 	     endif
+	  endif
+	  if(doing_pizero) then
+	     ntu(57) = ntup%xcal_gamma1
+	     ntu(58) = ntup%ycal_gamma1
+	     ntu(59) = ntup%gamma1(1)
+	     ntu(60) = ntup%gamma1(2)
+	     ntu(61) = ntup%gamma1(3)
+	     ntu(62) = ntup%gamma1(4)
+	     ntu(63) = ntup%xcal_gamma2
+	     ntu(64) = ntup%ycal_gamma2
+	     ntu(65) = ntup%gamma2(1)
+	     ntu(66) = ntup%gamma2(2)
+	     ntu(67) = ntup%gamma2(3)
+	     ntu(68) = ntup%gamma2(4)
 	  endif
 	else if (doing_hyd_elast .or. doing_deuterium .or. doing_heavy) then
 	  ntu(34) = corrsing/1000.

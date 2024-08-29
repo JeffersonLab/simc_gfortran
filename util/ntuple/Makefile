@@ -15,7 +15,8 @@ MYOS := $(subst -,,$(shell uname))
 #CERNLIBS = -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lmathlib
 CERNLIBS = -Wl,-static -lgeant$(GEANTVER) -lpawlib -lgraflib -lgrafX11 -lpacklib -lkernlib -lmathlib -Wl,-dy
 
-
+#
+#CERN_ROOT=/cvmfs/oasis.opensciencegrid.org/jlab/scicomp/sw/el9/cernlib/2023
 #For use with gfortran compiler
 # -fno-automatic - all program storage treated as static
 ifeq ($(MYOS),Linux)

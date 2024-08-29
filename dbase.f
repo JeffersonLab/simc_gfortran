@@ -21,7 +21,14 @@
 !       Added additional options for which_pion:
 !       which_pion = 2: gamma* p -> pi+ Delta0,  gamma* D -> pi+ Delta0 n, or -> pi+ Delta- p
 !       which_pion = 3: gamma* p -> pi- Delta++, gamma* D -> pi- Delta++ n, or -> pi- Delta+ p
-!
+!       More options for pi0:
+!       set "doing_pizero =1" in input file, then
+!       which_pion= 0( 1) gives pi0 production from proton (neutron)
+!       which_pion= 2: gamma* p -> pi0 Delta+
+!       which_pion= 3: gamma* n -> pi0 Delta0
+!       set "pizero_ngamma" to 1 or 2 whether you want to detect a minimum of 1 or 2 photons	
+
+	
 ! 4. doing_phsp:Generate acceptance with radiation and cross section disabled,
 !	use doing_kaon or doing_pion to set hadron mass, then 
 !	set doing_eep,doing_kaon and doing_pion to FALSE.
@@ -129,8 +136,9 @@ C DJG:
 
 ! ... dbase field experiment.
 	if (doing_pion) then
-	  Mh=Mpi
-	  if (nint(targ%A).eq.1 .and. which_pion.eq.1) 
+	   Mh=Mpi
+	   if (doing_pizero) Mh=Mpi0
+	   if (nint(targ%A).eq.1 .and. which_pion.eq.1 .and. .not. doing_pizero) 
      >		stop 'Pi- production from Hydrogen not allowed!'
 	  if (nint(targ%A).le.2 .and. which_pion.ge.10) 
      >		stop 'Coherent production from Hydrogen/Deuterium not allowed!'
@@ -138,6 +146,7 @@ C DJG:
      >		stop 'Coherent Pi- production from 3He not allowed!'
 	  if (nint(targ%A).eq.4 .and. which_pion.ge.10) 
      >		stop 'Coherent production from 4He not allowed!'
+	  
 	  doing_hydpi = (nint(targ%A).eq.1)
 	  doing_deutpi = (nint(targ%A).eq.2)
 	  doing_hepi = (nint(targ%A).ge.3)
@@ -173,7 +182,8 @@ C DJG:
 	else if (doing_delta) then
 	  Mh=Mp
 	  if (nint(targ%A).ge.2) 
-     >      write(6,*) 'WARNING: Delta cross section model only set up for proton target!'
+     >      write(6,*) 'WARNING: Delta cross section model",
+     >       " only set up for proton target!'
 	  doing_hyddelta = (nint(targ%A).eq.1)
 	  doing_deutdelta = (nint(targ%A).eq.2)
 	  doing_hedelta = (nint(targ%A).ge.3)
@@ -182,6 +192,7 @@ C DJG:
 	else if (doing_semi) then
 	   if(doing_semipi) then
 	      Mh=Mpi
+	      if(doing_pizero) 	Mh=Mpi0
 	   elseif(doing_semika) then
 	      Mh=Mk
 	   endif
@@ -241,10 +252,10 @@ C DJG:
 	  stop 'I dont know what phi should be for the electron arm'
 	endif
 
-	if (hadron_arm.eq.1 .or. hadron_arm.eq.3) then
+	if (hadron_arm.eq.1 .or. hadron_arm.eq.3 .or. hadron_arm.eq.7) then
 	  spec%p%phi = 3*pi/2.
 	else if (hadron_arm.eq.2 .or. hadron_arm.eq.4 .or.
-     >		 hadron_arm.eq.5 .or. hadron_arm.eq.6) then
+     >		 hadron_arm.eq.5 .or. hadron_arm.eq.6 .or. hadron_arm.eq.8) then
 	  spec%p%phi = pi/2.
 	else
 	  stop 'I dont know what phi should be for the hadron arm'
@@ -315,34 +326,54 @@ C DJG:
 ! ... A as target, with one n->p or p->n.
 
 	else if (doing_pion) then
-	  if (which_pion .eq. 0) then
-	    targ%Mtar_struck = Mp      ! H(e,e'pi+)n or D(e,e'pi+)nn
-	    targ%Mrec_struck = Mn
-	    sign_hadron=1.0
-	  else if (which_pion .eq. 1) then
-	    targ%Mtar_struck = Mn      ! D(e,e'pi-) pp
-	    targ%Mrec_struck = Mp
-	    sign_hadron=-1.0
-	  else if (which_pion .eq. 2 ) then
-	    targ%Mtar_struck = Mp      ! H(e,e'pi+)Delta0, D(e,e'pi+)nDelta0, D(e,e'pi+)pDelta-
-	    targ%Mrec_struck = MDelta
-	    sign_hadron = 1.0
-	  else if (which_pion .eq. 3) then
-	    targ%Mtar_struck = Mp      ! H(e,e'pi-)Delta++, D(e,e'pi-)nDelta++, D(e,e'pi-)pDelta+
-	    targ%Mrec_struck = MDelta
-	    sign_hadron = -1.0
-	  else if (which_pion .eq. 10) then
-	    targ%Mtar_struck = targ%M  ! A(e,e'pi+)A'
-	    targ%Mrec_struck = targ%Mrec
-	    Mrec_guess = targ%M - Mp + Mn
-	    sign_hadron=1.0
-	  else if (which_pion .eq. 11) then
-	    targ%Mtar_struck = targ%M  ! A(e,e'pi-)A'
-	    targ%Mrec_struck = targ%Mrec
-	    Mrec_guess = targ%M - Mn + Mp
-	    sign_hadron=-1.0
-	  else
-	    stop 'Bad value for which_pion'
+	   if(doing_pizero) then
+	      if (which_pion .eq. 0) then
+		 targ%Mtar_struck = Mp ! H(e,e'pi0)p or D(e,e'p0)pn
+		 targ%Mrec_struck = Mp
+		 sign_hadron=1.0  ! only used for polarized target...
+	     else if (which_pion .eq. 1) then
+		targ%Mtar_struck = Mn ! D(e,e'pi0) pn (from neutron)
+		targ%Mrec_struck = Mn
+		sign_hadron=-1.0
+	     else if (which_pion .eq. 2 ) then
+		targ%Mtar_struck = Mp ! H(e,e'pi0)Delta+, D(e,e'pi0)nDelta+
+		targ%Mrec_struck = MDelta
+		sign_hadron = 1.0
+	     else if (which_pion .eq. 3) then
+		targ%Mtar_struck = Mn ! D(e,e'pi0)pDelta0
+		targ%Mrec_struck = MDelta
+		sign_hadron = -1.0
+	     endif
+	   else
+	     if (which_pion .eq. 0) then
+		targ%Mtar_struck = Mp ! H(e,e'pi+)n or D(e,e'pi+)nn
+		targ%Mrec_struck = Mn
+		sign_hadron=1.0
+	     else if (which_pion .eq. 1) then
+		targ%Mtar_struck = Mn ! D(e,e'pi-) pp
+		targ%Mrec_struck = Mp
+		sign_hadron=-1.0
+	     else if (which_pion .eq. 2 ) then
+		targ%Mtar_struck = Mp ! H(e,e'pi+)Delta0, D(e,e'pi+)nDelta0, D(e,e'pi+)pDelta-
+		targ%Mrec_struck = MDelta
+		sign_hadron = 1.0
+	     else if (which_pion .eq. 3) then
+		targ%Mtar_struck = Mp ! H(e,e'pi-)Delta++, D(e,e'pi-)nDelta++, D(e,e'pi-)pDelta+
+		targ%Mrec_struck = MDelta
+		sign_hadron = -1.0
+	     else if (which_pion .eq. 10) then
+		targ%Mtar_struck = targ%M ! A(e,e'pi+)A'
+		targ%Mrec_struck = targ%Mrec
+		Mrec_guess = targ%M - Mp + Mn
+		sign_hadron=1.0
+	     else if (which_pion .eq. 11) then
+		targ%Mtar_struck = targ%M ! A(e,e'pi-)A'
+		targ%Mrec_struck = targ%Mrec
+		Mrec_guess = targ%M - Mn + Mp
+		sign_hadron=-1.0
+	     else
+		stop 'Bad value for which_pion'
+	     endif
 	  endif
 
 	  if (which_pion .ge. 10) then	!Coherent pion production.
@@ -668,16 +699,38 @@ C DJG:
 	else if (doing_semi) then 
            if (doing_semipi) then
 	      if(doing_hydsemi) then
-		 if(doing_hplus) then
-		    write(6,*) ' ****--------  H(e,e''pi+)X  --------****'
+		 if(doing_pizero) then
+		    write(6,*) ' ****--------  H(e,e''pi0)X  --------****'
+		    if(pizero_ngamma.eq.1) then
+		       write(6,*) 'Requiring only one photon from decaying pi0'
+		    elseif(pizero_ngamma.eq.2) then
+		       write(6,*) 'Requiring both photons from decaying pi0'
+		    else
+		       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
+		    endif			  
 		 else
-		    write(6,*) ' ****--------  H(e,e''pi-)X  --------****'
+		    if(doing_hplus) then
+		       write(6,*) ' ****--------  H(e,e''pi+)X  --------****'
+		    else
+		       write(6,*) ' ****--------  H(e,e''pi-)X  --------****'
+		    endif
 		 endif
 	      elseif (doing_deutsemi) then
-		 if(doing_hplus) then
-		    write(6,*) ' ****--------  D(e,e''pi+)X  --------****'
+		 if(doing_pizero) then
+		    write(6,*) ' ****--------  D(e,e''pi0)X  --------****'
+		    if(pizero_ngamma.eq.1) then
+		       write(6,*) 'Requiring only one photon from decaying pi0'
+		    elseif(pizero_ngamma.eq.2) then
+		       write(6,*) 'Requiring both photons from decaying pi0'
+		    else
+		       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
+		    endif
 		 else
-		    write(6,*) ' ****--------  D(e,e''pi-)X  --------****'
+		    if(doing_hplus) then
+		       write(6,*) ' ****--------  D(e,e''pi+)X  --------****'
+		    else
+		       write(6,*) ' ****--------  D(e,e''pi-)X  --------****'
+		    endif
 		 endif
 	      endif
 	      
@@ -710,31 +763,45 @@ C DJG:
 	    stop 'I don''t have ANY idea what (e,e''p)pi we''re doing!!!'
 	  endif
 	else if (doing_pion) then
-	  if (doing_hydpi) then
-	    if (targ%A .eq. 1) then
-	      write(6,*) ' ****--------  H(e,e''pi)  --------****'
-	    else if (targ%A .ge. 3) then
+	   if (doing_hydpi) then
+	      if (targ%A .eq. 1) then
+		 write(6,*) ' ****--------  H(e,e''pi)  --------****'
+	      else if (targ%A .ge. 3) then
+		 write(6,*) ' ****--------  A(e,e''pi)  --------****'
+	      endif
+	   else if (doing_deutpi) then
+	      write(6,*) ' ****--------  D(e,e''pi)  --------****'
+	   else if (doing_hepi) then
 	      write(6,*) ' ****--------  A(e,e''pi)  --------****'
+	   else
+	      stop 'I don''t have ANY idea what (e,e''pi) we''re doing!!!'
+	   endif
+	 if (doing_pizero) then
+	    write(6,*) ' ****-------  pi0 production  -------****'
+	    if(pizero_ngamma.eq.1) then
+	       write(6,*) 'Requiring only one photon from decaying pi0'
+	    elseif(pizero_ngamma.eq.2) then
+	       write(6,*) 'Requiring both photons from decaying pi0'
+	    else
+	       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
 	    endif
-	  else if (doing_deutpi) then
-	    write(6,*) ' ****--------  D(e,e''pi)  --------****'
-	  else if (doing_hepi) then
-	    write(6,*) ' ****--------  A(e,e''pi)  --------****'
-	  else
-	    stop 'I don''t have ANY idea what (e,e''pi) we''re doing!!!'
-	  endif
-	  if (which_pion.eq.0 .or. which_pion.eq.10 .or. which_pion.eq.2) then
-	    write(6,*) ' ****-------  pi+ production  -------****'
-	  else if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then
-	    write(6,*) ' ****-------  pi- production  -------****'
-	  endif
-	  if (which_pion.eq.0 .or. which_pion.eq.1) then
+	 else
+	    if (which_pion.eq.0 .or. which_pion.eq.10 .or. which_pion.eq.2) then
+	       write(6,*) ' ****-------  pi+ production  -------****'
+	    else if (which_pion.eq.1 .or. which_pion.eq.11 .or. which_pion.eq.3) then
+	       write(6,*) ' ****-------  pi- production  -------****'
+	    endif
+	 endif
+	 if (which_pion.eq.0 .or. which_pion.eq.1) then
 	    write(6,*) ' ****---- Quasifree Production ----****'
-	  else if (which_pion.eq.10 .or. which_pion.eq.11) then
+	 else if (which_pion.eq.10 .or. which_pion.eq.11) then
 	    write(6,*) ' ****----  Coherent Production ----****'
-	  else if (which_pion.eq.2 .or. which_pion.eq.3) then
+	 else if (which_pion.eq.2 .or. which_pion.eq.3) then
+	    if(doing_hydpi .and. which_pion.eq.3) then
+	       stop 'Can''t do Delta+ production from neutron for pi0'
+	    endif
 	    write(6,*) ' ****---- Quasifree Production - Delta final state ----****'
-	  endif
+	 endif
 	else if (doing_kaon) then
 	  if (doing_hydkaon) then
 	    if (targ%A .eq. 1) then
@@ -800,13 +867,14 @@ c	      stop
 	else if (electron_arm.eq.4) then
 	  write(6,*) '   HRSL is detecting electrons'
 	else if (electron_arm.eq.5) then
-	  write(6,*) '   SHMS is detecting electrons (SSA TUNE)'
+	  write(6,*) '   SHMS is detecting electrons'
 	else if (electron_arm.eq.6) then
-	  write(6,*) '   SHMS is detecting electrons (LSA TUNE)'
+	   write(6,*) '   This spectrometer option no longer available'
+	   stop
 	else if (electron_arm.eq.7) then
-	  write(6,*) '   BIGCAL is detecting electrons (HMS side of beam)'
+	  write(6,*) '   CALORIMETER is detecting electrons (HMS side of beam)'
 	else if (electron_arm.eq.8) then
-	  write(6,*) '   BIGCAL is detecting electrons (SOS side of beam)'
+	  write(6,*) '   CALORIMETER is detecting electrons (SHMS side of beam)'
 	endif
 
 	if (hadron_arm.eq.1) then
@@ -818,12 +886,14 @@ c	      stop
 	else if (hadron_arm.eq.4) then
 	  write(6,*) '   HRSL is detecting hadrons'
 	else if (hadron_arm.eq.5) then
-	  write(6,*) '   SHMS is detecting hadrons (SSA TUNE)'
+	  write(6,*) '   SHMS is detecting hadrons'
 	else if (hadron_arm.eq.6) then
-	  write(6,*) '   SHMS is detecting hadrons (LSA TUNE)'
-	else if (hadron_arm.eq.7 .or. hadron_arm.eq.8) then
-	  write(6,*) ' Cannot use Bigcal for hadrons'
-	  stop
+	   write(6,*) '   This spectrometer option no longer available'
+	   stop
+	else if (hadron_arm.eq.7) then
+	   write(6,*) '   CALORIMETER is detecting hadrons (HMS side of beam)'
+	else if (hadron_arm.eq.8) then
+	   write(6,*) '   CALORIMETER is detecting hadrons (SHMS side of beam)'
 	endif
 
 	if (hadron_arm.eq.electron_arm) then
@@ -836,9 +906,13 @@ c	      stop
 	else if ((hadron_arm+electron_arm).eq.7) then
 	  write(6,*) 'Welcome to Hall A at Jefferson Lab - Enjoy your stay!'
 	else if ( electron_arm.eq.7 .and. hadron_arm .eq. 5) then
-	  write(6,*) ' Bigcal and SHMS'
+	  write(6,*) ' Bigcal detecting electrons and SHMS detecting hadrons'
 	else if ( electron_arm.eq.8 .and. hadron_arm .eq. 1) then
-	  write(6,*) ' Bigcal and HMS'
+	   write(6,*) ' Bigcal detecting electrons and HMS detecting hadrons'
+	else if ( electron_arm.eq.1 .and. hadron_arm .eq. 8) then
+	  write(6,*) ' HMS detecting electrons and NPS detecting pi0/gammas'
+	else if ( electron_arm.eq.5 .and. hadron_arm .eq. 7) then
+	  write(6,*) ' SHMS detecting electrons and NPS detecting pi0/gammas'
 	else
 	  write(6,*) '**WARNING: SIMC works best when both spectrometers are in the same hall!!'
 	endif
@@ -903,6 +977,8 @@ c	      stop
 	ierr = regparmint('doing_delta',doing_delta_int,0)
 	ierr = regparmint('doing_semi', doing_semi_int,0)
 	ierr = regparmint('doing_hplus', doing_hplus_int,1)
+	ierr = regparmint('doing_pizero', doing_pizero_int,0)
+	ierr = regparmint('pizero_ngamma', pizero_ngamma,0)
 	ierr = regparmint('doing_rho',doing_rho_int,0)
 	ierr = regparmint('doing_decay',doing_decay_int,0)
 	ierr = regparmdouble('ctau',ctau,0.0)
@@ -1040,6 +1116,7 @@ ccc
 	if(doing_phsp_int.gt.0) doing_phsp=.true.
 	if(doing_semi_int.gt.0) doing_semi=.true.
         if(doing_hplus_int.gt.0) doing_hplus=.true.
+	if(doing_pizero_int.gt.0) doing_pizero=.true.
         if(doing_rho_int.gt.0) doing_rho=.true.
         if(doing_decay_int.gt.0) doing_decay=.true.
         if(do_fermi_int.gt.0) do_fermi=.true.

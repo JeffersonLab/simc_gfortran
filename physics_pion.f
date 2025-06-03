@@ -808,7 +808,7 @@ c W>1.4. Note: this was *not* done for eg1c!
      >  s_gev,eps,sigl,sigt,sigtt,siglt,sig,p,fpifact)
 
       implicit none
-      real*8 p(15),t,thetacm,phicm,q2_gev,s_gev,eps,sigl
+      real*8 p(17),t,thetacm,phicm,q2_gev,s_gev,eps,sigl
       real*8  sigt,sigtt,siglt,sig,mtar_gev/0.938/
       real*8 fpi,q2fpi2,sig219,fpifact
 

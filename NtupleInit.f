@@ -259,6 +259,8 @@ c	endif
 	     NtupleTag(m) = 'Mrho' ! 57 or 65
 	     m = m+1
 	     NtupleTag(m) = 'Thrho' ! 58 or 66
+	     m = m+1
+	     NtupleTag(m) = 'mmnuc'	! 59
 	  endif
 
 	  if(doing_pizero) then
@@ -310,7 +312,11 @@ c	endif
 	  m = m+1
 	  NtupleTag(m) = 'sigcc'	! 43
 	  m = m+1
-	  NtupleTag(m) = 'Weight'	! 44
+	  NtupleTag(m) = 'Weight' ! 44
+	  m = m+1
+	  NtupleTag(m) = 'theta_e' ! 45
+	  m = m+1
+	  NtupleTag(m) = 'theta_p'	! 46
 	endif
 
 !	else		!used to be the if (doing_phsp) option.

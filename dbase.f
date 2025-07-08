@@ -209,7 +209,7 @@ C DJG:
 	   Mh = Mrho
 	   doing_hydrho = (nint(targ%A).eq.1)
 	   doing_deutrho = (nint(targ%A).eq.2)
-	   doing_herho = (nint(targ%A).eq.3)
+	   doing_herho = (nint(targ%A).ge.3)!HSV changed line for rho in piCT
 	   doing_eep=.false.
 
 	else		!doing_eep if nothing else set.
@@ -561,7 +561,7 @@ C DJG:
 
 	if(doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon.or.doing_deutsemi) then
 	  if(doing_deutpi .or. doing_deutkaon .or. doing_deutsemi) open(1,file='deut.dat',status='old',form='formatted')
-	  if(doing_hepi .or. doing_hekaon) then
+	  if(doing_hepi .or. doing_hekaon .or. doing_herho) then
 	    if (nint(targ%A).eq.3) then
 	      open(1,file='he3.dat',status='old',form='formatted')
 	    else if (nint(targ%A).eq.4) then
@@ -590,7 +590,7 @@ C DJG:
 ! ... Em_max,Pm_max.
 !      Also load spectral function for deuterium of heavy so we have the choice later
 !      to use it for (e,e'p)
-	if(doing_hepi.or.doing_hekaon .or. (doing_heavy.and.use_benhar_sf)) then
+	if(doing_hepi.or.doing_hekaon.or.doing_herho .or. (doing_heavy.and.use_benhar_sf)) then
 	  if (nint(targ%A).eq.3) then
 	    write(6,*) 'Using the mod version of 3He S.F. rather than Paris.'
 	    tmpfile='benharsf_3mod.dat'

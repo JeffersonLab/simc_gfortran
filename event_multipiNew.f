@@ -141,8 +141,17 @@ c	include 'structures.inc'
 	type(event):: vertex, orig
 
 	real*8 nsig_max
-	parameter(nsig_max=3.0e0)      !max #/sigma for gaussian ran #s.
-
+	parameter(nsig_max=3.0e0) !max #/sigma for gaussian ran #s.
+	real*8 ben_rnd		!added for pionct 3/18/06 
+c$$$c these next few variables are for 2-pi production in pionct 7/21/06
+	real*8 dpipfer,dpipferx,dpipfery,dpipferz,dpipferlo,dpipferhi
+	real*8 dpiranth1,dpiranth,dpiranph,dpiefer
+	real*8 dpi_orig_p_p,dpi_orig_p_E,dpi_orig_p_xptar,dpi_orig_p_yptar
+	real*8 dpi_orig_p_theta,dpi_orig_p_phi
+	real*8 dpi_orig_up_x,dpi_orig_up_y,dpi_orig_up_z
+	real*8 new_orig_up_x,new_orig_up_y,new_orig_up_z
+	real*8 term1,term2,term3,term4,dpimm,dpithresh
+c$$$c end 7/21/06
 
 ! Randomize the position of the interaction inside the available region.
 ! gen.xwid and gen.ywid are the intrinsic beam widths (one sigma value).
@@ -364,11 +373,29 @@ C modified 5/15/06 for poinct
 	    vertex%Em = Mp + Mn - targ%M
 	    m_spec = targ%M - targ%Mtar_struck + vertex%Em != Mn(Mp) for pi+(-)
 	    efer = targ%M - sqrt(m_spec**2+pfer**2)
+c       method 2, Em=0, added for pionct 6/16/06
+	    vertex%Em=0.
+	    m_spec = targ%M - targ%Mtar_struck + vertex%Em != Mn(Mp) for pi+(-)
+	    efer = targ%M - sqrt(m_spec**2+pfer**2)
+c$$$c       method 3, proton on shell, added for pionct 6/16/06
+c$$$	    vertex.Em=0. 
+c$$$	    efer = sqrt(pfer**2 + (targ.Mtar_struck)**2)
+c$$$	    m_spec = sqrt((targ.M-efer)**2 - pfer**2) != Mn(Mp) for pi+(-)
+
+	    
 	  endif
 	  if (doing_hepi .or. doing_hekaon .or. doing_hedelta .or. doing_herho) then
 	    call generate_em(pfer,vertex%Em)		!Generate Em
 	    m_spec = targ%M - targ%Mtar_struck + vertex%Em != M^*_{A-1}
 	    efer = targ%M - sqrt(m_spec**2+pfer**2)
+c       method 2, Em=0, added for pionct 6/16/06
+	    vertex%Em=0.
+	    m_spec = targ%M - targ%Mtar_struck + vertex%Em != M^*_{A-1}
+	    efer = targ%M - sqrt(m_spec**2+pfer**2)
+c$$$c       method 3, proton on shell, added for pionct 6/16/06
+c$$$	    vertex.Em=0. 
+c$$$	    efer = sqrt(pfer**2 + (targ.Mtar_struck)**2)
+c$$$	    m_spec = sqrt((targ.M-efer)**2 - pfer**2) 
 	  endif
 	endif
 
@@ -420,7 +447,89 @@ C DJG spectrometer
 	if(doing_rho) then
 	   call rho_decay(orig,spec%p%P,main%epsilon,success)
 	endif
+c$$$C Pionct 7/21/06, throw something together here to simulate 2-pi production -NB very little physics!!
+c$$$* Generate fermi motion of 2nd nucleon that is struck when 2nd pion is created
+c$$$* dpi is for double-pion production
+	dpipfer=0.0
+	dpipferx=0.0
+	dpipfery=0.0
+	dpipferz=0.0
+	ranprob=grnd()
+	ii=1
+	do while (ranprob.gt.mprob(ii) .and. ii.lt.nump)
+	   ii=ii+1
+	enddo
+	if (ii.eq.1) then
+	   dpipferlo=0
+	else
+	   dpipferlo=(pval(ii-1)+pval(ii))/2
+	endif
+	if (ii.eq.nump) then
+	   dpipferhi=pval(nump)
+	else
+	   dpipferhi=(pval(ii)+pval(ii+1))/2
+	endif
+	dpipfer=pferlo+(pferhi-pferlo)*grnd()
+	dpiranth1=grnd()*2.-1.0
+	dpiranth=acos(ranth1)
+	dpiranph=grnd()*2.*pi
+	dpipferx=sin(ranth)*cos(ranph)
+	dpipfery=sin(ranth)*sin(ranph)
+	dpipferz=cos(ranth)	
+c* second Nucleon now has fermi motion
+	dpiefer=sqrt(dpipfer**2+ 939.0**2)
+c*	print *, dpipfer, dpiefer, dpipferx, dpipfery, dpipferz
 
+c* store initial pion 4-momentum 
+	dpi_orig_p_p     = orig%p%p
+	dpi_orig_p_E     = orig%p%E
+	dpi_orig_p_xptar = orig%p%xptar
+	dpi_orig_p_yptar = orig%p%yptar
+	dpi_orig_p_theta = orig%p%theta
+	dpi_orig_p_phi   = orig%p%phi
+	dpi_orig_up_x    = sin(orig%p%theta)*cos(orig%p%phi)
+	dpi_orig_up_y    = sin(orig%p%theta)*sin(orig%p%phi)
+	dpi_orig_up_z    = cos(orig%p%theta)
+c*	print *, 'init= ', dpi_orig_p_p, dpi_orig_p_E, dpi_orig_up_x, dpi_orig_up_y, dpi_orig_up_z
+
+c* generate outgoing pi+ using spectrometer acceptance, and throw away if cannot conserve 4-momentum	
+	Emin = spec%p%P*(1.0+SPedge%p%delta%min/100.0)
+	Emax = spec%p%P*(1.0+SPedge%p%delta%max/100.0)
+	if (Emin.gt.Emax) then
+	   success = .false.
+	   goto 100
+	endif
+	orig%p%E = Emin + grnd()*(Emax-Emin)
+	orig%p%P = sqrt(orig%p%E**2 - Mh2)
+	orig%p%delta = 100.*(orig%p%P-spec%p%P)/spec%p%P
+	orig%p%yptar=gen%p%yptar%min+grnd()*
+     >	    (gen%p%yptar%max-gen%p%yptar%min)
+	orig%p%xptar=gen%p%xptar%min+grnd()*
+     >	    (gen%p%xptar%max-gen%p%xptar%min)
+	call physics_angles(spec%p%theta,spec%p%phi,
+     &		orig%p%xptar,orig%p%yptar,orig%p%theta,orig%p%phi)
+	new_orig_up_x    = sin(orig%p%theta)*cos(orig%p%phi)
+	new_orig_up_y    = sin(orig%p%theta)*sin(orig%p%phi)
+	new_orig_up_z    = cos(orig%p%theta)
+c*	print *, 'final= ', orig.p.P, orig.p.E, new_orig_up_x, new_orig_up_y, new_orig_up_z
+
+c* calculate missing mass of 2nd pion+nucleon
+	term1=(dpiefer+dpi_orig_p_E-orig%p%E)**2  !energy term
+	term2=(dpipfer*dpipferx + dpi_orig_p_p*dpi_orig_up_x - orig%p%P*new_orig_up_x)**2
+	term3=(dpipfer*dpipfery + dpi_orig_p_p*dpi_orig_up_y - orig%p%P*new_orig_up_y)**2
+	term4=(dpipfer*dpipferz + dpi_orig_p_p*dpi_orig_up_z - orig%p%P*new_orig_up_z)**2
+	dpimm= max(term1-term2-term3-term4, 0.0)
+	dpimm=sqrt(dpimm)
+	dpithresh = 134.98+939.0
+	if (dpimm.le.dpithresh) then
+	   success = .false.
+	endif
+	term1=dpiefer+dpi_orig_p_E-orig%p%E
+	if (term1.lt.0.0) then
+	   success = .false.
+	endif
+
+C Finish throwing something together for pionct
 	
 100	if (debug(2)) write(6,*)'gen: final success =',success
 	if (debug(2)) write(6,*)'gen: ending'
@@ -450,6 +559,11 @@ C DJG spectrometer
 	real*8 grnd,rn		!random # generator.
 	real*8 v1(4), Mgamma, costh, phi,mchk
 	integer i
+
+	!added for pionct 3/23/06 for Pauli blocking
+c*	real*8 ben_EF, ben_kF
+	real*8 ben_kn, ben_knx, ben_kny, ben_knz, ben_kratio, ben_Tn
+
 
 	logical success
 	type(event_main):: main
@@ -567,6 +681,16 @@ c PB: from resmod507 in first call to semi_physics.f
 	  vertex%Em = targ%Mtar_struck + targ%Mrec - targ%M	!=2.2249 MeV
 	  vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em	!=targ.Mrec
 
+c       method 2, Em=0, added for pionct 6/16/06
+	  vertex%Em=0.
+	  vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em !=targ.Mrec
+c$$$c       method 3, proton on shell, added for pionct 6/16/06
+c$$$	  vertex.Em=0. 
+c$$$	  efer = sqrt(pfer**2 + (targ.Mtar_struck)**2)
+c$$$	  vertex.Mrec = sqrt((targ.M-efer)**2 - pfer**2) != Mn(Mp) for pi+(-)
+
+
+	  
 	  a = -1.*vertex%q*(vertex%uq%x*vertex%up%x+vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
 	  b = vertex%q**2
 	  c = vertex%nu + targ%M
@@ -633,6 +757,14 @@ C switch to relativistic BW for Delta
 
 	  vertex%Pm = pfer	!vertex%Em generated at beginning.
 	  vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
+
+c       method 2, added for pionct 6/16/06	      
+	  vertex%Pm = pfer	!vertex.Em generated at beginning.
+	  vertex%Mrec = targ%M - targ%Mtar_struck + vertex%Em
+c$$$c       method 3, proton on shell, added for pionct 6/16/06
+c$$$	  vertex.Pm = pfer
+c$$$	  vertex.Mrec = sqrt((targ.M-efer)**2 - pfer**2)
+	  
 	  a = -1.*vertex%q*(vertex%uq%x*vertex%up%x+vertex%uq%y*vertex%up%y+vertex%uq%z*vertex%up%z)
 	  b = vertex%q**2
 	  c = vertex%nu + targ%M
@@ -644,7 +776,7 @@ C switch to relativistic BW for Delta
 ! acceptance.  If the low momentum solution IS within the acceptance, we
 ! have big problems.
 	  if (doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon.or.
-     >        doing_deutdelta.or.doing_hedelta.or.doing_herho) then
+     >        doing_deutdelta.or.doing_hedelta) then
 	    a = a - abs(pfer)*(pferx*vertex%up%x+pfery*vertex%up%y+pferz*vertex%up%z)
 	    b = b + pfer**2 + 2*vertex%q*abs(pfer)*
      >  	 (pferx*vertex%uq%x+pfery*vertex%uq%y+pferz*vertex%uq%z)
@@ -697,6 +829,35 @@ C switch to relativistic BW for Delta
 	  vertex%p%P = sqrt(vertex%p%E**2 - Mh2)
 	  vertex%p%delta = (vertex%p%P - spec%p%P)*100./spec%p%P
 !	write(6,*) 'p,e=',vertex%p%P,vertex%p%E
+
+c       ADDED FOR PIONCT 03/23/06 to simulate the effects of Pauli blocking
+c       Some events in A(e,e'pi+) are blocked because the scattered neutron
+c       is below the Fermi momentum (not pfer, but the actual Fermi momentum,
+c       which is just a number, 1.33 +- 0.05 fm^-1 = 262 +- 10 MeV for nuclear matter)
+c       Note: pferx is the x component of the pfer UNIT VECTOR!!
+c$$$	  if (doing_hepi) then	! A.ge.3
+	     ben_knx= abs(pfer)*pferx - vertex%p%P*vertex%up%x - vertex%e%P*vertex%ue%x
+	     ben_kny= abs(pfer)*pfery - vertex%p%P*vertex%up%y - vertex%e%P*vertex%ue%y
+	     ben_knz=vertex%Ein+abs(pfer)*pferz-vertex%p%P*vertex%up%z-vertex%e%P*vertex%ue%z
+
+c       vertex.Ein is the beam momentum along the positive z axis
+c       magnitude of the neutron 3 momentum (MeV)
+	     ben_kn=sqrt(ben_knx*ben_knx+ben_kny*ben_kny+ben_knz*ben_knz)
+	     ben_Tn= sqrt(ben_kn*ben_kn+939.565*939.565) - 939.565
+c$$$	     ben_EF=37.0	! the Fermi energy (MeV) -> k_F=263.68 MeV
+c$$$	     if ( abs(targ.Z-6.0) .lt. 0.1) then
+c$$$		ben_EF=36.2  ! k_F = 263.31530
+c$$$	     elseif ( abs(targ.Z-13.0) .lt. 0.1) then
+c$$$		ben_EF=39.2
+c$$$	     elseif ( abs(targ.Z-29.0) .lt. 0.1) then
+c$$$		ben_EF=38.6
+c$$$	     elseif ( abs(targ.Z-79.0) .lt. 0.1) then
+c$$$		ben_EF=37.9
+c$$$	     endif
+c$$$	     ben_kF = sqrt(ben_EF*2.0*939.565)
+	     ben_kratio = ben_kn
+c$$$	  endif
+c end of additions for PIONCT 	03/23/06
 
 	elseif (doing_rho) then
 	   call generate_rho(vertex,success)  !generate rho in 4pi in CM
@@ -946,8 +1107,8 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	  vertex%Trec = sqrt(vertex%Mrec**2 + vertex%Pm**2) - vertex%Mrec
 	else if (doing_hydpi .or. doing_hydkaon .or. doing_hyddelta .or. doing_hydrho) then
 	  vertex%Trec = 0.0
-	else if (doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon.or.doing_deutdelta
-     >	    .or.doing_hedelta.or.doing_deutrho.or.doing_herho) then
+	else if (doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon
+     >       .or.doing_deutdelta.or.doing_hedelta.or.doing_deutrho.or.doing_herho) then
 	  vertex%Trec = sqrt(vertex%Mrec**2 + vertex%Pm**2) - vertex%Mrec
 	else if (doing_semi) then
 	   vertex%Pm = vertex%Pmiss
@@ -1067,6 +1228,10 @@ C DJG stinkin' Jacobian!
 	real*8 W2
 	real*8 oop_x,oop_y
 	real*8 mm,mmA,mm2,mmA2,t
+	real*8 ben_qdotpe, ben_per, ben_oop ! pionct 4/20/06
+        real*8 ben_perx,ben_pery,ben_perz ! pionct 4/20/06
+        real*8 ben_oopx,ben_oopy,ben_oopz ! pionct 4/20/06
+	real*8 th_recon_krel ! TH - Add for FSI weight
 
 	logical success
 	type(event)::	recon
@@ -1086,6 +1251,11 @@ C DJG stinkin' Jacobian!
 
 	recon%Ein = Ebeam_vertex_ave	!lowered by most probable eloss (init.f)
 
+! Added for pionct 7/6/06; Ebeam_vertex_ave has Coulomb corrections and 
+! the analyzer doesn't.  Therefore, subtract out Coulomb effects
+	recon%Ein = Ebeam_vertex_ave - targ%Coulomb%ave
+
+	
 ! ... unit vector components of outgoing e,p
 ! ... z is DOWNSTREAM, x is DOWN and y is LEFT looking downstream.
 
@@ -1363,7 +1533,6 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	subroutine complete_main(force_sigcc,main,vertex,vertex0,recon,success)
 
 	USE structureModule
-
 	implicit none
 	include 'simulate.inc'
 
@@ -1371,6 +1540,17 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	real*8		a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
 	real*8		survivalprob, semi_dilution
 	real*8		weight, width, sigep, deForest, tgtweight
+	real*8          ben_Q2, ben_nu    !Added for pionct 8/22/05
+	real*8   ben_vp,ben_vpx,ben_vpy,ben_vpz,ben_gamma !Pionct 5/5/06 needed for boost to stationary proton
+	real*8   ben_qvecx,ben_qvecy,ben_qvecz  !Pionct 5/5/06
+	real*8   ben_qnew0,ben_qnew1,ben_qnew2,ben_qnew3,ben_qnew  !boosted q 4 momentum, Pionct 5/5/06
+	real*8   ben_pivecx,ben_pivecy,ben_pivecz  !Pionct 5/5/06
+	real*8   ben_pinew0,ben_pinew1,ben_pinew2,ben_pinew3,ben_pinew  !boosted real pion, Pionct 5/5/06
+	real*8   ben_bnew0,ben_bnew1,ben_bnew2,ben_bnew3,ben_bnew  !boosted beam momentum, Pionct 5/5/06
+	real*8   ben_qhatx,ben_qhaty,ben_qhatz,ben_bhatx,ben_bhaty,ben_bhatz !Pionct 5/5/06
+	real*8   ben_qdotb,ben_xhat,ben_yhat,ben_thetapq,ben_phipq  !Pionct 5/5/06
+	real*8   ben_pinew_x,ben_pinew_y,ben_pinew_z !Pionct 5/5/06
+	real*8   ben_xhatx,ben_xhaty,ben_xhatz,ben_yhatx,ben_yhaty,ben_yhatz !Pionct 5/5/06
 	logical		force_sigcc, success
 	type(event_main):: main
 	type(event)::	vertex, vertex0, recon

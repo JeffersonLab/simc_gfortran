@@ -59,7 +59,7 @@
 	logical debug(6)
 	integer*4 nevent, ntried, ngen, deForest_flag, Nntu
 	integer*4 ncontribute, npasscuts, ncontribute_no_rad_proton, spect_mode, phsp_mode
-	character base*40
+	character base*50
 	character extra_dbase_file*60
 	character tgt_field_file*60
 	logical using_E_arm_montecarlo, using_P_arm_montecarlo
@@ -148,14 +148,14 @@ C	real*8 decdist(30)
 	logical doing_hydkaon, doing_deutkaon, doing_hekaon
 	logical doing_hyddelta, doing_deutdelta, doing_hedelta
 	logical doing_hydrho, doing_Deutrho, doing_herho
-	logical doing_hydsemi, doing_deutsemi
+	logical doing_hydsemi, doing_deutsemi, doing_hesemi
 
 	common /decd/ ctau,doing_decay,
      >    doing_hydpi,doing_deutpi,doing_hepi,
      >    doing_hydkaon,doing_deutkaon,doing_hekaon,
      >    doing_hyddelta,doing_deutdelta,doing_hedelta,
      >    doing_hydrho, doing_deutrho, doing_herho,
-     >    doing_hydsemi, doing_deutsemi
+     >    doing_hydsemi, doing_deutsemi, doing_hesemi
 
 C Trying to get rid of the decdist array of random variables.
 C Structure for variables that we want to available to the ntuple.

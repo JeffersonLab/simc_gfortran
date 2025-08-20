@@ -198,6 +198,7 @@ C DJG:
 	   endif
 	   doing_hydsemi = (nint(targ%A).eq.1)
 	   doing_deutsemi = (nint(targ%A).eq.2)
+	   doing_hesemi = (nint(targ%A).ge.3)
 	   if(doing_hydsemi.and.do_fermi) then
 	      write(6,*) 'WARNING: Cannot do Fermi motion for Hydrogen!'
 	      write(6,*) 'Do you mean to be running deuterium?'
@@ -209,7 +210,7 @@ C DJG:
 	   Mh = Mrho
 	   doing_hydrho = (nint(targ%A).eq.1)
 	   doing_deutrho = (nint(targ%A).eq.2)
-	   doing_herho = (nint(targ%A).ge.3)!HSV changed line for rho in piCT
+	   doing_herho = (nint(targ%A).eq.3)
 	   doing_eep=.false.
 
 	else		!doing_eep if nothing else set.
@@ -301,7 +302,7 @@ C DJG:
 	   targ%Mtar_struck = Mp
 	   targ%Mrec_struck = Mp    !must have at LEAST a recoiling proton
 	                            !Probably more...
-	   if(doing_deutsemi) then
+	   if(doing_deutsemi.or.doing_hesemi) then
 	      targ%Mtar_struck = (Mp+Mn)/2.0
 	      targ%Mrec_struck = (Mp+Mn)/2.0
 	   endif
@@ -561,7 +562,7 @@ C DJG:
 
 	if(doing_deutpi.or.doing_hepi.or.doing_deutkaon.or.doing_hekaon.or.doing_deutsemi) then
 	  if(doing_deutpi .or. doing_deutkaon .or. doing_deutsemi) open(1,file='deut.dat',status='old',form='formatted')
-	  if(doing_hepi .or. doing_hekaon .or. doing_herho) then
+	  if(doing_hepi .or. doing_hekaon) then
 	    if (nint(targ%A).eq.3) then
 	      open(1,file='he3.dat',status='old',form='formatted')
 	    else if (nint(targ%A).eq.4) then
@@ -590,7 +591,7 @@ C DJG:
 ! ... Em_max,Pm_max.
 !      Also load spectral function for deuterium of heavy so we have the choice later
 !      to use it for (e,e'p)
-	if(doing_hepi.or.doing_hekaon.or.doing_herho .or. (doing_heavy.and.use_benhar_sf)) then
+	if(doing_hepi.or.doing_hekaon .or. (doing_heavy.and.use_benhar_sf)) then
 	  if (nint(targ%A).eq.3) then
 	    write(6,*) 'Using the mod version of 3He S.F. rather than Paris.'
 	    tmpfile='benharsf_3mod.dat'
@@ -732,6 +733,23 @@ C DJG:
 		       write(6,*) ' ****--------  D(e,e''pi-)X  --------****'
 		    endif
 		 endif
+	      elseif (doing_hesemi) then
+		 if(doing_pizero) then
+		    write(6,*) ' ****--------  A(e,e''pi0)X  --------****'
+		    if(pizero_ngamma.eq.1) then
+		       write(6,*) 'Requiring only one photon from decaying pi0'
+		    elseif(pizero_ngamma.eq.2) then
+		       write(6,*) 'Requiring both photons from decaying pi0'
+		    else
+		       stop 'pizero_ngamma not set correctly(must be 1 or 2), stopping'
+		    endif
+		 else
+		    if(doing_hplus) then
+		       write(6,*) ' ****--------  A(e,e''pi+)X  --------****'
+		    else
+		       write(6,*) ' ****--------  A(e,e''pi-)X  --------****'
+		    endif
+		 endif
 	      endif
 	      
 	   else if (doing_semika) then
@@ -746,6 +764,12 @@ C DJG:
 		    write(6,*) ' ****--------  D(e,e''K+)X  --------****'
 		 else
 		    write(6,*) ' ****--------  D(e,e''K-)X  --------****'
+		 endif
+	      elseif(doing_hesemi) then
+		 if(doing_hplus) then
+		    write(6,*) ' ****--------  A(e,e''K+)X  --------****'
+		 else
+		    write(6,*) ' ****--------  A(e,e''K-)X  --------****'
 		 endif
 	      endif
 	   else  

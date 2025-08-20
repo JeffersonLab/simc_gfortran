@@ -689,6 +689,12 @@ c	include 'histograms.inc'
 		 else
 		    write(iun,*) ' ****--------  D(e,e''pi-)X  --------****'
 		 endif
+	      elseif (targ%A .ge. 3) then
+		 if(doing_hplus) then
+		    write(iun,*) ' ****--------  A(e,e''pi+)X  --------****'
+		 else
+		    write(iun,*) ' ****--------  A(e,e''pi-)X  --------****'
+		 endif
 	      else
 		 stop 'I don''t have ANY idea what A(e,e''pi)X we''re doing!!!'
 	      endif

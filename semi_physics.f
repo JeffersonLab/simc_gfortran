@@ -82,11 +82,15 @@ C Some local kinematic variables
 
 	real*8 sum_sq, dsigdz, sigsemi, jacobian, fac, sigma_eepiX
 	real*8 sighad, sige
+	real*8 targA,targZ,targN
+	real*8 uA,ubarA,dA,dbarA,sA,sbarA
 
 	real*8 q2qe,w2qe
 	integer wfn
 	real*8 F1,F2,FL,W1,W2,sin2th2,cos2th2,W2coeff
-	real*8 Ctq5Pdf	
+	real*8 F1n,F2n,F1p,F2p
+	real*8 Ctq5Pdf
+	real*8 slacemcfit,Rhad_global
 c	external Ctq5Pdf
 
 C Variables for kaon decay stuff
@@ -137,6 +141,10 @@ c this is for DSS
 	if(first) FINI=0
 c	b = pt_b_param   ! now parameter in input file
 
+	targA=targ%A
+	targZ=targ%Z
+	targN=targA-targZ
+	
 	Mpi_gev = Mpi/1000.0
 	if(doing_pizero) Mpi_gev = Mpi0/1000.0
 	Mp_gev = Mp/1000.0
@@ -311,12 +319,14 @@ C Get the PDFs
 	ipart=-3
 	sbar = Ctq5pdf (ipart , xbj, Qgev)
 
-	sum_sq = qu**2*(u+ubar) + qd**2*(d+dbar) + qs**2*(s+sbar)
-	   
-	if (doing_deutsemi) then
-	   sum_sq = sum_sq + qu**2*(d+dbar) + qd**2*(u+ubar) + qs**2*(s+sbar)
-	endif
+	uA = targZ*u + targN*d
+        ubarA = targZ*ubar + targN*dbar
+        dA = targZ*d + targN*u
+        dbarA = targZ*dbar + targN*ubar
+        sA = targZ*s + targN*s
+        sbarA = targZ*sbar + targN*sbar
 
+        sum_sq = qu**2*(uA+ubarA) + qd**2*(dA+dbarA) + qs**2*(sA+sbarA)
 
 C Simple paramaterization from Kretzer et al (EPJC 22 p. 269)
 C for Q2=2.5.
@@ -496,56 +506,50 @@ c new PB fit using zp for pions. This is z * D
 c	   write(6,*) 'cheesy poofs', zhad, u1, ub, d1, db, s1, sb
 	endif
 
-	dsigdz = (qu**2 * u    * u1 + 
-     >            qu**2 * ubar * ub +
-     >  	  qd**2 * d    * d1 + 
-     >            qd**2 * dbar * db + 
-     >  	  qs**2 * s    * s1 + 
-     >            qs**2 * sbar * sb)/sum_sq/zhad
-	dsigdzp = dsigdz
-	if(doing_deutsemi) then
-	   dsigdzn =(qu**2 * d    * u1 + 
-     >               qu**2 * dbar * ub +
-     >  	     qd**2 * u    * d1 + 
-     >               qd**2 * ubar * db + 
-     >  	     qs**2 * s    * s1 + 
-     >               qs**2 * sbar * sb)/sum_sq/zhad
-	   dsigdz = dsigdzp + dsigdzn
-	endif
+	dsigdz = (qu**2 * uA    * u1 + 
+     >            qu**2 * ubarA * ub +
+     >  	  qd**2 * dA    * d1 + 
+     >            qd**2 * dbarA * db + 
+     >  	  qs**2 * sA    * s1 + 
+     >            qs**2 * sbarA * sb)/sum_sq/zhad
+c	dsigdzp = dsigdz
+c	if(doing_deutsemi) then
+c	   dsigdzn =(qu**2 * d    * u1 + 
+c     >               qu**2 * dbar * ub +
+c     >  	     qd**2 * u    * d1 + 
+c     >               qd**2 * ubar * db + 
+c     >  	     qs**2 * s    * s1 + 
+c     >               qs**2 * sbar * sb)/sum_sq/zhad
+c	   dsigdz = dsigdzp + dsigdzn
+c	endif
 
 	b =  1./ (0.120 * zhad**2 + 0.200)
-	sighad = dsigdz*b*exp(-b*pt2gev)/2./pi
-c	write(6,*) 'bad kitty', sighad
-
-C DJG: OK - I THINK I've got it right now.
-C DJG: Should be dsig/dOmega dE
-
-c	sige = 2.*alpha**2*(y**2/2. + 1. - y  - mtar*xbj*y/2./Eb)*
-c	1    (Eprime/1000.)/(Q2gev*y*(mtar/1000.)*(nu/1000.))
-c	2    * sum_sq
-
-c	F2 = xbj*sum_sq
-c	F1 = F2/2./xbj
-c
+	sighad = Rhad_global(targA,zhad)*dsigdz*b*exp(-b*pt2gev)/2./pi
 
 	wsq = Mp_gev**2 + q2gev * (1./xbj -1.)
-	z8=1.
-	a8=1.
-	if(doing_deutsemi) a8=2.
-c        call F1F2IN09(z8, a8, Q2gev, Wsq, F1, F2) 
+	z8=1.0
+	a8=1.0
 c Updated to F1F2IN21 (Eric Christy's 2021 fit)
 	call F1F2IN21(z8, a8, Q2gev, Wsq, F1, F2)
+	F1p=F1
+        F2p=F2
 
+	z8=0.0
+	a8=1.0
+	call F1F2IN21(z8, a8, Q2gev, Wsq, F1, F2)
+	F1n=F1
+        F2n=F2
+	
+        F1=(targZ*F1p+targN*F1n)*slacemcfit(targA,xbj)
+        F2=(targZ*F2p+targN*F2n)*slacemcfit(targA,xbj)
+	
+	
 	W1 = F1/(mtar/1000.)
 	W2 = F2/(nu/1000.)
 
 	sin2th2 = Q2/4./Eb/Eprime
 	cos2th2 = 1.-sin2th2
-c	if(do_fermi) then
-c	   W2coeff = (efer-abs(pfer)*pferz)*(efer-abs(pfer)*(pferx*Epx+pfery*Epy+pferz*Epz)/Eprime)/mtar**2 - sin2th2
-c	else
-	   W2coeff = cos2th2
-c	endif
+	W2coeff = cos2th2
 
 	sige = 4.*alpha**2*(Eprime/1000)**2/Q2gev**2 * ( W2*W2coeff + 2.*W1*sin2th2)
 
@@ -626,4 +630,53 @@ C momentum.  Get particle momentum from main.SP.p.delta
 
 	return
 
+	end
+
+*******************************************************************
+	real*8 function slacemcfit(A,x)
+
+	real*8 alpha,C,emc,A,x,Atmp
+
+	slacemcfit=1.0
+	Atmp=1.0
+	if(A.gt.2.0) then
+           Atmp=A
+           alpha = -0.070+2.189*x - 24.667*x**2 + 145.291*x**3
+     >        -497.237*x**4 + 1013.129*x**5 - 1208.393*x**6
+     >        +775.767*x**7 - 205.872*x**8
+c
+           C = exp( 0.017 + 0.018*log(x) + 0.005*log(x)**2)	
+           slacemcfit = C*Atmp**alpha
+        endif
+	return 
+	end
+*******************************************************************
+       real*8 function Rhad_global(A,z)
+       implicit none
+       real*8 A,z
+       real*8 Nzero,alphah,betah
+
+       real*8 Ahyd,Atmp
+
+	Ahyd=1.0
+      
+
+	if(A.eq.Ahyd) then
+	   Rhad_global=1.0
+	   return
+	endif
+
+	Nzero = 0.98883-0.0038309*A+0.10841E-4*A**2
+	alphah=0.31953E-01-0.18659E-02*A+0.51747E-05*A**2
+	if(A.lt.83.8) then
+	   Atmp=A
+	else
+	   Atmp=83.8
+	endif
+      
+	betah=0.85475E-02+0.12763E-02*Atmp-0.24451E-05*Atmp**2
+
+	Rhad_global=Nzero*z**alphah*(1-z)**betah
+
+	return
 	end

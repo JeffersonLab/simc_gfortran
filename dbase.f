@@ -302,10 +302,10 @@ C DJG:
 	   targ%Mtar_struck = Mp
 	   targ%Mrec_struck = Mp    !must have at LEAST a recoiling proton
 	                            !Probably more...
-	   if(doing_deutsemi.or.doing_hesemi) then
-	      targ%Mtar_struck = (Mp+Mn)/2.0
-	      targ%Mrec_struck = (Mp+Mn)/2.0
-	   endif
+c	   if(doing_deutsemi.or.doing_hesemi) then
+c	      targ%Mtar_struck = (Mp+Mn)/2.0
+c	      targ%Mrec_struck = (Mp+Mn)/2.0
+c	   endif
 	   if(doing_hplus) then
 	      sign_hadron=1.0
 	   else
@@ -950,8 +950,10 @@ c	      stop
 	if (.not.using_P_arm_montecarlo) write(6,*) 'NOTE: Will NOT be running events through the P arm Monte Carlo'
 	if (.not.using_Eloss) write(6,*) 'NOTE: Will NOT be calculating energy loss in the target'
 	if (.not.using_Coulomb) write(6,*) 'NOTE: Will NOT be calculating Coulomb correction (default for Hydrogen target)'
-	if (using_Coulomb) write(6,*) 'NOTE: WILL be calculating Coulomb corrections. 
-     >             Implmemented for beam and scattered electron only!'
+	if (using_Coulomb) then
+	   write(6,*) 'NOTE: WILL be calculating Coulomb corrections.'  
+	   write(6,*) 'Implmemented for beam and scattered electron only !'
+	endif
 	if (.not.correct_Eloss) write(6,*) 'NOTE: Will NOT correct reconstructed data for energy loss'
 	if (.not.correct_raster) write(6,*) 'NOTE: Will NOT use raster terms in reconstruction'
 	if (using_HMScoll) write(6,*) 'NOTE: including pion scattering in HMS collimator'

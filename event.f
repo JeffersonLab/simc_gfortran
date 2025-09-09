@@ -1520,7 +1520,7 @@ C empirical check's.
 	elseif (doing_semi) then
 	  main%sigcc = peepiX(vertex,vertex0,main,survivalprob,.FALSE.)
 	  main%sigcc_recon = 1.0
-	  main%sigcent = peepiX(vertex,vertex0,main,survivalprob,.TRUE.)
+c	  main%sigcent = peepiX(vertex,vertex0,main,survivalprob,.TRUE.)
 c	  ntup%dilu = semi_dilution(vertex,main) 
 	  ntup%dilu = 1.0
 

@@ -1286,9 +1286,19 @@ c	enddo
 	central%sigcc = main0%sigcc
 
 	if(doing_semi) then
-	   write(6,*) 'central event'
+	   write(6,*) 'SIDIS: central event kinematics'
 	   write(6,*) 'Pt',sqrt(vertex0%pt2)/1.e3
 	   write(6,*) 'z', vertex0%zhad
+	   write(6,*) 'thpq', vertex0%theta_pq*180.0/3.1415926536
+	   write(6,*) 'Q2', vertex0%Q2
+	   write(6,*) 'xbj', vertex0%xbj
+	   write(6,*) 'Ein', vertex0%Ein
+	   write(6,*) 'A', targ%A
+	   write(6,*) 'Eprime',vertex0%e%E
+	   write(6,*) 'Ppi',vertex0%p%P
+	   write(6,*) 'The',vertex0%e%theta
+
+	   write(6,*) 'multiplicity',ntup%sigcm
 	   write(6,*) 'lab cross section (nb/Gev2/sr2)',central%sigcc*1000.0*1000.0*1000.0
 	endif
 	if (debug(2)) write(6,*)'calc_cent: ending...'

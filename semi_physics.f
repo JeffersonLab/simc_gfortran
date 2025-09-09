@@ -188,7 +188,6 @@ C DJG: I can just ignore it.
 		 if(vertex%pt2.gt.klo .and. vertex%pt2.le.khi) then
 		    pt2 = klo + (khi-klo)/2.
 		 endif
-c		 write(6,*) 'chessy poofs',pt2,klo,khi
 	      enddo
 	   endif
 
@@ -197,6 +196,7 @@ c		 write(6,*) 'chessy poofs',pt2,klo,khi
 	      write(6,*) 'Ebeam (GeV):',Eb/1000
 	      write(6,*) 'nu (GeV)   :',nu/1000
 	      write(6,*) 'Q2 (GeV2)  :',Q2/1e6
+	      write(6,*) 'theta_pq   :',main%theta_pq
 	      if(sigc_flag.eq.0) then
 		 write(6,*) 'Pt2 (GeV2) :',pt2/1e6
 		 write(6,*) 'Binning in z from',sigc_kin_min,
@@ -286,8 +286,8 @@ C this shouldn't be necessary, but include it anyway
 
 c needed by f1f2in21
 	if(firstqe) then
-	 write(6,*) 'Initializing F1F2IN21:'  
-	 write(6,*) 'F1F2IN21: calling sqesub'
+c	 write(6,*) 'Initializing F1F2IN21:'  
+c	 write(6,*) 'F1F2IN21: calling sqesub'
 	 q2qe=1.
 	 w2qe=1.
 	 wfn=2
@@ -503,7 +503,6 @@ c new PB fit using zp for pions. This is z * D
 	   endif
 	   call fDSS (IHdss,ICdss,IOdss, Zhad, Q2gev, 
      >       U1, UB, D1, DB, S1, SB, C1, B1, GL1)
-c	   write(6,*) 'cheesy poofs', zhad, u1, ub, d1, db, s1, sb
 	endif
 
 	dsigdz = (qu**2 * uA    * u1 + 
@@ -564,7 +563,6 @@ C This is just given by 1/omega * 2*p_h**2*cos(theta)
 
 C The 1.e6 converts from microbarn/GeV^2 to microbarn/MeV^2
 	sigma_eepiX = sigsemi*jacobian/1.e6
-
 
 * Note that there is an additional factor 'fac' included with the fermi-smeared cross
 * section.   This takes into account pieces in the flux factor that are neglected (=1) in

@@ -1,6 +1,8 @@
 Objective:
 There's slight difference how simc and hcana computes physics variables. To ensure faithful comparison between Data and Simc, recon_hcana computes simc generated variables in hcana style. 
 
+Acknowledgement: This is based on prior work of Carlos Yero and Richard Trotta.
+
 Procedure:
 recon_hcana program grabs simc generated <filename_stem>.root file, copies branches/variables that don't require any reconstruction, reconstruct branches/variables the way how hcana computes, put all branches to tree, and outputs a new .root file with name under worksim/ as "recon_hcana_<filename_stem>.root".
 You can either 

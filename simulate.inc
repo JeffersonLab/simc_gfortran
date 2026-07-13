@@ -59,8 +59,8 @@
 	logical debug(6)
 	integer*4 nevent, ntried, ngen, deForest_flag, Nntu
 	integer*4 ncontribute, npasscuts, ncontribute_no_rad_proton, spect_mode, phsp_mode
-	character base*50
-	character extra_dbase_file*60
+	character base*256
+	character extra_dbase_file*256
 	character tgt_field_file*60
 	logical using_E_arm_montecarlo, using_P_arm_montecarlo
 	logical doing_phsp, using_rad, hard_cuts
@@ -78,7 +78,7 @@
 	real*8 transparency
 	logical use_benhar_sf
 	character*80 random_state_file
-	character*132 start_random_state_file
+	character*256 start_random_state_file
 	integer*4 random_seed
 c variables that need to be translated from integer to logical
   	integer*4 mc_smear_int, use_benhar_sf_int,doing_kaon_int, doing_pion_int,doing_delta_int,doing_phsp_int

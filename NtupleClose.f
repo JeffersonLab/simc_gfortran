@@ -4,7 +4,7 @@
 
 	include 'hbook.inc'
 
-	character*80 filename
+	character*256 filename
 	integer*4 cycle
 
 c	cycle= 0				!dummy for HROUT

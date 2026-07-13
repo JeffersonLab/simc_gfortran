@@ -7,7 +7,7 @@
 	include  'hbook.inc'
 	include  'simulate.inc'
 
-	character*80 filename,directory
+	character*256 filename,directory
 	character*16 NtupleTag(80),name,title
 	integer*4 m,io,recl,bank,id,status,i
 c	parameter(recl = 1024)

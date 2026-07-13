@@ -4,6 +4,9 @@
 # Objects and executable
 *.o
 *.d
+*.so
+*.pcm
+*.root
 simc
 CTP/O.Linux
 
@@ -12,3 +15,8 @@ CTP/daVarRpc.h
 CTP/daVarRpc_clnt.c
 CTP/daVarRpc_svc.c
 CTP/daVarRpc_xdr.c
+
+# SIMC Output Directories (including symlinks)
+outfiles
+worksim
+runout

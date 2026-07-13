@@ -56,8 +56,8 @@ c	include 'histograms.inc'
 	integer*4 i, j, k, ii
 	integer*4 ierr, thload, thbook
 	logical success
-	character filename*80,tmpfile*80
-	character dbase_file*60 !needs to be shorter than filename
+	character filename*256,tmpfile*256
+	character dbase_file*236 !needs to be shorter than filename
 
 	type (histograms):: H
 

@@ -2,7 +2,7 @@
 C     Program to convert simc .bin file to root tree
       implicit none
 
-      character*80 rawname,filename,treefilename
+      character*256 rawname,filename,treefilename
       character*16 NtupleTag(80),varname
       
 
@@ -20,14 +20,15 @@ C     Program to convert simc .bin file to root tree
 
 c input filename
       write(6,*) 'Enter filename to convert (without .bin extesntion)'
-      read(5,*) rawname
-      i=index(rawname,' ')
-      filename='../../worksim/'//rawname(1:i-1)//'.bin'
+      read(5,'(a)') rawname
+      rawname=adjustl(rawname)
+      i=len_trim(rawname)
+      filename='../../worksim/'//rawname(1:i)//'.bin'
       write(6,*) 'opening file: ',filename
       open(io,file=filename,form="unformatted",access="sequential")
 
 c output filename
-      treefilename='../../worksim/'//rawname(1:i-1)//'.root'
+      treefilename='../../worksim/'//rawname(1:i)//'.root'
       
       read(io) NtupleSize
       call InitRootNT(treefilename,'RECREATE');

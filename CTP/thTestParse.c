@@ -122,6 +122,7 @@ in the test package.)*/
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #define INT_MAX 2147483647
 /* limits.h is used only to get #define INT_MAX 2147483647

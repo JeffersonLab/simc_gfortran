@@ -58,12 +58,14 @@
 #include "daVar.h"
 #include "th.h"
 #include "thInternal.h"
+#include "thTestParse.h"
 #include "cfortran.h"
 
 char *reportclasslist[]={TESTSTR,PARMSTR,EVENTSTR,0};
 
 extern thStatus thReportFd(char *varname, FILE *output);
 thStatus thReportFromVar(daVarStruct *bvar,FILE *output);
+int thReportSpecial(FILE *output, char *eptr);
 
 #ifdef AbsoftUNIXFortran
 int threp
@@ -340,7 +342,8 @@ thStatus thReportFromVar(daVarStruct *bvar,FILE *output)
   }
   return(S_SUCCESS);
 }
-thReportSpecial(FILE *output, char *eptr)
+
+int thReportSpecial(FILE *output, char *eptr)
 {
   char *vptr;			/* Pointer to pattern to match */
   char **vlist;

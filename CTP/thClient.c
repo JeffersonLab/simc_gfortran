@@ -54,6 +54,7 @@
 #include <rpc/rpc.h>
 #include "daVar.h"
 #include "daVarRpc.h"
+#include "daVarHandlers.h"
 #include "cfortran.h"
 
 int thCreateList();        /* Move to some  include file */
@@ -84,7 +85,11 @@ FCALLSCFUN1(INT,thPrintList,THPRTLIST,thprtlist,INT);
 /* Don't really understand the following.  What about ultrix?
    This is probably because of the _ in clnt_create */
 #ifndef __osf__
-FCALLSCFUN4(INT,clnt_create,CLNT_CREATE,clnt_create,STRING,INT,INT,STRING);
+/* FIXME: 7/15/2026 (sic) JOH - This dies with
+   error: incompatible pointer to integer conversion assigning to
+      'int' from 'CLIENT *' (aka 'struct CLIENT *') [-Wint-conversion]
+*/
+/* FCALLSCFUN4(INT,clnt_create,CLNT_CREATE,clnt_create,STRING,INT,INT,STRING); */
 #else
 #ifdef BIT64
 FCALLSCFUN4(INT,myClntCreate,CLNT_CREATE,clnt_create,STRING,INT,INT,STRING);

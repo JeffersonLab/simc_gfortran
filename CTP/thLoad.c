@@ -102,6 +102,7 @@ routine.
 */
 
 #include <stdio.h>
+#include <ctype.h>
 #include "daVar.h"
 #include "th.h"
 #include "thInternal.h"
@@ -129,6 +130,8 @@ thStatus (*hooks[])()={thLoadParameters, /*thBookGethits,*/ thBookTests,
 		       /*thBookHists, thBookHists,*/
                        thBookTree,
                        thBookReports, 0};
+int getblock(FILE **TEST_FILE, char **varname, char **vartitle, int *qualid,
+	     char ***grouplist);
 
 char *qualifiers[]={"obey", "read", "write", 0};
 int qualflags[]={DAVAR_OBEYMF, DAVAR_READONLY, DAVAR_READWRITE, DAVAR_OBEYMF};

@@ -110,6 +110,13 @@ int daVarRegister(int flag, daVarStruct *args);
 int daVarLookup(char *name, daVarStruct *result);
 int daVarList(char *pattern, char ***listp, int *count);
 
+/* Miscellaneous functions shared across the package */
+int daVarLookupP(char *name, daVarStruct **varstructptr);
+int daVarLookupPWithClass(char *name, char **prefixlist, daVarStruct **varp);
+int daVarFreeList(char **list);
+int daVarComp(daVarStruct *item1, daVarStruct *item2);
+int daVarServOnce(int wait);
+
 typedef int DAINT;
 typedef float DAFLOAT;
 typedef double DADOUBLE;

@@ -26,6 +26,7 @@
 #ifndef _TH_UTILS_H
 #include "thUtils.h"
 #endif
+#include "th.h"    /* for thStatus */
 
 /* thTestParse.h
  Header file for thTestParse.c and thTestExecute.c
@@ -167,5 +168,6 @@ thStatus thExecuteCode(char *blockname, CODEPTR code, CODEPTR codelimit);
 thOperandType thGetOperandType(char *soperand, char *rest, CODE lastop,
 			       int expflag);
 char **thGetClassList(thOperandType optype);
+thStatus thEvalImed(char *line, DADOUBLE *d, DAINT *i);
 
 #endif

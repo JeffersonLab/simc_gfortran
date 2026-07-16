@@ -54,6 +54,7 @@
  */
 #include <stdio.h>
 #include "daVar.h"
+#include "daVarHandlers.h"
 #include "th.h"
 #include "thInternal.h"
 #include "thUtils.h"

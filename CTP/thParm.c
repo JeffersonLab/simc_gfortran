@@ -85,10 +85,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 #include "daVar.h"
 #include "th.h"
 #include "thInternal.h"
 #include "thUtils.h"
+#include "thTestParse.h"
 #include "cfortran.h"
 
 #define MAXLINELENGTH 512

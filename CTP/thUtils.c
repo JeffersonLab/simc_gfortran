@@ -66,10 +66,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "daVar.h"
 #include "th.h"
 #include "thInternal.h"
 #include "thUtils.h"
+#include "thTestParse.h"
+
+int thVarCreate(char *s, int vartype, char **classlist, daVarStruct **varpp);
 
 daVarStatus thGetIndex(char *name, int *index, char **pptr)
 /* If the name has an array index, evaluate the index and return it to
@@ -344,7 +348,8 @@ int thSpecial(char *line, char *default_class)
   free(arg);
   return(1);
 }
-thVarCreate(char *s, int vartype, char **classlist, daVarStruct **varpp)
+
+int thVarCreate(char *s, int vartype, char **classlist, daVarStruct **varpp)
 /* Should eventually merge this with thVarResolve */
 {
   int cstyle;
@@ -751,10 +756,6 @@ int argtoInt(daVarStruct *x)
 
 #ifdef ZAP
 typedef void	*pointer;
-/* Not clear why we need to do this at all */
-#ifndef linux
-extern pointer	memset( pointer, int, size_t );
-#endif
 #endif
 
 #if defined(ultrix)

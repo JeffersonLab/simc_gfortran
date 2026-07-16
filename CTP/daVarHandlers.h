@@ -49,12 +49,21 @@
  *
  */
 
+#ifndef _DAVARHANDLERS_H
+#define _DAVARHANDLERS_H
+
+#include "daVarRpc.h"
+
 void daVarReadVar(char *name, any *retval);
 daVarStatus daVarWriteVar(char *name, any *retval);
 daVarStatus daVarRegRatr(daVarStruct *varp, char *attribute
 			 ,int index, any *retval);
 daVarStatus daVarRegWatr(daVarStruct *varp, char *attribute
 			 ,int index, any *setval);
+daVarStatus daVarAttributeFind(char *name, daVarStruct *varclass,
+			       daVarStruct **varp, char **attribute,
+			       int *index);
+daVarStatus daVarClassFind(char *name, daVarStruct **varp);
 
 #define DAVAR_VALUE "value"
 #define DAVAR_TITLE "title"
@@ -75,3 +84,5 @@ struct daVarCallBackList {
   time_t start_time;
 };
 typedef struct daVarCallBackList daVarCallBackList;
+
+#endif

@@ -39,6 +39,7 @@
  */
 
 %#include <time.h>
+%#include <string.h>
 %#define _xdr_result xdr_result
 %#define _xdr_argument xdr_argument
 

@@ -62,26 +62,25 @@ the new string written.  The new string may be any size.
 
 */
 
+#include <stdlib.h>
 #include <string.h>
 #include <rpc/rpc.h>
 
 #include "daVar.h"
 #include "daVarRpc.h"
 #include "daVarHandlers.h"
+#include "thUtils.h"
 
 char *daVarRAtrList[]={"value","title","size","flag","type","watr","ratr",0};
 char *daVarWAtrList[]={"value","title",0};
 
 
-daVarStatus daVarClassFind(char *name, daVarStruct **varp);
-daVarStatus daVarAttributeFind(char *name, daVarStruct *varclass,
-			       daVarStruct **varp, char **attribute,
-			       int *index);
 void daVarRhandler(char *name, daVarStruct *varclass, any *retval);
 daVarStatus daVarWhandler(char *name,daVarStruct *varclass,any *setval);
 char *daVarMakeRAtrList();
 char *daVarMakeWAtrList();
 void daVarCopyAlist(char *nllist,char **list);
+int daVarGetAListSize(char **list);
 
 static char *kill_trailing(char *s, char t)
 {

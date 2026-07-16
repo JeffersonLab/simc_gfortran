@@ -84,6 +84,8 @@
  *
  *
  */
+#include <ctype.h>
+#include <fnmatch.h>
 #include "cfortran.h"
 #include "daVar.h"
 
@@ -133,9 +135,6 @@ char **daVarListGlob;
 char *daVarListPattern;
 int (*daVarListCompFunction)();
 int daVarListPattern_length;
-
-/* Local prototypes */
-int daVarComp(daVarStruct *item1, daVarStruct *item2);
 
 /* Code */
 int daVarRegister(int flag, daVarStruct *args)
@@ -264,6 +263,7 @@ int daVarLookup(char *name, daVarStruct *result)
   } else
     return(S_DAVAR_UNKNOWN);
 }
+
 int daVarStrcmp(register char *s1, register char *s2)
 {
   while(toupper(*s1) == toupper(*s2++))
@@ -305,7 +305,7 @@ int daVarLookupP(char *name, daVarStruct **varstructptr)
     return(S_DAVAR_UNKNOWN);
 }
 
-daVarLookupPWithClass(char *name, char **prefixlist, daVarStruct **varp)
+int daVarLookupPWithClass(char *name, char **prefixlist, daVarStruct **varp)
 { 
   int namlen,namtrylen;
   char *namtry;

@@ -13,12 +13,12 @@ ifeq ($(MAKELEVEL),2)
         override CFLAGS += -Df2cFortran -b i486-linux -pg # -Df2cFortran for cfortran.h
       else
       #  CFLAGS = -g -Df2cFortran -b i486-linux -O # -Df2cFortran for cfortran.h
-        override CFLAGS += -Df2cFortran # -Df2cFortran for cfortran.h
+        override CFLAGS += -Df2cFortran -DgFortran # -Df2cFortran for cfortran.h
       endif
     endif
     override CXXFLAGS += -fno-exceptions -fPIC
   endif
-  
+
 endif
 ifeq ($(MYOS),Linux)
 # -k generates K&R C
@@ -151,6 +151,8 @@ daVarRpc.d: ../daVarRpc.h
 ../daVarRpc_clnt.c: ../daVarRpc.x ../daVar.h daVarRpc_clnt.d
 	$(RM) $@
 	(cd .. ; $(RPCCOM) -o $(@F) -l daVarRpc.x)
+# Kludge for buggy rpcgen (needed at least on macOS)
+	(cd .. ; ./fixup_clnt_call.sh $(@F))
 
 ../daVarRpc.h: ../daVarRpc.x ../daVar.h
 	$(RM) $@

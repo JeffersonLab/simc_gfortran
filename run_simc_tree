@@ -1,4 +1,11 @@
-./simc << endofinput > runout/$1.out
+#!/usr/bin/csh
+set dir="worksim"
+if (! -d "$dir") then
+  echo 'worksim directory does not exist! Please create.'
+  echo 'Ideally, this should be a link to a large disk (work,scratch, etc.)'
+  exit
+endif	
+./simc <<endofinput > runout/$1.out
 $1
 endofinput
 cd util/root_tree

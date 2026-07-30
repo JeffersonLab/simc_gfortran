@@ -827,7 +827,7 @@ c	   endif
 	 else if (which_pion.eq.10 .or. which_pion.eq.11) then
 	    write(6,*) ' ****----  Coherent Production ----****'
 	 else if (which_pion.eq.2 .or. which_pion.eq.3) then
-	    if(doing_hydpi .and. which_pion.eq.3) then
+	    if(doing_hydpi .and. which_pion.eq.3 .and. doing_pizero) then
 	       stop 'Can''t do Delta+ production from neutron for pi0'
 	    endif
 	    write(6,*) ' ****---- Quasifree Production - Delta final state ----****'

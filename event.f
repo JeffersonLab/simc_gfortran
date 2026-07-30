@@ -504,7 +504,7 @@ c PB: from resmod507 in first call to semi_physics.f
 	vertex%ue%x = sin(vertex%e%theta)*cos(vertex%e%phi)
 	vertex%ue%y = sin(vertex%e%theta)*sin(vertex%e%phi)
 	vertex%ue%z = cos(vertex%e%theta)
-	if ((.not.doing_hyd_elast).and.(.not.doing_rho).and.(.not.doing_nuc_elast)) then
+	if ((.not.doing_hyd_elast).and.(.not.doing_rho)) then
 	  vertex%up%x = sin(vertex%p%theta)*cos(vertex%p%phi)
 	  vertex%up%y = sin(vertex%p%theta)*sin(vertex%p%phi)
 	  vertex%up%z = cos(vertex%p%theta)
@@ -514,7 +514,7 @@ c PB: from resmod507 in first call to semi_physics.f
 ! First finish off the e side
 ! Calculate scattered electron energy for hydrogen/deuterium (e,e'p)
 
-	if (doing_hyd_elast.or.doing_nuc_elast) then
+	if (doing_hyd_elast) then
 	  vertex%e%E = vertex%Ein*Mh/(Mh+vertex%Ein*(1.-vertex%ue%z))
 
 	  if (vertex%e%E.gt.vertex%Ein) return
@@ -543,7 +543,7 @@ c PB: from resmod507 in first call to semi_physics.f
 ! NOTE: Coherent pion/kaon production (bound final state) is treated as
 ! hydrogen, but with targ.Mtar_struck=targ.M, targ.Mtar_rec=bound final state.
 
-	if (doing_hyd_elast .or. doing_nuc_elast) then	!p = q
+	if (doing_hyd_elast) then	!p = q
 	  vertex%Em = 0.0
 	  vertex%Pm = 0.0
 	  vertex%Mrec = 0.0
@@ -934,7 +934,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 ! and A-1 system.  For now, just take Trec for the A-1 system, and ignore
 ! the recoiling struck nucleon (hyperon), so Trec=0 for hydrogen target.
 
-	if (doing_hyd_elast .or. doing_nuc_elast) then
+	if (doing_hyd_elast) then
 	  vertex%Trec = 0.0
 	else if (doing_deuterium) then
 	  vertex%Pm = vertex%Pmiss
@@ -987,15 +987,17 @@ c	   if ((vertex%Emiss**2-vertex%Pmiss**2).lt.(Mp+Mpi0)**2) then
 	   endif
 	endif
 
+
+	vertex%zhad = vertex%p%E/vertex%nu
+	vertex%pt2 = vertex%p%P**2*(1.0-cos(main%theta_pq)**2)
 	if(doing_semi) then
-	   vertex%zhad = vertex%p%E/vertex%nu
-	   vertex%pt2 = vertex%p%P**2*(1.0-cos(main%theta_pq)**2)
 	   if(vertex%zhad.gt.1.0) then
+	      write(6,*) 'WARNING! z=E/nu>1.0. This should never happen. Setting success to .false.'
 	      success=.false.
 	      return
 	   endif
 	endif
-
+	
 
 ! Determine PHYSICS scattering angles theta/phi for the two spectrometer
 ! vectors, and the Jacobian which we must include in our xsec computation
@@ -1333,15 +1335,16 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	  ntup%t = t
 	endif
 
-	if(doing_semi.or.doing_rho) then
+cDJG  Always calculate z and pt. 
+cDJG	if(doing_semi.or.doing_rho) then
 	   recon%zhad = recon%p%E/recon%nu
 	   recon%pt2 = recon%p%P**2*(1.0-cos(recon%theta_pq)**2)
-	endif
+cDJG	endif
 
 ! Calculate Trec, Em. Trec for (A-1) system (eep), or for struck nucleon (pi/K)
 ! Note that there are other ways to calculate 'Em' for the pion/kaon case.
 ! This Em for pi/kaon gives roughly E_m + E_rec + T_{A-1}  (I think)
-	if (doing_hyd_elast.or.doing_nuc_elast) then
+	if (doing_hyd_elast) then
 	  recon%Trec = 0.0
 	  recon%Em = recon%nu + targ%M - recon%p%E - recon%Trec
 	else if (doing_deuterium .or. doing_heavy) then
@@ -1354,7 +1357,6 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	if (debug(5)) write(6,*) 'recon%Pm,recon%Trec,recon%Em',recon%Pm,recon%Trec,recon%Em
 	if (debug(4)) write(6,*)'comp_rec_ev: at 10'
 
-	
 	success=.true.
 	return
 	end
@@ -1370,7 +1372,6 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 	integer		i, iPm1
 	real*8		a, b, r, frac, peepi, peeK, peedelta, peerho, peepiX
-	real*8          sig_nuc_elastic
 	real*8		survivalprob, semi_dilution
 	real*8		weight, width, sigep, deForest, tgtweight
 	logical		force_sigcc, success
@@ -1396,8 +1397,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 
 ! The spectral function weighting
 
-	if (doing_hyd_elast.or.doing_nuc_elast.or.doing_pion.or.doing_kaon.or.
-     >              doing_delta.or.doing_phsp.or.doing_rho.or.doing_semi) then !no SF.
+	if (doing_hyd_elast.or.doing_pion.or.doing_kaon.or.doing_delta.or.doing_phsp.or.doing_rho.or.doing_semi) then !no SF.
 	  main%SF_weight=1.0
 	else if (use_benhar_sf.and.doing_heavy) then ! Doing Spectral Functions
 	   call sf_lookup_diff(vertex%Em, vertex%Pm, weight)
@@ -1453,11 +1453,7 @@ CDJG Calculate the "Collins" (phi_pq+phi_targ) and "Sivers"(phi_pq-phi_targ) ang
 	elseif (doing_hyd_elast) then
 	  main%sigcc = sigep(vertex)
 	  main%sigcc_recon = sigep(recon)
-	  
-	elseif (doing_nuc_elast) then
-	   main%sigcc = sig_nuc_elastic(vertex)
-	   main%sigcc_recon = sig_nuc_elastic(recon)
-	   
+
 	elseif (doing_deuterium.or.doing_heavy) then
 	  main%sigcc = deForest(vertex)		
 	  main%sigcc_recon = deForest(recon)

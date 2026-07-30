@@ -28,6 +28,7 @@
 	real*8		domega_e, domega_p !populated e/hadron solid angles.
 	logical		success
 	logical		pass_cuts
+	logical         exst
 	character	filename*80, genfile*80, histfile*80, timestring1*30
 	character	timestring2*30,genifile*80
 	type(event)::		vertex, vertex0, orig, recon
@@ -69,6 +70,12 @@ c	call hlimit(PawSize)
 
 	i = index(base,' ')
 	if (Nntu.gt.0) then
+	  inquire(file='worksim/.',exist=exst)
+	  if(.not.exst) then
+	     write(6,*) 'worksim directory does not exist - please create'
+	     write(6,*) 'Ideally, this should be a link to a large disk (work,scratch, etc.)'
+	     stop
+	  endif
 	  filename = 'worksim/'//base(1:i-1)//'.bin'
 	  call NtupleInit(filename)
 	endif

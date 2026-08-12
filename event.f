@@ -1469,14 +1469,14 @@ C empirical check's.
 		if (doing_pizero) then
 		   main%sigcc = 0.55*main%sigcc ! g* p -> pi0 Delta+
 		else
-		   main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/(pi+ n) updated 17july2023
+		   main%sigcc = targ%Z*0.4*main%sigcc !(pi+ Delta0)/(pi+ n) updated 17july2023
 		endif
 	     elseif(doing_deutpi) then
 		if (doing_pizero) then
 		   main%sigcc = 0.55*main%sigcc ! g* p -> pi0 Delta+
 		else
-		   main%sigcc = 0.4*main%sigcc !(pi+ Delta0)/pi+ n)   updated 17july2023
-     >                      + 0.8*main%sigcc !(pi+ Delta-)/(pi+ n)
+		   main%sigcc = targ%Z*0.4*main%sigcc !(pi+ Delta0)/pi+ n)   updated 17july2023
+     >                      + targ%N*0.8*main%sigcc !(pi+ Delta-)/(pi+ n)
 		endif
 	     endif 
 	  elseif (which_pion.eq.3) then  !g* p->pi- Delta++, g* n-> pi- Delta+, or g* n -> pi0 Delta0
@@ -1484,21 +1484,21 @@ C empirical check's.
 		if(doing_pizero) then
 		   main%sigcc = 0 ! can't do gamma* n -> pi0 Delta0 for hydpi
 		else
-		   main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
+		   main%sigcc = targ%Z*0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
 		endif
 	     elseif(doing_deutpi) then
 		if(doing_pizero) then
 		   main%sigcc = 0.99*main%sigcc !g* n -> pi0 Delta0
 		else
-		   main%sigcc = 0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
-     >                     + 0.99*main%sigcc !(pi- Delta+)/(pi- p)
+		   main%sigcc = targ%Z*0.55*main%sigcc ! (pi- Delta++)/(pi- p)  updated 17july2023
+     >                     + targ%N*0.99*main%sigcc !(pi- Delta+)/(pi- p)
 		endif
 	     endif
 	  endif
 	  main%sigcc_recon = 1.0
 	  if (which_pion.eq.1 .or. which_pion.eq.11) then  !OK for coherent???
 	    tgtweight = targ%N
-	  else
+	  else if (which_pion.eq.0 .or. which_pion.eq.10) then
 	    tgtweight = targ%Z
 	  endif
 

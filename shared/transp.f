@@ -155,7 +155,7 @@ C Check for decay.
 		  pr = 235.5 
 	       else		! decay to two pions
 		  pr = sqrt(Mk**2 / 4. - Mpi**2)
-		  m_final = Mk
+		  m_final = Mpi
 	       endif
 	    endif
 	    if(pr.eq.0.) then

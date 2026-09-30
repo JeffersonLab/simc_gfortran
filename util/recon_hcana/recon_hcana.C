@@ -375,7 +375,7 @@ void recon_hcana::EventLoop() {
     W2 = fMp1.M2(); //calculates: invariant mass-squared = E^2 - P^2 for outgoing proton
     q_recon = fQ.P(); //P() calculates 3-mom mag of fQ.
     Q2_recon = -fQ.M2(); //Q^2 = negative of transferred 4-mom squared
-    W_recon  = (W2>0)? std::sqrt(W2):0.0; //invariant mass
+    W_recon = (W2 > 0.0) ? std::sqrt(W2) : 1.0e38; // HCANA kBig sentinel for unphysical W2
     epsilon_recon = 1.0 / ( 1.0 + 2.0*q_recon*q_recon/Q2_recon*TMath::Power( TMath::Tan(fScatAngle/2.0), 2.0 )); //photon polarization vectors magnitude. See Halzen and Martin eqn 8.57
 
     // detected/outgoing hadron 4-vector

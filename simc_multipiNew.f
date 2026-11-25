@@ -234,7 +234,7 @@ cdg	call time (timestring1(11:23))
      >	      recon%e%xptar .le. (SPedge%e%xptar%min+slop%MC%e%xptar%used) .or.
      >	      recon%e%xptar .ge. (SPedge%e%xptar%max-slop%MC%e%xptar%used) .or.
      >	      recon%p%delta .le. (SPedge%p%delta%min+slop%MC%p%delta%used) .or.
-     >	      recon%p%delta .ge. (SPedge%e%delta%max-slop%MC%p%delta%used) .or.
+     >	      recon%p%delta .ge. (SPedge%p%delta%max-slop%MC%p%delta%used) .or.
      >	      recon%p%yptar .le. (SPedge%p%yptar%min+slop%MC%p%yptar%used) .or.
      >	      recon%p%yptar .ge. (SPedge%p%yptar%max-slop%MC%p%yptar%used) .or.
      >	      recon%p%xptar .le. (SPedge%p%xptar%min+slop%MC%p%xptar%used) .or.
